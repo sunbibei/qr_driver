@@ -145,6 +145,7 @@ endif()
 include_directories(
   include
   ${catkin_INCLUDE_DIRS}
+  /usr/include/c++/5.2.0/
 #  /usr/include
 )
 
