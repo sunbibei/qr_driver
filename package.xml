@@ -2,7 +2,7 @@
 <package>
   <name>qr_driver</name>
   <version>0.2.1</version>
-  <description>The qr_driver package</description>
+  <description>The qr_driver package, metapackage</description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag --> 
   <!-- Example:  -->
