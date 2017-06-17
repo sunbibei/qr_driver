@@ -19,7 +19,7 @@ find_package(catkin REQUIRED COMPONENTS
 
 ## System dependencies are found with CMake's conventions
 find_package(Boost REQUIRED COMPONENTS system)
-find_package(TinyXML REQUIRED)
+# find_package(TinyXML REQUIRED)
 # find_package(GLOG REQUIRED)
 
 # message("-- ==> TinyXML Path: " ${TinyXML_DIR})
@@ -145,9 +145,11 @@ endif()
 include_directories(
   include
   ${catkin_INCLUDE_DIRS}
-  /usr/include/c++/5.2.0/
+  /home/silence/Workspace/Yocto/bbb/build/tmp/sysroots/beaglebone/usr/include/c++/5.2.0/
 #  /usr/include
 )
+
+# message("catkin: " ${catkin_INCLUDE_DIRS})
 
 #link_directories(
 #  /usr/lib
