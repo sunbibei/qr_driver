@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package>
   <name>qr_driver</name>
-  <version>0.2.3</version>
+  <version>0.2.5</version>
   <description>The qr_driver package, metapackage</description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag --> 
