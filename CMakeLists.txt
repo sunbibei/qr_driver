@@ -115,7 +115,8 @@ catkin_package(
   LIBRARIES
     hardware_lib
     propagate_lib
-  INCLUDE_DIRS include
+  INCLUDE_DIRS
+    include
 #  LIBRARIES dragon_driver
   DEPENDS
     Boost

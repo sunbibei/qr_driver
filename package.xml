@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package>
   <name>qr_driver</name>
-  <version>0.2.6</version>
+  <version>0.2.7</version>
   <description>The qr_driver package, metapackage</description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag --> 
@@ -68,6 +68,6 @@
   <!-- The export tag contains other, unspecified, tags -->
   <export>
     <!-- Other tools can request additional information be placed here -->
-
+    <cpp cflags="-I${prefix}/include"/>
   </export>
 </package>
