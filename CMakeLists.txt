@@ -112,15 +112,17 @@ find_package(Boost REQUIRED COMPONENTS system)
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
+  LIBRARIES
+    hardware_lib
+    propagate_lib
   INCLUDE_DIRS include
 #  LIBRARIES dragon_driver
-  CATKIN_DEPENDS
-    actionlib control_msgs controller_manager geometry_msgs
-    hardware_interface roscpp sensor_msgs std_msgs trajectory_msgs
-#  DEPENDS system_lib
   DEPENDS
     Boost
-#    glog
+    actionlib
+    controller_manager
+    hardware_interface
+    roscpp
 )
 
 # check c++11 / c++0x
@@ -145,7 +147,7 @@ endif()
 include_directories(
   include
   ${catkin_INCLUDE_DIRS}
-  /home/silence/Workspace/Yocto/bbb/build/tmp/sysroots/beaglebone/usr/include/c++/5.2.0/
+#  /home/silence/Workspace/Yocto/bbb/build/tmp/sysroots/beaglebone/usr/include/c++/5.2.0/
 #  /usr/include
 )
 
