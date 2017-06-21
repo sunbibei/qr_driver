@@ -1,0 +1,32 @@
+<package>
+  <name>qr_driver</name>
+  <version>0.2.9</version>
+  <description>The qr_driver package, metapackage.</description>
+
+  <maintainer email="sunbibei@sina.com">Bibei Sun</maintainer>
+
+
+  <license>BSD</license>
+
+  <url type="website">https://github.com/ros-controls/ros_control/wiki</url>
+  <url type="bugtracker">https://github.com/ros-controls/ros_control/issues</url>
+  <url type="repository">https://github.com/ros-controls/ros_control</url>
+
+  <author>Bibei Sun</author>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <build_depend>hardware_interface</build_depend>
+  <build_depend>tinyxml</build_depend>
+  <build_depend>cmake_modules</build_depend>
+  <build_depend>pluginlib</build_depend>
+  <build_depend>roscpp</build_depend>
+
+  <run_depend>tinyxml</run_depend>
+  <run_depend>pluginlib</run_depend>
+  <run_depend>roscpp</run_depend>
+
+  <export>
+    
+  </export>
+</package>
