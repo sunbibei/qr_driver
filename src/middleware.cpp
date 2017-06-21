@@ -8,12 +8,12 @@
 #include <thread>
 #include <tinyxml.h>
 
-#include "hardware/encoder.h"
-#include "hardware/motor.h"
-#include "middleware.h"
-#include "propagate/propagate.h"
-#include "util/parser.h"
-#include "util/log.h"
+#include "middleware/hardware/encoder.h"
+#include "middleware/hardware/motor.h"
+#include "middleware/middleware.h"
+#include "middleware/propagate/propagate.h"
+#include "middleware/util/parser.h"
+#include "middleware/util/log.h"
 
 
 namespace middleware {

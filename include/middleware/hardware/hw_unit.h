@@ -14,8 +14,8 @@
 #include <boost/variant.hpp>
 #include <boost/shared_ptr.hpp>
 
-#include "../util/component.h"
-#include "../util/log.h"
+#include "middleware/util/component.h"
+#include "middleware/util/log.h"
 
 namespace middleware {
 // This is a parameter entry. Note that the arguments should match the enum.

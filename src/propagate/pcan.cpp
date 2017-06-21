@@ -5,28 +5,28 @@
  *      Author: silence
  */
 
-#include "com.h"
+#include "middleware/propagate/pcan.h"
 
 namespace middleware {
 
-ComChannel::ComChannel(const std::string& name)
+PcanChannel::PcanChannel(const std::string& name)
   :Propagate(name)
 { }
 
-ComChannel::~ComChannel() { }
+PcanChannel::~PcanChannel() { }
 
 // 完成PCAN的初始化
 // 以及act_state_map_, act_cmd_map_, enc_state_map_三个MAP的从cmd_map_和state_map_中初始化
-bool ComChannel::init() {
+bool PcanChannel::init() {
   return true;
 }
 
-void ComChannel::stop() {
+void PcanChannel::stop() {
   return;
 }
 
 // 完成数据的读写. (下面全是测试代码)
-bool ComChannel::write(const std::vector<std::string>& names) {
+bool PcanChannel::write(const std::vector<std::string>& names) {
   if (names.empty()) return true;
 
   // LOG_INFO << "PCAN write: ";
@@ -34,13 +34,12 @@ bool ComChannel::write(const std::vector<std::string>& names) {
     auto itr = cmd_composite_.find(name);
     if (cmd_composite_.end() != itr) {
       Motor::CmdTypeSp cmd = boost::dynamic_pointer_cast<Motor::CmdType>(itr->second);
-      // Motor::CmdTypeSp cmd = boost::dynamic_pointer_cast<Motor::CmdType>(itr->second);
       LOG_INFO << "command: " << cmd->command_
           << " mode: " << cmd->mode_;
-
-      if (0 == name.compare("hip_motor")) {
-        std::string enc_name = "hip_encoder";
-        auto itr_state = state_composite_.find(enc_name);
+      if (0 == name.compare("hip")) {
+        // std::string enc_name = "hip_motor";
+        // auto itr_state = state_composite_.find(enc_name);
+        auto itr_state = state_composite_.find(name);
         Encoder::StateTypeSp act_state
           = boost::dynamic_pointer_cast<Encoder::StateType>(itr_state->second);
 
@@ -52,9 +51,10 @@ bool ComChannel::write(const std::vector<std::string>& names) {
         act_state->pos_ = current_pos;
         act_state->previous_time_ = current_time;
 
-      } else if (0 == name.compare("knee_motor")) {
-        std::string enc_name = "knee_encoder";
-        auto itr_state = state_composite_.find(enc_name);
+      } else if (0 == name.compare("knee")) {
+        // std::string enc_name = "knee_motor";
+        // auto itr_state = state_composite_.find(enc_name);
+        auto itr_state = state_composite_.find(name);
         Encoder::StateTypeSp act_state
           = boost::dynamic_pointer_cast<Encoder::StateType>(itr_state->second);
 
@@ -76,11 +76,12 @@ bool ComChannel::write(const std::vector<std::string>& names) {
 }
 
 // (下面全是测试代码)
-bool ComChannel::read() {
+bool PcanChannel::read() {
   // 从PCAN中获取到的数据对应到具体的状态name
   // 也可以从PCAN的数据中， 明确到底是什么类型的State
   // 转化为对应类型的State, 在进行赋值
-  std::string name = "knee_encoder";
+  // LOG_INFO << "PCAN read: ";
+  std::string name = "knee";
   auto itr = state_composite_.find(name);
   if (state_composite_.end() == itr) {
     LOG_WARNING << "Could not found the " << name << " state handle: ";
@@ -96,10 +97,10 @@ bool ComChannel::read() {
     act_state->previous_time_ = current_time;
   }
 
-  name = "hip_encoder";
+  name = "hip";
   itr = state_composite_.find(name);
   if (state_composite_.end() == itr) {
-    LOG_WARNING << "Could not found the " << name << " state handle: ";
+    ;//LOG_WARNING << "Could not found the " << name << " state handle: ";
   } else {
     Encoder::StateTypeSp act_state
       = boost::dynamic_pointer_cast<Encoder::StateType>(itr->second);
@@ -115,8 +116,27 @@ bool ComChannel::read() {
   return true;
 }
 
+void PcanChannel::check() {
+  LOG_WARNING << "================check================";
+  LOG_INFO << "NAME: " << name_;
+  LOG_WARNING << "-------------------------------------";
+  LOG_INFO << "STATE:";
+  LOG_INFO << "NAME\tADDR\tCOUNT";
+  for (auto& s : state_composite_) {
+    LOG_INFO << s.first << "\t" << s.second.get()
+        << "\t" << s.second.use_count();
+  }
+  LOG_WARNING << "-------------------------------------";
+  LOG_INFO << "COMMAND:";
+  LOG_INFO << "NAME\tADDR\tCOUNT";
+  for (auto& c : cmd_composite_) {
+    LOG_INFO << c.first << "\t" << c.second.get() << "\t" << c.second.use_count();
+  }
+  LOG_WARNING << "=====================================";
+}
+
 } /* namespace qr_driver */
 
 #include <class_loader/class_loader_register_macro.h>
 
-CLASS_LOADER_REGISTER_CLASS(middleware::ComChannel, middleware::Propagate)
+CLASS_LOADER_REGISTER_CLASS(middleware::PcanChannel, middleware::Propagate)

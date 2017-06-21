@@ -5,7 +5,7 @@
  *      Author: silence
  */
 
-#include "encoder.h"
+#include "middleware/hardware/encoder.h"
 
 namespace middleware {
 

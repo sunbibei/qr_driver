@@ -35,18 +35,6 @@
 			</encoder>
 		</joint>
 
-<!-- 		<joint type="middleware::Joint" >
-			<parameter name="left_back_yaw" actuators="left_back_yaw_motor" encoders="left_back_yaw_encoder" />
-
-			<actuator type="middleware::Motor" channel="pcan">
-    		<parameter name = "left_back_yaw_motor" value="2.01" mode="position" />
-  		</actuator>
-      
-			<encoder type="middleware::Encoder" channel="pcan">
-				<parameter name = "left_back_yaw_encoder" />
-			</encoder>
-		</joint> -->
-
 	</joint_states>
 
 </robot>

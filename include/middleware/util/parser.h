@@ -14,9 +14,9 @@
 #include <ros/ros.h>
 #include <class_loader/class_loader.h>
 
-#include "../middleware.h"
-#include "../hardware/hw_unit.h"
-#include "../propagate/propagate.h"
+#include "middleware/middleware.h"
+#include "middleware/hardware/hw_unit.h"
+#include "middleware/propagate/propagate.h"
 
 namespace middleware {
 

@@ -5,7 +5,7 @@
  *      Author: silence
  */
 
-#include "joint.h"
+#include "middleware/hardware/joint.h"
 
 namespace middleware {
 

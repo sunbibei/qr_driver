@@ -5,7 +5,7 @@
  *      Author: silence
  */
 
-#include "motor.h"
+#include "middleware/hardware/motor.h"
 
 namespace middleware {
 
