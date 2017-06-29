@@ -17,7 +17,7 @@ PcanChannel::~PcanChannel() { }
 
 // 完成PCAN的初始化
 // 以及act_state_map_, act_cmd_map_, enc_state_map_三个MAP的从cmd_map_和state_map_中初始化
-bool PcanChannel::init() {
+bool PcanChannel::init(TiXmlElement*) {
   return true;
 }
 
@@ -118,7 +118,7 @@ bool PcanChannel::read() {
 
 void PcanChannel::check() {
   LOG_WARNING << "================check================";
-  LOG_INFO << "NAME: " << name_;
+  LOG_INFO << "NAME: " << propa_name_;
   LOG_WARNING << "-------------------------------------";
   LOG_INFO << "STATE:";
   LOG_INFO << "NAME\tADDR\tCOUNT";

@@ -8,17 +8,16 @@
 #ifndef INCLUDE_JOINT_ENCODER_H_
 #define INCLUDE_JOINT_ENCODER_H_
 
+#include "hw_unit.h"
+
 #include <atomic>
 #include <chrono>
-
-#include "hw_unit.h"
 
 namespace middleware {
 
 struct EncoderState : public HwState {
   // 实际获取的数据
   std::atomic<double> pos_;
-
   // 需要propagate实例中， 通过软件代码计算出速度填入数据
   std::atomic<double> vel_;
   // 计算速度的辅助变量, 保存前一次更新的时间
@@ -41,7 +40,7 @@ public:
   virtual void check() override;
 
   virtual HwStateSp getStataHandle() override;
-  virtual HwStateSp getState(const std::string& name) override;
+  virtual HwStateSp getState() override;
 
 private:
   StateTypeSp state_;

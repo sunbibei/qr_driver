@@ -7,7 +7,12 @@
 
 
 #include "middleware/util/parser.h"
+
 #include "middleware//util/log.h"
+#include "middleware/middleware.h"
+#include "middleware/util/composite.h"
+#include "middleware/hardware/hw_unit.h"
+#include "middleware/propagate/propagate.h"
 
 namespace middleware {
 
@@ -92,12 +97,18 @@ bool Parser::initVariants(TiXmlDocument* xml_doc) {
 }
 
 bool Parser::parserPropagates(Middleware* robot) {
+  if (nullptr == propa_loader_) {
+    LOG_FATAL << "propa_loader is nullptr!";
+    return false;
+  }
   TiXmlElement* propagates = xml_root_->FirstChildElement("propagates");
   if (nullptr == propagates) {
     LOG_FATAL << "No 'propagates' parameter in configure content, "
             << "Did you forget define this parameter";
     return false;
   }
+
+  auto propa = robot->propagate_;
   if (nullptr == propagates->Attribute("name")) {
     LOG_WARNING << "Could not found the 'name' attribute of the 'propagates' block, "
         << "using the default name 'propagates'";
@@ -106,17 +117,11 @@ bool Parser::parserPropagates(Middleware* robot) {
 
   LOG_INFO << "Assemble propagates: '" << propagates->Attribute("name") << "'";
   // Propagate* propa = new Propagate(propagates->Attribute("name"));
-  robot->propagate_.reset(new Propagate(propagates->Attribute("name")));
+  // robot->propagate_.reset(new Propagate(propagates->Attribute("name")));
+  propa->label_ = propagates->Attribute("name");
   int counter = 0;
   for (auto c_root = propagates->FirstChildElement("channel");
       c_root != nullptr; c_root = c_root->NextSiblingElement("channel")) {
-    if (nullptr == c_root->Attribute("name")) {
-      std::stringstream ss;
-      ss << "propagate_" << counter;
-      LOG_WARNING << "Could not found the 'name' attribute of the 'propagates/channel' block, "
-          << "using the default name '" << ss.str() << "'";
-      c_root->SetAttribute("name", ss.str());
-    }
     const char* type = c_root->Attribute("type");
     if (nullptr == type) {
       LOG_ERROR << "Could not found the 'type' attribute of "
@@ -124,13 +129,25 @@ bool Parser::parserPropagates(Middleware* robot) {
           << " in the 'propagates/channel' block";
       continue;
     }
+
+    if (nullptr == c_root->Attribute("name")) {
+      std::stringstream ss;
+      ss << "propagate_" << counter;
+      LOG_WARNING << "Could not found the 'name' attribute of the 'propagates/channel' block, "
+          << "using the default name '" << ss.str() << "'";
+      c_root->SetAttribute("name", ss.str());
+    }
     boost::shared_ptr<Propagate> channel
         = propa_loader_->createInstance<Propagate>(type);
-    channel->setName(c_root->Attribute("name"));
+    channel->propa_name_ = c_root->Attribute("name");
+    if (!channel->init(c_root->FirstChildElement("parameter"))) {
+      LOG_FATAL << "The " << channel->propa_name_ << "channel initialize fail!";
+    }
+    // channel->setName(c_root->Attribute("name"));
 
-    LOG_INFO << "Push the " << counter + 1 << "st propagates('" << channel->getName()
-        << "') into '" << robot->propagate_->getName() << "'";
-    robot->propagate_->add(channel->getName(), channel);
+    LOG_INFO << "Push the " << counter + 1 << "st propagates('" << channel->propa_name_
+        << "') into '" << propa->label_ << "'";
+    propa->add(channel->propa_name_, channel);
     ++counter;
   }
 
@@ -144,75 +161,97 @@ bool Parser::parserPropagates(Middleware* robot) {
  */
 bool Parser::parserJointStates(Middleware* robot) {
   if (nullptr == unit_loader_) {
-    LOG_ERROR << "unit_loader is nullptr!";
+    LOG_FATAL << "unit_loader is nullptr!";
     return false;
   }
-  if (nullptr == robot->propagate_.get()) {
-    LOG_ERROR << "The instance of Middleware is nullptr"
+  if (robot->propagate_->empty()) {
+  // if (nullptr == robot->propagate_.get()) {
+    LOG_FATAL << "The instance of Middleware is nullptr"
         << ", Is you call the parserJoints method before parserPropagates method?";
     return false;
   }
 
   // 寻找joint_states块， 并初始化HwUnit实例
-  TiXmlElement* jnts_root = xml_root_->FirstChildElement("joint_states");
+  TiXmlElement* jnts_root = xml_root_->FirstChildElement("hardwares");
   if (nullptr == jnts_root) {
-    LOG_ERROR << "Could not found the 'joint_states' block.";
+    LOG_FATAL << "Could not found the 'joint_states' block.";
     return false;
   }
   if (nullptr == jnts_root->Attribute("name")) {
-    LOG_WARNING << "The 'joint_states' tag has no 'name' attribute, "
-        << "we will use the default name: 'joint_states'";
-    jnts_root->SetAttribute("name", "joint_states");
+    LOG_WARNING << "The 'joints' tag has no 'name' attribute, "
+        << "we will use the default name: 'qr_joints'";
+    jnts_root->SetAttribute("name", "qr_joints");
   }
   // fill the hw_unit, if parser fail, need to free.
-  robot->hw_unit_.reset(new HwUnit(jnts_root->Attribute("name")));
+  // robot->hw_unit_.reset(new HwUnit(jnts_root->Attribute("name")));
   for (auto jnt_tag = jnts_root->FirstChildElement("joint");
         nullptr != jnt_tag; jnt_tag = jnt_tag->NextSiblingElement()) {
     parserJoint(jnt_tag, robot);
   }
 
-  int counter = 0;
-  for (auto part = jnts_root->FirstChildElement("part");
-        nullptr != part; part = part->NextSiblingElement("part")) {
+  /*int counter = 0;
+  for (auto part = jnts_root->FirstChildElement("joint_group");
+        nullptr != part; part = part->NextSiblingElement("joint_group")) {
     if (nullptr == part->Attribute("name")) {
       std::stringstream ss;
-      ss << "part_" << counter;
+      ss << "joint_group_" << counter;
       LOG_WARNING << "The 'joint_states/part' tag has no 'name' attribute, "
           << "we will use the default name: ''" << ss.str() << "'";
       jnts_root->SetAttribute("name", ss.str());
     }
-    HwUnitSp part_unit(new HwUnit(jnts_root->Attribute("name")));
+    HwUnitSp group_unit(new HwUnit(jnts_root->Attribute("name")));
     for (auto jnt_tag = part->FirstChildElement("joint");
           nullptr != jnt_tag; jnt_tag = jnt_tag->NextSiblingElement()) {
-      parserJoint(jnt_tag, robot, part_unit.get());
+      parserJoint(jnt_tag, robot, group_unit.get());
     }
-    robot->hw_unit_->add(part_unit->getName(), part_unit);
+    // robot->hw_unit_.add(group_unit->hw_name_, group_unit);
     counter++;
-  }
+  }*/
 
   return true;
 }
 
-bool Parser::parserJoint(TiXmlElement* jnt_root, Middleware* robot, HwUnit* parent) {
+bool Parser::parserJoint(TiXmlElement* jnt_root, Middleware* robot) {
+  if (nullptr == jnt_root->Attribute("type")) {
+    // joint_handle.reset(new HwUnit(jnt_root->Attribute("name")));
+    LOG_FATAL << "No 'type' attribute tag in the 'joint'";
+    return false;
+  }
   // 解析出来的所有Actuator and Encoder都将要注册到通讯通道中
-  PropaSp& robot_propa = robot->propagate_;
-/*
+  auto robot_propa = robot->propagate_;
+
   if (nullptr == jnt_root->Attribute("name")) {
     std::stringstream ss;
-    ss << "joint_" << robot->jnt_names_.size();
+    ss << "joint_" << robot_propa->size();// robot->jnt_names_.size();
     LOG_WARNING << "The joint tag has no 'name' attribute, "
         << "we will use the default name: \"" << ss.str() << "\"";
     jnt_root->SetAttribute("name", ss.str());
-  }*/
-  HwUnitSp joint_handle;
-  if (nullptr == jnt_root->Attribute("type")) {
-    joint_handle.reset(new HwUnit(jnt_root->Attribute("name")));
-  } else {
-    joint_handle = unit_loader_->createInstance<HwUnit>(jnt_root->Attribute("type"));
-    joint_handle->init(jnt_root->FirstChildElement("parameter"));
   }
 
-  LOG_INFO << "Assemble joint: \"" << joint_handle->getName() << "\"";
+  HwUnitSp joint_handle = unit_loader_->createInstance<HwUnit>(jnt_root->Attribute("type"));
+  joint_handle->init(jnt_root);
+
+  auto state_itr = robot_propa->find(joint_handle->state_channel_);
+  if (robot_propa->end() == state_itr) {
+    LOG_FATAL << "There is no " << joint_handle->state_channel_
+        << " request for " << joint_handle->hw_name_ << " joint ";
+  }
+  // register Hardware handle into propagate for efficiency
+  state_itr->second->registerHandle(joint_handle);
+
+  auto cmd_itr = robot_propa->find(joint_handle->cmd_channel_);
+  if (robot_propa->end() == cmd_itr) {
+    LOG_FATAL << "There is no " << joint_handle->cmd_channel_
+        << " request for " << joint_handle->hw_name_ << " joint ";
+  }
+  // register Hardware handle into propagate for efficiency
+  cmd_itr->second->registerHandle(joint_handle);
+
+  robot->jnt_names_.push_back(joint_handle->hw_name_);
+  robot->hw_unit_->add(joint_handle->hw_name_, joint_handle);
+
+  /*
+  LOG_INFO << "Assemble joint: \"" << joint_handle->hw_name_ << "\"";
   // TODO 对type进行判断, 是否存在对应的类型
   int counter = 0;
   // 解析并构建Actuator
@@ -221,9 +260,9 @@ bool Parser::parserJoint(TiXmlElement* jnt_root, Middleware* robot, HwUnit* pare
       nullptr != xml_act; xml_act = xml_act->NextSiblingElement("actuator")) {
     if (nullptr != xml_act->Attribute("type")) {
       LOG_INFO << "Push the " << counter + 1
-                << "st actuator of the \"" << joint_handle->getName() << "\" joint";
+                << "st actuator of the \"" << joint_handle->hw_name_ << "\" joint";
 
-      boost::shared_ptr<HwUnit> act
+      HwUnitSp act
         = unit_loader_->createInstance<HwUnit>(xml_act->Attribute("type"));
       act->init(xml_act->FirstChildElement("parameter"));
 
@@ -233,13 +272,13 @@ bool Parser::parserJoint(TiXmlElement* jnt_root, Middleware* robot, HwUnit* pare
         channel_act = xml_act->Attribute("channel");
       }
       // 注册句柄到通信通道中
-      // robot_propa->registerHandle(act->getName(), act->getStataHandle(), c);
-      // robot_propa->registerHandle(act->getName(), act->getCommandHandle(), c);
+      // robot_propa->registerHandle(act->hw_name_, act->getStataHandle(), c);
+      // robot_propa->registerHandle(act->hw_name_, act->getCmdHandle(), c);
       // 增加Actuaor到joint
-      joint_handle->add(act->getName(), act);
+      joint_handle->add(act->hw_name_, act);
     } else {
       LOG_ERROR << "Could not found the 'type' attribute of the "
-          << counter << "st actuator of the \"" << joint_handle->getName() << "\" joint"
+          << counter << "st actuator of the \"" << joint_handle->hw_name_ << "\" joint"
           << " in the 'joint_states/joint' block";
     }
     ++counter;
@@ -251,9 +290,9 @@ bool Parser::parserJoint(TiXmlElement* jnt_root, Middleware* robot, HwUnit* pare
       nullptr != xml_enc; xml_enc = xml_enc->NextSiblingElement("encoder")) {
     if (nullptr != xml_enc->Attribute("type")) {
       LOG_INFO << "Push the " << counter + 1
-                << "st encoder of the \"" << joint_handle->getName() << "\" joint";
+                << "st encoder of the \"" << joint_handle->hw_name_ << "\" joint";
 
-      boost::shared_ptr<HwUnit> enc
+      HwUnitSp enc
         = unit_loader_->createInstance<HwUnit>(xml_enc->Attribute("type"));
       enc->init(xml_enc->FirstChildElement("parameter"));
       // Register the handle into propagate and HwUint
@@ -262,13 +301,13 @@ bool Parser::parserJoint(TiXmlElement* jnt_root, Middleware* robot, HwUnit* pare
         channel_enc = xml_enc->Attribute("channel");
       }
 
-      // robot_propa->registerHandle(enc->getName(), enc->getStataHandle(), c);
-      // robot_propa->registerHandle(enc->getName(), enc->getCommandHandle(), c);
+      // robot_propa->registerHandle(enc->hw_name_, enc->getStataHandle(), c);
+      // robot_propa->registerHandle(enc->hw_name_, enc->getCmdHandle(), c);
 
-      joint_handle->add(enc->getName(), enc);
+      joint_handle->add(enc->hw_name_, enc);
     } else {
       LOG_ERROR << "Could not found the 'type' attribute of the "
-          << counter << "st actuator of the \"" << joint_handle->getName() << "\" joint"
+          << counter << "st actuator of the \"" << joint_handle->hw_name_ << "\" joint"
           << " in the 'joint_states/joint' block";
     }
     ++counter;
@@ -278,16 +317,16 @@ bool Parser::parserJoint(TiXmlElement* jnt_root, Middleware* robot, HwUnit* pare
   //      << "that is different between actuator and encoder, "
   //      << "using the channel of actuator.";
   //}
-  robot_propa->registerHandle(joint_handle->getName(),
-      joint_handle->getCommandHandle(), channel_act);
-  robot_propa->registerHandle(joint_handle->getName(),
+  robot_propa->registerHandle(joint_handle->hw_name_,
+      joint_handle->getCmdHandle(), channel_act);
+  robot_propa->registerHandle(joint_handle->hw_name_,
       joint_handle->getStataHandle(), channel_enc);
-  robot->jnt_names_.push_back(joint_handle->getName());
+  robot->jnt_names_.push_back(joint_handle->hw_name_);
   if (nullptr == parent)
-    robot->hw_unit_->add(joint_handle->getName(), joint_handle);
+    robot->hw_unit_->add(joint_handle->hw_name_, joint_handle);
   else
-    parent->add(joint_handle->getName(), joint_handle);
-
+    parent->add(joint_handle->hw_name_, joint_handle);
+  */
   return true;
 }
 

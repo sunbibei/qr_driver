@@ -1,23 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
-<robot name="dragon_robot">
+<robot name="quadruped_robot">
 
+<!--
 	<lib_paths >
     <propagate path="/home/silence/Workspace/qr_ws/devel/lib/libpropagate_lib.so"/>
     <hw_unit path="/home/silence/Workspace/qr_ws/devel/lib/libhardware_lib.so"/>
   </lib_paths>
+-->
 
-	<propagates name="propagate" >
+	<propagates name="qr_propagate" >
 		<channel name="pcan" type="middleware::PcanChannel" />
 	</propagates>
-
-	<joint_states name="single_leg">
+	
+	<hardwares name="qr_joints" >
 		<joint type="middleware::Joint">
 			<parameter name="knee" actuators="knee_motor" encoders="knee_encoder" />
-
 			<actuator type="middleware::Motor" channel="pcan">
     		<parameter name = "knee_motor" value="1.23" mode="velocity" />
  	 		</actuator>
-
 			<encoder type="middleware::Encoder" channel="pcan">
 				<parameter name = "knee_encoder" />
 			</encoder>
@@ -25,16 +25,13 @@
 
 		<joint type="middleware::Joint" >
 			<parameter name="hip" actuators="hip_motor" encoders="hip_encoder" />
-
 			<actuator type="middleware::Motor" channel="pcan">
   			<parameter name = "hip_motor" value="2.01" mode="position" />
 			</actuator>
-      
 			<encoder type="middleware::Encoder" channel="pcan">
 				<parameter name = "hip_encoder" />
 			</encoder>
 		</joint>
-
-	</joint_states>
+	</hardwares>
 
 </robot>

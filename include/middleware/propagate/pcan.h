@@ -20,7 +20,7 @@ public:
   PcanChannel(const std::string& name = "pcan");
   virtual ~PcanChannel();
 
-  virtual bool init() override;
+  virtual bool init(TiXmlElement*) override;
   virtual bool write(const std::vector<std::string>&) override;
   virtual bool read() override;
   virtual void stop() override;

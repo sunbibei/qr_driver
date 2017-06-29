@@ -28,19 +28,21 @@ public:
   virtual bool init(TiXmlElement*) override;
 
   virtual HwStateSp getStataHandle() override;
-  virtual HwCmdSp getCommandHandle() override;
+  virtual HwCmdSp getCmdHandle() override;
 
-  virtual HwStateSp getState(const std::string&) override;
-  virtual HwCmdSp getCommand(const std::string&) override;
-  virtual void setState(const std::string&, const HwState&) override;
-  virtual void setCommand(const std::string&, const HwCommand&) override;
+  virtual HwStateSp getState() override;
+  virtual HwCmdSp getCommand() override;
+  virtual void setState(const HwState&) override;
+  virtual void setCommand(const HwCommand&) override;
 
 protected:
-  std::vector<std::string> actuators_;
-  std::vector<std::string> encoders_;
-  // boost::shared_ptr<Encoder> encoder_;
-  // boost::shared_ptr<Motor>   motor_;
+  // std::string actuators_;
+  // std::string encoders_;
+  boost::shared_ptr<Encoder> encoder_;
+  boost::shared_ptr<Motor>   motor_;
 };
+
+typedef boost::shared_ptr<Joint> JointSp;
 
 } /* namespace middleware */
 

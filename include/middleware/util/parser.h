@@ -14,12 +14,9 @@
 #include <ros/ros.h>
 #include <class_loader/class_loader.h>
 
-#include "middleware/middleware.h"
-#include "middleware/hardware/hw_unit.h"
-#include "middleware/propagate/propagate.h"
-
 namespace middleware {
 
+class Middleware;
 /**
  * 从参数文件中解析初始化middleware对象.
  * 该类作为工具类, 没必要进行实例化或继承
@@ -45,10 +42,10 @@ private:
   static bool initVariants(TiXmlDocument*);
 
   // 解析器Helper, 分别解析'joint_states' TAG and 'propagates' TAG
-  static bool parserPropagates(Middleware* robot);
-  static bool parserJointStates(Middleware* robot);
+  static bool parserPropagates(Middleware*);
+  static bool parserJointStates(Middleware*);
   // parserJointsHelper method, 解析'joint' TAG
-  static bool parserJoint(TiXmlElement*, Middleware*, HwUnit* parent = nullptr);
+  static bool parserJoint(TiXmlElement*, Middleware*);
 };
 
 } /* namespace middleware */

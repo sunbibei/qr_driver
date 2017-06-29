@@ -12,8 +12,6 @@
 #include "../hardware/motor.h"
 #include "propagate.h"
 
-#include <map>
-
 namespace middleware {
 
 class ComChannel: public Propagate {
@@ -21,7 +19,7 @@ public:
   ComChannel(const std::string& name = "com");
   virtual ~ComChannel();
 
-  virtual bool init();
+  virtual bool init(TiXmlElement*);
   virtual void stop();
 
   // 完成数据的读写.

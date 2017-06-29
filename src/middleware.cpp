@@ -10,11 +10,14 @@
 
 #include "middleware/hardware/encoder.h"
 #include "middleware/hardware/motor.h"
-#include "middleware/middleware.h"
+
 #include "middleware/propagate/propagate.h"
+
 #include "middleware/util/parser.h"
 #include "middleware/util/log.h"
+#include "middleware/util/composite.h"
 
+#include "middleware/middleware.h"
 
 namespace middleware {
 
@@ -38,8 +41,8 @@ Middleware::Middleware()
 
 Middleware::~Middleware() {
   this->halt();
-  propagate_.reset();
-  hw_unit_.reset();
+  propagate_->clear();
+  hw_unit_->clear();
   /*if (nullptr != instance_) {
     delete instance_;
     instance_ = nullptr;
@@ -70,6 +73,10 @@ bool Middleware::init(ros::NodeHandle& nh) {
   LOG_INFO << "The initialization has successful";
   connected_ = propagate_->init();
   return connected_;
+}
+
+bool Middleware::isInit() {
+  return ((!propagate_.empty()) && (!hw_unit_.empty()));
 }
 
 bool Middleware::start() {
@@ -268,8 +275,7 @@ bool Middleware::doTraj(const std::vector<double>& inp_timestamps,
   std::vector<double> positions;
   unsigned int j;
 
-  if ((nullptr == propagate_.get())
-      || (nullptr == hw_unit_.get())){
+  if ((propagate_->empty()) || (hw_unit_->empty())) {
     LOG_ERROR << "Invalidate propagate or robot state";
     return false;
   }

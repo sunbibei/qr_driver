@@ -57,13 +57,13 @@ public:
   virtual void check() override;
 
   virtual HwStateSp getStataHandle() override;
-  virtual HwCmdSp getCommandHandle() override;
+  virtual HwCmdSp getCmdHandle() override;
 
   // 该函数子类选择性进行实现, 在函数内部, 需要完成数据的读写.
-  virtual HwStateSp getState(const std::string& name) override;
-  virtual HwCmdSp getCommand(const std::string& name) override;
-  virtual void setState(const std::string& name, const HwState& state) override;
-  virtual void setCommand(const std::string& name, const HwCommand& state) override;
+  virtual HwStateSp getState() override;
+  virtual HwCmdSp getCommand() override;
+  virtual void setState(const HwState& state) override;
+  virtual void setCommand(const HwCommand& state) override;
 
 private:
   StateTypeSp motor_state_;

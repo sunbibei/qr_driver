@@ -10,28 +10,28 @@
 
 #include <vector>
 #include <string>
-#include <boost/shared_ptr.hpp>
+#include <tinyxml.h>
 
-#include "../hardware/hw_unit.h"
-#include "../util/component.h"
+#include "middleware/util/composite.h"
+#include "middleware/hardware/hw_unit.h"
 
 namespace middleware {
 
-class Propagate : public Component<Propagate> {
+class Propagate {
 public:
-  Propagate(const std::string&);
+  Propagate();
+  Propagate(const std::string& name);
   virtual ~Propagate();
 
-  virtual bool init();
-  virtual bool write(const std::vector<std::string>&);
-  virtual bool read();
-  virtual void stop();
-  // for Debug
-  virtual void check();
+  // 本通信方式的名称， 该名称作为Hw_Unit的Channel参数
+  std::string propa_name_;
 
-public:
-  const std::string& getName();
-  void setName(const std::string& name);
+  virtual bool init(TiXmlElement*) = 0;
+  virtual bool write(const std::vector<std::string>&) = 0;
+  virtual bool read() = 0;
+  virtual void stop() = 0;
+  // for Debug
+  virtual void check() { ; };
   /**************************************************
    * 下述两个函数注册机构单元的状态或命令句柄
    * 注册句柄, 是为了效率考虑, 注册后, 解析更新后的数据
@@ -39,18 +39,14 @@ public:
    * 应小心使用下述四个函数, 必须传入对应机构单元的状态或命令实际句柄
    * 否则将会发生不能更新数据或断错误
    * 参数1: 指定注册句柄的关节名称
-   * 参数2: 指定注册句柄
+   * 参数2: 指定注册句柄, 共享指针
    * 参数3: 可选, 指定注册的通信通道
    **************************************************/
-  void registerHandle(const std::string&, HwCmdSp, const std::string& channel = "");
-  void registerHandle(const std::string&, HwStateSp, const std::string& channel = "");
+  void registerHandle(boost::shared_ptr<HwUnit>);
 
 protected:
-  Component<HwCommand>  cmd_composite_;
-  Component<HwState>    state_composite_;
-
-  std::string name_;
-  bool        connected_;
+  Composite<HwCommand>  cmd_composite_;
+  Composite<HwState>    state_composite_;
 };
 
 } /* namespace middleware */

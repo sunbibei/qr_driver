@@ -6,6 +6,8 @@
  */
 
 #include "middleware/hardware/motor.h"
+#include "middleware/util/log.h"
+
 
 namespace middleware {
 
@@ -38,7 +40,7 @@ bool Motor::init(TiXmlElement* para) {
     LOG_ERROR << "Can't found the 'name' TAG in the 'parameter' TAG";
     return false;
   }
-  name_ = para->Attribute("name");
+  hw_name_ = para->Attribute("name");
   std::string mode_str = "";
   CmdType::MODE_ mode = CmdType::MODE_::MODE_POS_;
   if (nullptr != para->Attribute("mode")) {
@@ -68,34 +70,20 @@ HwStateSp Motor::getStataHandle() {
   return motor_state_;
 }
 
-HwCmdSp Motor::getCommandHandle() {
+HwCmdSp Motor::getCmdHandle() {
   return motor_cmd_;
 }
 
-HwStateSp Motor::getState(const std::string& name) {
-  if (0 != name_.compare(name)) {
-    LOG_WARNING << "Requset the ERROR name state (actual vs request): ("
-        << name_ << " vs " << name << ")";
-    return HwStateSp(nullptr);
-  } else {
-    return HwStateSp(new StateType(
-        motor_state_->pos_, motor_state_->vel_, motor_state_->tor_));
-  }
+HwStateSp Motor::getState() {
+  return HwStateSp(new StateType(
+      motor_state_->pos_, motor_state_->vel_, motor_state_->tor_));
 }
 
-HwCmdSp Motor::getCommand(const std::string& name) {
-  if (0 != name_.compare(name)) {
-    LOG_WARNING << "Requset the ERROR name command (actual vs request): ("
-        << name_ << " vs " << name << ")";
-    return HwCmdSp(nullptr);
-  } else {
-    return HwCmdSp(new CmdType(motor_cmd_->command_, motor_cmd_->mode_));
-  }
+HwCmdSp Motor::getCommand() {
+  return HwCmdSp(new CmdType(motor_cmd_->command_, motor_cmd_->mode_));
 }
 
-void Motor::setState(const std::string& name, const HwState& state) {
-  if (0 != name_.compare(name)) return;
-
+void Motor::setState(const HwState& state) {
   const StateType& motor_state = dynamic_cast<const StateType&>(state);
   double val = motor_state.pos_;
   motor_state_->pos_ = val;
@@ -105,9 +93,7 @@ void Motor::setState(const std::string& name, const HwState& state) {
   motor_state_->tor_ = val;
 }
 
-void Motor::setCommand(const std::string& name, const HwCommand& cmd) {
-  if (0 != name_.compare(name)) return;
-
+void Motor::setCommand(const HwCommand& cmd) {
   const CmdType& motor_cmd = dynamic_cast<const CmdType&>(cmd);
   CmdType::MODE_ mode = motor_cmd.mode_;
   motor_cmd_->mode_ = mode;
@@ -117,7 +103,7 @@ void Motor::setCommand(const std::string& name, const HwCommand& cmd) {
 
 void Motor::check() {
   LOG_WARNING << "================check================";
-  LOG_INFO << "NAME: " << name_;
+  LOG_INFO << "NAME: " << hw_name_;
   // LOG_WARNING << "\t-------------------------------------";
   LOG_INFO << "TYPE\tADDR\tCOUNT";
   LOG_INFO << "STATE\t" << motor_state_.get() << "\t" << motor_state_.use_count();
@@ -128,5 +114,4 @@ void Motor::check() {
 } /* namespace middleware */
 
 #include <class_loader/class_loader_register_macro.h>
-
 CLASS_LOADER_REGISTER_CLASS(middleware::Motor, middleware::HwUnit)

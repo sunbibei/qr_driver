@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(qr_driver)
+project(qr_driver-0.2.9)
 
 add_definitions(-std=c++11)
 # Load catkin and all dependencies required for this package
@@ -88,11 +88,11 @@ set(BIN_FILES src/main.cpp
 )
 
 ## Declare a C++ library
-add_library(hardware_lib
+add_library(${PROJECT_NAME}hardware_lib
   ${HW_FILES}
 )
 
-add_library(propagate_lib
+add_library(${PROJECT_NAME}propagate_lib
   ${PROPA_FILES}
 )
 
@@ -102,12 +102,12 @@ add_executable(${PROJECT_NAME}_exe
 )
 
 ## Specify libraries to link a library or executable target against
-target_link_libraries(hardware_lib
+target_link_libraries(${PROJECT_NAME}hardware_lib
   ${catkin_LIBRARIES}
   glog
 )
 
-target_link_libraries(propagate_lib
+target_link_libraries(${PROJECT_NAME}propagate_lib
   ${catkin_LIBRARIES}
   glog
 #  pcanbasic

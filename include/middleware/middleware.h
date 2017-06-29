@@ -16,26 +16,29 @@
 
 namespace middleware {
 
+class HwState;
 class HwCommand;
 class HwUnit;
 class Propagate;
+template <class T> class Composite;
+
 typedef boost::shared_ptr<HwCommand> HwCmdSp;
+typedef boost::shared_ptr<HwState>   HwStateSp;
 typedef boost::shared_ptr<Propagate> PropaSp;
 typedef boost::shared_ptr<HwUnit> HwUnitSp;
 
 class Middleware {
 public:
-
   // Unit and Propagate interface
-  PropaSp  propagate_;
-  HwUnitSp hw_unit_;
+  Composite<Propagate>*  propagate_;
+  Composite<HwUnit>*     hw_unit_;
 
   std::vector<std::string> jnt_names_;
 
   // 初始化所有变量, 以及线程等.
   bool init(const std::string& xml = "robot.xml");
   bool init(ros::NodeHandle&);
-  bool isInit() const { return ((nullptr != propagate_) && (nullptr != hw_unit_));}
+  bool isInit() const;
 
   // 开始/停止运行
   bool start();

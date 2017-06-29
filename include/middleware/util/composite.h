@@ -5,8 +5,8 @@
  *      Author: silence
  */
 
-#ifndef INCLUDE_MIDDLEWARE_UTIL_COMPONENT_H_
-#define INCLUDE_MIDDLEWARE_UTIL_COMPONENT_H_
+#ifndef INCLUDE_MIDDLEWARE_UTIL_COMPOSITE_H_
+#define INCLUDE_MIDDLEWARE_UTIL_COMPOSITE_H_
 
 #include <map>
 #include <string>
@@ -19,9 +19,11 @@ namespace middleware {
  * 组合模式以名称为标识符
  */
 template <typename T>
-class Component {
+class Composite : public T {
 public:
-  typedef typename std::map<std::string, boost::shared_ptr<T>>::iterator iterator;
+  // TODO
+  typedef typename std::map<std::string, boost::shared_ptr<T>> map_type;
+  typedef typename map_type::iterator iterator;
   /**************************************************
    * 下述两个函数完成component的新增与删除
    * 以名称为标识符
@@ -32,10 +34,10 @@ public:
   }
 
   void add(const std::string& name, boost::shared_ptr<T> component) {
-    auto itr = composite_.find(name);
-    if (composite_.end() == itr) {
+    auto itr = composite_map_.find(name);
+    if (composite_map_.end() == itr) {
       // LOG_INFO << "Addition component( " << name << " )";
-      composite_.insert(std::make_pair(name, component));
+      composite_map_.insert(std::make_pair(name, component));
     } else {
       LOG_WARNING << "Replace component( " << name << " )";
       itr->second.swap(component);
@@ -43,10 +45,10 @@ public:
   }
 
   void remove(T* component) {
-    for (auto itr : composite_) {
+    for (auto itr : composite_map_) {
       if (itr->second.get() == component) {
         // LOG_INFO << "Remove component( " << itr->first << " )";
-        composite_.erase(itr);
+        composite_map_.erase(itr);
         return;
       }
     }
@@ -58,9 +60,9 @@ public:
   }
 
   void remove(const std::string& name) {
-    auto itr = composite_.find(name);
-    if (composite_.end() != itr) {
-      composite_.erase(itr);
+    auto itr = composite_map_.find(name);
+    if (composite_map_.end() != itr) {
+      composite_map_.erase(itr);
     }
     LOG_INFO << "Remove component( " << name << " )";
   }
@@ -69,35 +71,21 @@ public:
    * 查询是否包含某个名称的零件, 并返回迭代器, 不存在, 则返回end()
    * 并定义begin(), end()及一些常用操作
    **************************************************/
-  iterator find(const std::string& name) { return composite_.find(name); }
-  iterator begin() { return composite_.begin(); }
-  iterator end() { return composite_.end(); }
-  boost::shared_ptr<T>& operator[](const std::string& key) { return composite_[key]; }
+  iterator find(const std::string& name) { return composite_map_.find(name); }
+  iterator begin() { return composite_map_.begin(); }
+  iterator end()   { return composite_map_.end(); }
+  boost::shared_ptr<T>& operator[](const std::string& key) { return composite_map_[key]; }
 
-  /*
-  template <typename Type>
-  friend bool operator==(const Component<Type>&, const Component<Type>&);
+  void clear()  { composite_map_.clear(); };
+  size_t size() { return composite_map_.size(); };
+  bool empty()  { return composite_map_.empty(); };
 
-  template <typename Type>
-  friend bool operator<(const Component<Type>&, const Component<Type>&);
-  */
-
+  std::string label_;
 protected:
-  std::map<std::string, boost::shared_ptr<T>> composite_;
+  // std::string composite_name_;
+  std::map<std::string, boost::shared_ptr<T>> composite_map_;
 };
-/*
-template <typename T>
-bool operator!=(const Component<T>&, const Component<T>&);
 
-template <typename T>
-bool operator>=(const Component<T>&, const Component<T>&);
-
-template <typename T>
-bool operator>(const Component<T>&, const Component<T>&);
-
-template <typename T>
-bool operator<=(const Component<T>&, const Component<T>&);
-*/
 } /* namespace middleware */
 
-#endif /* INCLUDE_MIDDLEWARE_UTIL_COMPONENT_H_ */
+#endif /* INCLUDE_MIDDLEWARE_UTIL_COMPOSITE_H_ */
