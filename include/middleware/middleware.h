@@ -14,13 +14,16 @@
 #include <boost/shared_ptr.hpp>
 #include <sensor_msgs/JointState.h>
 
-namespace middleware {
+#include "middleware/hardware/encoder.h"
+#include "middleware/hardware/motor.h"
 
-class HwState;
-class HwCommand;
-class HwUnit;
-class Propagate;
-template <class T> class Composite;
+#include "middleware/propagate/propagate.h"
+
+#include "middleware/util/parser.h"
+#include "middleware/util/log.h"
+#include "middleware/util/composite.h"
+
+namespace middleware {
 
 typedef boost::shared_ptr<HwCommand> HwCmdSp;
 typedef boost::shared_ptr<HwState>   HwStateSp;
@@ -30,15 +33,15 @@ typedef boost::shared_ptr<HwUnit> HwUnitSp;
 class Middleware {
 public:
   // Unit and Propagate interface
-  Composite<Propagate>*  propagate_;
-  Composite<HwUnit>*     hw_unit_;
+  Composite<Propagate>  propagate_;
+  Composite<HwUnit>     hw_unit_;
 
   std::vector<std::string> jnt_names_;
 
   // 初始化所有变量, 以及线程等.
   bool init(const std::string& xml = "robot.xml");
   bool init(ros::NodeHandle&);
-  bool isInit() const;
+  bool isInit();
 
   // 开始/停止运行
   bool start();

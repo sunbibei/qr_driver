@@ -61,7 +61,6 @@ public:
    */
   virtual StateTypeSp   getStataHandle();
   virtual CmdTypeSp     getCmdHandle();
-  virtual std::string getPropagateChannel();
 /**************************************************
  * 下述四个函数选择性进行实现, 在函数内部, 需要完成数据的读写.
  * 若HwUnit子类具备State or Command

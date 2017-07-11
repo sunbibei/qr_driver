@@ -8,15 +8,6 @@
 #include <thread>
 #include <tinyxml.h>
 
-#include "middleware/hardware/encoder.h"
-#include "middleware/hardware/motor.h"
-
-#include "middleware/propagate/propagate.h"
-
-#include "middleware/util/parser.h"
-#include "middleware/util/log.h"
-#include "middleware/util/composite.h"
-
 #include "middleware/middleware.h"
 
 namespace middleware {
@@ -41,8 +32,8 @@ Middleware::Middleware()
 
 Middleware::~Middleware() {
   this->halt();
-  propagate_->clear();
-  hw_unit_->clear();
+  /*propagate_->clear();
+  hw_unit_->clear();*/
   /*if (nullptr != instance_) {
     delete instance_;
     instance_ = nullptr;
@@ -51,28 +42,24 @@ Middleware::~Middleware() {
 
 bool Middleware::init(const std::string& xml) {
 
-  if (((nullptr == hw_unit_) || (nullptr == propagate_))
-      && (!Parser::parser(xml, this))) {
+  if (!Parser::parser(xml, this)) {
     LOG_ERROR << "The initialization FAIL in the Middleware";
     return false;
   }
 
   LOG_INFO << "The initialization has successful";
-  connected_ = propagate_->init();
-  return connected_;
+  return true;
 }
 
 bool Middleware::init(ros::NodeHandle& nh) {
 
-  if (((nullptr == hw_unit_) || (nullptr == propagate_))
-      && (!Parser::parser(this))) {
+  if (!Parser::parser(this)) {
     LOG_ERROR << "The initialization FAIL in the Middleware";
     return false;
   }
 
   LOG_INFO << "The initialization has successful";
-  connected_ = propagate_->init();
-  return connected_;
+  return true;
 }
 
 bool Middleware::isInit() {
@@ -80,8 +67,8 @@ bool Middleware::isInit() {
 }
 
 bool Middleware::start() {
-  propagate_->check();
-  hw_unit_->check();
+  propagate_.check();
+  hw_unit_.check();
   propagate_thread_ = new std::thread(&Middleware::runPropagate, this);
   LOG_INFO << "The propagate thread has started to run!";
   return true;
@@ -91,10 +78,10 @@ void Middleware::runPropagate() {
   while (keepalive_) {
     while (connected_ && keepalive_) {
       // Everything is OK!
-      connected_ = propagate_->read();
+      connected_ = propagate_.read();
       if (new_command_) {
         while (!cmd_lock_.try_lock()) {}
-        connected_ = propagate_->write(new_jnt_cmd_names_);
+        connected_ = propagate_.write(new_jnt_cmd_names_);
         new_command_ = false;
         new_jnt_cmd_names_.clear();
         cmd_lock_.unlock();
@@ -105,9 +92,9 @@ void Middleware::runPropagate() {
       LOG_WARNING << "Disconnected! In order to keep alive, we try to reconnect... ...";
       int count = 0;
       while (keepalive_ && !connected_) {
-        propagate_->stop();
+        propagate_.stop();
         LOG_WARNING << "Attempt to reconnect (" << count++ << " times)";
-        connected_ = propagate_->init();
+        connected_ = propagate_.init();
         if (!connected_) {
           // wait for 500ms
           std::this_thread::sleep_for(std::chrono::milliseconds(500));
@@ -115,7 +102,7 @@ void Middleware::runPropagate() {
       } // end while(keepalive_ && !connected_)
     } // end if (keepalive_)
   } // end while (keepalive_)
-  propagate_->stop();
+  propagate_.stop();
 }
 
 void Middleware::halt() {
@@ -137,7 +124,7 @@ void Middleware::halt() {
 void Middleware::addCommand(const std::string& jnt_name, const HwCommand& cmd) {
   cmd_lock_.lock();
   new_jnt_cmd_names_.push_back(jnt_name);
-  hw_unit_->setCommand(jnt_name, cmd);
+  hw_unit_[jnt_name]->setCommand(cmd);
   new_command_ = true;
   cmd_lock_.unlock();
 }
@@ -150,7 +137,7 @@ void Middleware::addCommand(const std::string& jnt_name, const HwCommand& cmd) {
 void Middleware::addCommand(const std::string& jnt_name, const HwCmdSp& cmd) {
   cmd_lock_.lock();
   new_jnt_cmd_names_.push_back(jnt_name);
-  hw_unit_->setCommand(jnt_name, cmd);
+  hw_unit_[jnt_name]->setCommand(*cmd);
   new_command_ = true;
   cmd_lock_.unlock();
 }
@@ -161,9 +148,13 @@ void Middleware::addCommand(const std::string& jnt_name, const HwCmdSp& cmd) {
  * 参数2: 指定命令数据
  */
 void Middleware::addCommand(const std::vector<std::string>& jnt_names, const std::vector<HwCmdSp>& cmds) {
+  if (jnt_names.size() != cmds.size()) return;
+
   cmd_lock_.lock();
   new_jnt_cmd_names_.insert(new_jnt_cmd_names_.end(), jnt_names.begin(), jnt_names.end());
-  hw_unit_->setCommand(jnt_names, cmds);
+  for (int i = 0; i < jnt_names.size(); ++i) {
+    hw_unit_[jnt_names[i]]->setCommand(*cmds[i]);
+  }
   new_command_ = true;
   cmd_lock_.unlock();
 }
@@ -174,9 +165,13 @@ void Middleware::addCommand(const std::vector<std::string>& jnt_names, const std
  * 参数2: 指定命令数据
  */
 void Middleware::addCommand(const std::vector<std::string>& jnt_names, const std::vector<HwCommand>& cmds) {
+  if (jnt_names.size() != cmds.size()) return;
+
   cmd_lock_.lock();
   new_jnt_cmd_names_.insert(new_jnt_cmd_names_.end(), jnt_names.begin(), jnt_names.end());
-  hw_unit_->setCommand(jnt_names, cmds);
+  for (int i = 0; i < jnt_names.size(); ++i) {
+    hw_unit_[jnt_names[i]]->setCommand(cmds[i]);
+  }
   new_command_ = true;
   cmd_lock_.unlock();
 }
@@ -200,7 +195,7 @@ void Middleware::getJointPositions(std::vector<double>& positions) {
   for (const auto& jnt : jnt_names_) {
     Encoder::StateTypeSp state
       = boost::dynamic_pointer_cast<Encoder::StateType>(
-          hw_unit_->getState(jnt));
+          hw_unit_[jnt]->getState());
     if (nullptr != state)
       positions.push_back(state->pos_);
     else
@@ -216,7 +211,7 @@ void Middleware::getJointVelocities(std::vector<double>& velocities) {
   for (const auto& jnt : jnt_names_) {
     Encoder::StateTypeSp state
       = boost::dynamic_pointer_cast<Encoder::StateType>(
-          hw_unit_->getState(jnt));
+          hw_unit_[jnt]->getState());
     if (nullptr != state)
       velocities.push_back(state->vel_);
     else
@@ -253,7 +248,7 @@ void Middleware::getJointStates(sensor_msgs::JointState& jnt_state) {
   for (auto& jnt : jnt_names_) {
     Encoder::StateTypeSp state
       = boost::dynamic_pointer_cast<Encoder::StateType>(
-          hw_unit_->getState(jnt));
+          hw_unit_[jnt]->getState());
     if (nullptr != state) {
       jnt_state.name.push_back(jnt);
       jnt_state.position.push_back(state->pos_);
@@ -275,7 +270,7 @@ bool Middleware::doTraj(const std::vector<double>& inp_timestamps,
   std::vector<double> positions;
   unsigned int j;
 
-  if ((propagate_->empty()) || (hw_unit_->empty())) {
+  if ((propagate_.empty()) || (hw_unit_.empty())) {
     LOG_ERROR << "Invalidate propagate or robot state";
     return false;
   }

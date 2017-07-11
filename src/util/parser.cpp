@@ -108,7 +108,7 @@ bool Parser::parserPropagates(Middleware* robot) {
     return false;
   }
 
-  auto propa = robot->propagate_;
+  auto& propa = robot->propagate_;
   if (nullptr == propagates->Attribute("name")) {
     LOG_WARNING << "Could not found the 'name' attribute of the 'propagates' block, "
         << "using the default name 'propagates'";
@@ -118,7 +118,7 @@ bool Parser::parserPropagates(Middleware* robot) {
   LOG_INFO << "Assemble propagates: '" << propagates->Attribute("name") << "'";
   // Propagate* propa = new Propagate(propagates->Attribute("name"));
   // robot->propagate_.reset(new Propagate(propagates->Attribute("name")));
-  propa->label_ = propagates->Attribute("name");
+  propa.label_ = propagates->Attribute("name");
   int counter = 0;
   for (auto c_root = propagates->FirstChildElement("channel");
       c_root != nullptr; c_root = c_root->NextSiblingElement("channel")) {
@@ -146,8 +146,8 @@ bool Parser::parserPropagates(Middleware* robot) {
     // channel->setName(c_root->Attribute("name"));
 
     LOG_INFO << "Push the " << counter + 1 << "st propagates('" << channel->propa_name_
-        << "') into '" << propa->label_ << "'";
-    propa->add(channel->propa_name_, channel);
+        << "') into '" << propa.label_ << "'";
+    propa.add(channel->propa_name_, channel);
     ++counter;
   }
 
@@ -164,7 +164,7 @@ bool Parser::parserJointStates(Middleware* robot) {
     LOG_FATAL << "unit_loader is nullptr!";
     return false;
   }
-  if (robot->propagate_->empty()) {
+  if (robot->propagate_.empty()) {
   // if (nullptr == robot->propagate_.get()) {
     LOG_FATAL << "The instance of Middleware is nullptr"
         << ", Is you call the parserJoints method before parserPropagates method?";
@@ -222,7 +222,7 @@ bool Parser::parserJoint(TiXmlElement* jnt_root, Middleware* robot) {
 
   if (nullptr == jnt_root->Attribute("name")) {
     std::stringstream ss;
-    ss << "joint_" << robot_propa->size();// robot->jnt_names_.size();
+    ss << "joint_" << robot_propa.size();// robot->jnt_names_.size();
     LOG_WARNING << "The joint tag has no 'name' attribute, "
         << "we will use the default name: \"" << ss.str() << "\"";
     jnt_root->SetAttribute("name", ss.str());
@@ -231,16 +231,16 @@ bool Parser::parserJoint(TiXmlElement* jnt_root, Middleware* robot) {
   HwUnitSp joint_handle = unit_loader_->createInstance<HwUnit>(jnt_root->Attribute("type"));
   joint_handle->init(jnt_root);
 
-  auto state_itr = robot_propa->find(joint_handle->state_channel_);
-  if (robot_propa->end() == state_itr) {
+  auto state_itr = robot_propa.find(joint_handle->state_channel_);
+  if (robot_propa.end() == state_itr) {
     LOG_FATAL << "There is no " << joint_handle->state_channel_
         << " request for " << joint_handle->hw_name_ << " joint ";
   }
   // register Hardware handle into propagate for efficiency
   state_itr->second->registerHandle(joint_handle);
 
-  auto cmd_itr = robot_propa->find(joint_handle->cmd_channel_);
-  if (robot_propa->end() == cmd_itr) {
+  auto cmd_itr = robot_propa.find(joint_handle->cmd_channel_);
+  if (robot_propa.end() == cmd_itr) {
     LOG_FATAL << "There is no " << joint_handle->cmd_channel_
         << " request for " << joint_handle->hw_name_ << " joint ";
   }
@@ -248,7 +248,7 @@ bool Parser::parserJoint(TiXmlElement* jnt_root, Middleware* robot) {
   cmd_itr->second->registerHandle(joint_handle);
 
   robot->jnt_names_.push_back(joint_handle->hw_name_);
-  robot->hw_unit_->add(joint_handle->hw_name_, joint_handle);
+  robot->hw_unit_.add(joint_handle->hw_name_, joint_handle);
 
   /*
   LOG_INFO << "Assemble joint: \"" << joint_handle->hw_name_ << "\"";

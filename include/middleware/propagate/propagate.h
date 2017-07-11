@@ -26,10 +26,10 @@ public:
   // 本通信方式的名称， 该名称作为Hw_Unit的Channel参数
   std::string propa_name_;
 
-  virtual bool init(TiXmlElement*) = 0;
-  virtual bool write(const std::vector<std::string>&) = 0;
-  virtual bool read() = 0;
-  virtual void stop() = 0;
+  virtual bool init(TiXmlElement* root = nullptr) {return true;};
+  virtual bool write(const std::vector<std::string>&) {return true;};
+  virtual bool read() {return true;};
+  virtual void stop() { };
   // for Debug
   virtual void check() { ; };
   /**************************************************
