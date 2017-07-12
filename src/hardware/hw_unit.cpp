@@ -6,8 +6,8 @@
  */
 
 #include "middleware/hardware/hw_unit.h"
-
 #include "middleware/util/log.h"
+#include "middleware/propagate/proto/dragon.pb.h"
 
 namespace middleware {
 
@@ -19,7 +19,16 @@ HwUnit::HwUnit(const std::string& name)
 HwUnit::~HwUnit() { };
 void HwUnit::check() { ; }
 
-bool HwUnit::init(TiXmlElement*)        { return true; }
+bool HwUnit::init(TiXmlElement*) {
+  if (nullptr == Middleware::getInstance()) return false;
+
+  Middleware::getInstance()->propagate_[this->cmd_channel_]->registerHandle(this);
+
+
+
+  return true;
+}
+
 HwStateSp HwUnit::getStataHandle()      { return nullptr; }
 HwCmdSp HwUnit::getCmdHandle()          { return nullptr; }
 HwUnit::StateTypeSp HwUnit::getState()  { return nullptr; }

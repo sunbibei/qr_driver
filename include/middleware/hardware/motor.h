@@ -30,13 +30,18 @@ struct MotorState : public HwState {
  * The motor command
  */
 struct MotorCmd : public HwCommand {
-  typedef enum {MODE_POS_, MODE_VEL_, MODE_TOR_} MODE_;
 
   std::atomic<double> command_;
-  std::atomic<MODE_>  mode_;
+  std::atomic<JntCmdType>  mode_;
 
-  MotorCmd(double cmd = 0, MODE_ = MODE_TOR_);
+  // update辅助变量
+  const LegType leg_;
+  const JntType jnt_;
+
+  MotorCmd(LegType leg, JntType jnt, double cmd = 0, JntCmdType mode = JntCmdType::TOR);
   virtual ~MotorCmd();
+
+  virtual bool update(Command*) override;
 };
 
 /*
@@ -49,7 +54,7 @@ public:
   typedef boost::shared_ptr<MotorCmd>   CmdTypeSp;
   typedef boost::shared_ptr<MotorState> StateTypeSp;
 
-  Motor(const std::string& name = "motor", CmdType::MODE_ mode = CmdType::MODE_TOR_);
+  Motor(const std::string& name = "motor", JntCmdType mode = JntCmdType::TOR);
   virtual ~Motor();
 
   virtual bool init(TiXmlElement*) override;

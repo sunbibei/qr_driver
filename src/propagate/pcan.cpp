@@ -26,8 +26,8 @@ void PcanChannel::stop() {
 }
 
 // 完成数据的读写. (下面全是测试代码)
-bool PcanChannel::write(const std::vector<std::string>& names) {
-  if (names.empty()) return true;
+bool PcanChannel::write(void*, size_t) {
+ /* if (names.empty()) return true;
 
   // LOG_INFO << "PCAN write: ";
   for (const std::string& name : names) {
@@ -71,17 +71,17 @@ bool PcanChannel::write(const std::vector<std::string>& names) {
     } else {
       LOG_WARNING << "Could not found the " << name << " command handle";
     }
-  }
+  }*/
   return true;
 }
 
 // (下面全是测试代码)
-bool PcanChannel::read() {
+int  PcanChannel::read(void*, size_t) {
   // 从PCAN中获取到的数据对应到具体的状态name
   // 也可以从PCAN的数据中， 明确到底是什么类型的State
   // 转化为对应类型的State, 在进行赋值
   // LOG_INFO << "PCAN read: ";
-  std::string name = "knee";
+/*  std::string name = "knee";
   auto itr = state_composite_.find(name);
   if (state_composite_.end() == itr) {
     LOG_WARNING << "Could not found the " << name << " state handle: ";
@@ -111,7 +111,7 @@ bool PcanChannel::read() {
             current_time - act_state->previous_time_).count();
     act_state->pos_ = current_pos;
     act_state->previous_time_ = current_time;
-  }
+  }*/
 
   return true;
 }

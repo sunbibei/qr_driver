@@ -21,8 +21,8 @@ public:
   virtual ~PcanChannel();
 
   virtual bool init(TiXmlElement*) override;
-  virtual bool write(const std::vector<std::string>&) override;
-  virtual bool read() override;
+  virtual bool write(void*, size_t) override;
+  virtual int  read(void*, size_t) override;
   virtual void stop() override;
 
   virtual void check() override;

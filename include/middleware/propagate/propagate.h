@@ -27,8 +27,8 @@ public:
   std::string propa_name_;
 
   virtual bool init(TiXmlElement* root = nullptr) {return true;};
-  virtual bool write(const std::vector<std::string>&) {return true;};
-  virtual bool read() {return true;};
+  virtual bool write(void*, size_t) {return true;};
+  virtual int  read(void*, size_t) {return 0;};
   virtual void stop() { };
   // for Debug
   virtual void check() { ; };
@@ -43,10 +43,24 @@ public:
    * 参数3: 可选, 指定注册的通信通道
    **************************************************/
   void registerHandle(boost::shared_ptr<HwUnit>);
-
+  void registerHandle(HwUnit*);
+  bool send(const std::vector<std::string>&);
+  bool recv();
+  // void changeCacheSize(int new_size);
+  // void parse();
+  // void parse(const std::vector<std::string>&);
 protected:
+  size_t                propa_r_cache_size_;
+  size_t                propa_w_cache_size_;
+  uint8_t*              propa_r_cache_;
+  uint8_t*              propa_w_cache_;
+
   Composite<HwCommand>  cmd_composite_;
   Composite<HwState>    state_composite_;
+
+private:
+  class Command*  proto_cmd_;
+  class Feedback* proto_fb_;
 };
 
 } /* namespace middleware */

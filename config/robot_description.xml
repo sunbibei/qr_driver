@@ -8,11 +8,11 @@
   </lib_paths>
 -->
 
-	<propagates name="qr_propagate" >
+	<propagates name="propagates" >
 		<channel name="pcan" type="middleware::PcanChannel" />
 	</propagates>
 	
-	<hardwares name="qr_joints" >
+	<hardwares name="hardwares" list="joint power imu" >
 		<joint type="middleware::Joint">
 			<parameter name="yaw" actuators="yaw_motor" encoders="yaw_encoder" />
 			<actuator type="middleware::Motor" channel="pcan">

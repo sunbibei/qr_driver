@@ -118,10 +118,9 @@ void Middleware::halt() {
 
 /*
  * 设定指定关节命令, 并发送给机器人
- * 参数1: 指定关节名称
- * 参数2: 指定命令数据
+ * 参数1: 指定命令数据
  */
-void Middleware::addCommand(const std::string& jnt_name, const HwCommand& cmd) {
+void Middleware::addCommand(const HwCommand& cmd) {
   cmd_lock_.lock();
   new_jnt_cmd_names_.push_back(jnt_name);
   hw_unit_[jnt_name]->setCommand(cmd);
@@ -318,7 +317,7 @@ void Middleware::executeJointPositions(const std::vector<std::string>& names, co
   // 并未转换到Joint速度指令
   for (std::size_t i = 0; i < jnt_names_.size(); ++i) {
     cmd_vec.push_back(
-        HwCmdSp(new Motor::CmdType(positions[i], Motor::CmdType::MODE_POS_)));
+        HwCmdSp(new Motor::CmdType(positions[i], JntCmdType::POS)));
   }
   addCommand(names, cmd_vec);
 }
@@ -332,7 +331,7 @@ void Middleware::executeJointVelocities(const std::vector<std::string>& names, c
   // 并未转换到Joint速度指令
   for (std::size_t i = 0; i < jnt_names_.size(); ++i) {
     cmd_vec.push_back(
-        HwCmdSp(new Motor::CmdType(velocities[i], Motor::CmdType::MODE_VEL_)));
+        HwCmdSp(new Motor::CmdType(velocities[i], JntCmdType::VEL)));
   }
   addCommand(names, cmd_vec);
 }

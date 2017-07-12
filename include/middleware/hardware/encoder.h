@@ -22,9 +22,14 @@ struct EncoderState : public HwState {
   std::atomic<double> vel_;
   // 计算速度的辅助变量, 保存前一次更新的时间
   std::chrono::high_resolution_clock::time_point previous_time_;
+  // parse辅助变量
+  const LegType leg_;
+  const JntType jnt_;
 
-  EncoderState(double pos = 0, double vel = 0);
+  EncoderState(LegType leg, JntType jnt, double pos = 0, double vel = 0);
   ~EncoderState();
+
+  virtual bool update(const class Feedback*) override;
 };
 
 class Encoder : public HwUnit {

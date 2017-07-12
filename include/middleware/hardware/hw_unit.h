@@ -14,6 +14,8 @@
 #include <boost/variant.hpp>
 #include <boost/shared_ptr.hpp>
 
+#include "middleware/propagate/proto/dragon.pb.h"
+
 namespace middleware {
 
 /**
@@ -22,6 +24,8 @@ namespace middleware {
 struct HwState {
   HwState() { };
   virtual ~HwState() { };
+
+  virtual bool update(const Feedback*) { return true; };
 };
 
 /**
@@ -30,6 +34,8 @@ struct HwState {
 struct HwCommand {
   HwCommand() { };
   virtual ~HwCommand() { };
+
+  virtual bool update(Command*) { return true; };
 };
 
 class HwUnit {

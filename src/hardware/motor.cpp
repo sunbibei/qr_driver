@@ -18,18 +18,30 @@ MotorState::MotorState(double pos, double vel, double tor)
 MotorState::~MotorState()
 { }
 
-MotorCmd::MotorCmd(double cmd, MODE_)
-    : command_(cmd), mode_(MODE_TOR_)
+MotorCmd::MotorCmd(LegType leg, JntType jnt, double cmd, JntCmdType mode)
+    : leg_(leg), jnt_(jnt),
+      command_(cmd), mode_(mode)
 { }
 
 MotorCmd::~MotorCmd()
 { }
 
+bool MotorCmd::update(Command* cmd) {
+  cmd->set_idx(CmdType::JNT_TASK);
+  JntCmd* jnt = cmd->mutable_jnt_cmd();
+  jnt->set_leg(leg_);
+  jnt->set_jnt(jnt_);
+  jnt->set_type(mode_);
+  jnt->set_cmd(command_);
 
-Motor::Motor(const std::string&  name, CmdType::MODE_ mode)
+  return true;
+}
+
+
+Motor::Motor(const std::string&  name, JntCmdType mode)
     : HwUnit(name),
       motor_state_(new StateType()),
-      motor_cmd_(new CmdType(0, mode))
+      motor_cmd_(nullptr)
 { }
 
 Motor::~Motor()
@@ -41,19 +53,60 @@ bool Motor::init(TiXmlElement* para) {
     return false;
   }
   hw_name_ = para->Attribute("name");
-  std::string mode_str = "";
-  CmdType::MODE_ mode = CmdType::MODE_::MODE_POS_;
+  std::string tmp_str = "";
+  JntCmdType mode = JntCmdType::POS;
   if (nullptr != para->Attribute("mode")) {
-    mode_str = para->Attribute("mode");
-  }
-  if (0 == mode_str.compare("velocity")) {
-    mode = CmdType::MODE_::MODE_VEL_;
-  } else if (0 == mode_str.compare("torque")) {
-    mode = CmdType::MODE_::MODE_TOR_;
+    tmp_str = para->Attribute("mode");
   } else {
-    ;
+    LOG_ERROR << "Can't found the 'mode' TAG in the 'parameter' TAG";
+    return false;
   }
-  motor_cmd_->mode_ = mode;
+  if (0 == tmp_str.compare("velocity")) {
+    mode = JntCmdType::VEL;
+  } else if (0 == tmp_str.compare("torque")) {
+    mode = JntCmdType::TOR;
+  } else {
+    LOG_ERROR << "Error the 'mode' TAG in the 'parameter' TAG";
+    return false;
+  }
+  tmp_str = "";
+  LegType leg;
+  if (nullptr != para->Attribute("leg")) {
+    tmp_str = para->Attribute("leg");
+  } else {
+    LOG_ERROR << "Can't found the 'leg' TAG in the 'parameter' TAG";
+    return false;
+  }
+  if (0 == tmp_str.compare("fl") || 0 == tmp_str.compare("FL")) {
+    leg = LegType::FL;
+  } else if (0 == tmp_str.compare("fr") || 0 == tmp_str.compare("FR")) {
+    leg = LegType::FR;
+  } else if (0 == tmp_str.compare("hl") || 0 == tmp_str.compare("HL")) {
+    leg = LegType::HL;
+  } else if (0 == tmp_str.compare("hr") || 0 == tmp_str.compare("HR")) {
+    leg = LegType::HR;
+  } else {
+    LOG_ERROR << "Error the 'leg' TAG in the 'parameter' TAG";
+    return false;
+  }
+  tmp_str = "";
+  JntType jnt;
+  if (nullptr != para->Attribute("jnt")) {
+    tmp_str = para->Attribute("jnt");
+  } else {
+    LOG_ERROR << "Can't found the 'jnt' TAG in the 'parameter' TAG";
+    return false;
+  }
+  if (0 == tmp_str.compare("yaw") || 0 == tmp_str.compare("YAW")) {
+    jnt = JntType::YAW;
+  } else if (0 == tmp_str.compare("knee") || 0 == tmp_str.compare("KNEE")) {
+    jnt = JntType::KNEE;
+  } else if (0 == tmp_str.compare("hip") || 0 == tmp_str.compare("HIP")) {
+    jnt = JntType::HIP;
+  } else {
+    LOG_ERROR << "Error the 'jnt' TAG in the 'parameter' TAG";
+    return false;
+  }
 
   double val = 0;
   if (nullptr != para->Attribute("value")) {
@@ -61,8 +114,7 @@ bool Motor::init(TiXmlElement* para) {
     ss << para->Attribute("value");
     ss >> val;
   }
-  motor_cmd_->command_ = val;
-
+  motor_cmd_.reset(new CmdType(leg, jnt, val, mode));
   return true;
 }
 
@@ -80,7 +132,8 @@ HwStateSp Motor::getState() {
 }
 
 HwCmdSp Motor::getCommand() {
-  return HwCmdSp(new CmdType(motor_cmd_->command_, motor_cmd_->mode_));
+  return HwCmdSp(new CmdType(motor_cmd_->leg_, motor_cmd_->jnt_,
+      motor_cmd_->command_, motor_cmd_->mode_));
 }
 
 void Motor::setState(const HwState& state) {
@@ -95,7 +148,7 @@ void Motor::setState(const HwState& state) {
 
 void Motor::setCommand(const HwCommand& cmd) {
   const CmdType& motor_cmd = dynamic_cast<const CmdType&>(cmd);
-  CmdType::MODE_ mode = motor_cmd.mode_;
+  JntCmdType mode = motor_cmd.mode_;
   motor_cmd_->mode_ = mode;
   double val = motor_cmd.command_;
   motor_cmd_->command_ = val;

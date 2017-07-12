@@ -1,0 +1,76 @@
+syntax = "proto2";
+
+package middleware;
+
+// the type of command from host
+enum CmdType {
+  JNT_TASK = 0;
+  EEF_TASK = 1; // no uesed
+  N_CMDS   = 2;
+}
+
+enum JntCmdType {
+  POS = 0;
+  VEL = 1;
+  TOR = 2;
+  N_JNT_CMD_TYPES = 3;
+}
+
+enum LegType {
+  FL = 0;
+  FR = 1;
+  HL = 2;
+  HR = 3;
+  N_LEGS = 4;
+}
+
+enum JntType {
+  YAW  = 0;
+  HIP  = 1;
+  KNEE = 2;
+  N_JNTS = 3;
+}
+
+message JntCmd {
+  required LegType    leg  = 1;
+  required JntType    jnt  = 2;
+  required JntCmdType type = 3 [default = POS];
+  required float      cmd  = 4;
+}
+
+message Command {
+  required CmdType idx = 1;
+  optional JntCmd  jnt_cmd = 2;
+}
+
+// the type of feedback type from arm
+enum FbType {
+  JOINT_STATES = 0;
+  POWER_STATES = 1;
+  N_FBS = 2;sr
+}
+
+message JointStates {
+  required LegType leg = 1;
+  repeated float   pos = 2 [packed = true]; // pos_size = 3
+}
+
+enum PowerFlag {
+  VOLTAGE_OK = 1;
+  VOLTAGE_ERROR = 2;
+}
+
+// V, A(float), power node
+// 
+message PowerStates {
+  required float voltage = 1;
+  required float current = 2;
+  required PowerFlag  overvoltage = 3;
+  required PowerFlag  overcurrent = 4;
+}
+
+message Feedback {
+  required FbType      idx  = 1;
+  optional JointStates joint_states = 2;
+  optional PowerStates power_states = 3;
+}
