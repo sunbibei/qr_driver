@@ -57,7 +57,6 @@ public:
   virtual void check();
   /**
    * 初始化本类对象, 使用xml文件中内容
-   * 基类默认实现为空
    */
   virtual bool init(TiXmlElement*);
   /**

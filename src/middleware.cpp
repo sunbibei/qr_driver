@@ -42,7 +42,7 @@ Middleware::~Middleware() {
 
 bool Middleware::init(const std::string& xml) {
 
-  if (!Parser::parser(xml, this)) {
+  if (!Parser::parse(xml)) {
     LOG_ERROR << "The initialization FAIL in the Middleware";
     return false;
   }
@@ -53,7 +53,7 @@ bool Middleware::init(const std::string& xml) {
 
 bool Middleware::init(ros::NodeHandle& nh) {
 
-  if (!Parser::parser(this)) {
+  if (!Parser::parse()) {
     LOG_ERROR << "The initialization FAIL in the Middleware";
     return false;
   }
@@ -78,10 +78,10 @@ void Middleware::runPropagate() {
   while (keepalive_) {
     while (connected_ && keepalive_) {
       // Everything is OK!
-      connected_ = propagate_.read();
+      connected_ = propagate_.recv();
       if (new_command_) {
         while (!cmd_lock_.try_lock()) {}
-        connected_ = propagate_.write(new_jnt_cmd_names_);
+        connected_ = propagate_.send(new_jnt_cmd_names_);
         new_command_ = false;
         new_jnt_cmd_names_.clear();
         cmd_lock_.unlock();
@@ -94,7 +94,7 @@ void Middleware::runPropagate() {
       while (keepalive_ && !connected_) {
         propagate_.stop();
         LOG_WARNING << "Attempt to reconnect (" << count++ << " times)";
-        connected_ = propagate_.init();
+        connected_ = propagate_.start();
         if (!connected_) {
           // wait for 500ms
           std::this_thread::sleep_for(std::chrono::milliseconds(500));
@@ -120,7 +120,7 @@ void Middleware::halt() {
  * 设定指定关节命令, 并发送给机器人
  * 参数1: 指定命令数据
  */
-void Middleware::addCommand(const HwCommand& cmd) {
+void Middleware::addCommand(const std::string& jnt_name, const HwCommand& cmd) {
   cmd_lock_.lock();
   new_jnt_cmd_names_.push_back(jnt_name);
   hw_unit_[jnt_name]->setCommand(cmd);

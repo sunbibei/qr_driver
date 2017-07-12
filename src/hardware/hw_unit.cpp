@@ -7,6 +7,7 @@
 
 #include "middleware/hardware/hw_unit.h"
 #include "middleware/util/log.h"
+
 #include "middleware/propagate/proto/dragon.pb.h"
 
 namespace middleware {
@@ -20,12 +21,6 @@ HwUnit::~HwUnit() { };
 void HwUnit::check() { ; }
 
 bool HwUnit::init(TiXmlElement*) {
-  if (nullptr == Middleware::getInstance()) return false;
-
-  Middleware::getInstance()->propagate_[this->cmd_channel_]->registerHandle(this);
-
-
-
   return true;
 }
 

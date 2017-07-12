@@ -26,7 +26,11 @@ public:
   // 本通信方式的名称， 该名称作为Hw_Unit的Channel参数
   std::string propa_name_;
 
-  virtual bool init(TiXmlElement* root = nullptr) {return true;};
+  /**
+   * 等待子类实现的函数s
+   */
+  virtual bool init(TiXmlElement* root);
+  virtual bool start() { return true; }
   virtual bool write(void*, size_t) {return true;};
   virtual int  read(void*, size_t) {return 0;};
   virtual void stop() { };
@@ -43,7 +47,7 @@ public:
    * 参数3: 可选, 指定注册的通信通道
    **************************************************/
   void registerHandle(boost::shared_ptr<HwUnit>);
-  void registerHandle(HwUnit*);
+  // void registerHandle(HwUnit*);
   bool send(const std::vector<std::string>&);
   bool recv();
   // void changeCacheSize(int new_size);

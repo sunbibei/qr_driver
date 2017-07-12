@@ -38,19 +38,27 @@ Propagate::~Propagate() {
   proto_fb_    = nullptr;
 }
 
+bool Propagate::init(TiXmlElement* root) {
+  if (nullptr == root->Attribute("name")) {
+    LOG_FATAL << "Could not found the 'name' attribute of the 'propagates/channel' block";
+  }
+  propa_name_ = root->Attribute("name");
+  return true;
+}
+
 void Propagate::registerHandle(boost::shared_ptr<HwUnit> unit) {
-  if ((unit->cmd_channel_.empty()) || (0 == unit->cmd_channel_.compare(propa_name_))) {
+  if (!(unit->cmd_channel_.empty()) && (0 == unit->cmd_channel_.compare(propa_name_))) {
     LOG_INFO << "Register the COMMAND handle of " << unit->hw_name_
         << " into " << propa_name_ << "'s command buffer successful!";
     cmd_composite_.add(unit->hw_name_, unit->getCmdHandle());
   }
-  if ((unit->state_channel_.empty()) || (0 == unit->state_channel_.compare(propa_name_))) {
+  if (!(unit->state_channel_.empty()) && (0 == unit->state_channel_.compare(propa_name_))) {
     LOG_INFO << "Register the STATE handle of " << unit->hw_name_
         << " into " << propa_name_ << "'s state buffer successful!";
     state_composite_.add(unit->hw_name_, unit->getStataHandle());
   }
 }
-
+/*
 void Propagate::registerHandle(HwUnit* unit) {
   if ((unit->cmd_channel_.empty()) || (0 == unit->cmd_channel_.compare(propa_name_))) {
     LOG_INFO << "Register the COMMAND handle of " << unit->hw_name_
@@ -62,7 +70,7 @@ void Propagate::registerHandle(HwUnit* unit) {
         << " into " << propa_name_ << "'s state buffer successful!";
     state_composite_.add(unit->hw_name_, unit->getStataHandle());
   }
-}
+}*/
 
 bool Propagate::send(const std::vector<std::string>& jnt_names) {
   bool tmp_ret_ = true;

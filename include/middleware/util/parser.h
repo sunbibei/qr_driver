@@ -27,13 +27,15 @@ public:
    * API, 从文件或ROS 参数中解析对象
    * 两个函数的实现, 仅与初始化方式不同而已
    */
-  static bool parser(const std::string&, Middleware*);
-  static bool parser(Middleware*);
+  static bool parse(const std::string&);
+  static bool parse();
 
 private:
   static TiXmlElement* xml_root_;
   static class_loader::ClassLoader* propa_loader_;
   static class_loader::ClassLoader* unit_loader_;
+
+  static TiXmlElement* tmp_xml_ele_;
 
   // 初始化函数, 从文件或ROS参数
   static bool init(const std::string&);
@@ -42,10 +44,11 @@ private:
   static bool initVariants(TiXmlDocument*);
 
   // 解析器Helper, 分别解析'joint_states' TAG and 'propagates' TAG
-  static bool parserPropagates(Middleware*);
-  static bool parserJointStates(Middleware*);
-  // parserJointsHelper method, 解析'joint' TAG
-  static bool parserJoint(TiXmlElement*, Middleware*);
+  static bool parsePropagates();
+  static bool parseHwUnit();
+
+  inline static bool checkPropagatesFormat();
+  inline static bool checkHwUnitFormat();
 };
 
 } /* namespace middleware */

@@ -14,15 +14,17 @@
 
   <!-- Load hardware interface -->
   <node name="qr_driver" pkg="qr_driver" type="qr_driver" output="screen">
-    <param name="configure" command="cat '$(find qr_driver)/config/robot_specification.xml'"/>
-    <param name="use_ros_control" type="bool" value="$(arg use_ros_control)"/>
-    <param name="debug" type="bool" value="$(arg debug)" />
-    <param name="rt_frequency" type="double" value="$(arg rt_frequency)" />
+    <param name="configure"           command="cat '$(find qr_driver)/config/robot_specification.xml'"/>
+    <param name="lib_propagate"       command="cat xxx" />
+    <param name="lib_hwunit"          command="cat xxx" />
+    <param name="use_ros_control"     type="bool"   value="$(arg use_ros_control)"/>
+    <param name="debug"               type="bool"   value="$(arg debug)" />
+    <param name="rt_frequency"        type="double" value="$(arg rt_frequency)" />
     <param name="ctrl_loop_frequency" type="double" value="$(arg ctrl_loop_frequency)" />
-    <param name="min_payload" type="double" value="$(arg min_payload)"/>
-    <param name="max_payload" type="double" value="$(arg max_payload)"/>
-    <param name="max_velocity" type="double" value="$(arg max_velocity)"/>
-    <param name="prefix" value="$(arg prefix)" />
+    <param name="min_payload"         type="double" value="$(arg min_payload)"/>
+    <param name="max_payload"         type="double" value="$(arg max_payload)"/>
+    <param name="max_velocity"        type="double" value="$(arg max_velocity)"/>
+    <param name="prefix"              value="$(arg prefix)" />
   </node>
 
   <!-- Load controller settings -->
