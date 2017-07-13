@@ -21,24 +21,24 @@ class_loader::ClassLoader*  Parser::propa_loader_  = nullptr;
 class_loader::ClassLoader*  Parser::unit_loader_   = nullptr;
 TiXmlElement*               Parser::tmp_xml_ele_   = nullptr;
 
-bool Parser::parse(const std::string& filename) {
-  if (!Parser::init(filename)) {
-    LOG_ERROR << "RobotParser has initialized fail";
-    return false;
-  }
-
-  return (parsePropagates() && parseHwUnit());
-}
-
 bool Parser::parse() {
   if (!Parser::init()) {
     LOG_ERROR << "RobotParser has initialized fail";
     return false;
   }
 
-  return (parsePropagates() && parseHwUnit());
+  return (parsePropagates() && parseHwUnits());
 }
 
+#ifndef ROS_BUILD
+bool Parser::parse(const std::string& filename) {
+  if (!Parser::init(filename)) {
+    LOG_ERROR << "RobotParser has initialized fail";
+    return false;
+  }
+
+  return (parsePropagates() && parseHwUnits());
+}
 /**
  * 完成解析函数MAP的初始化， 以及别的初始化工作
  */
@@ -52,6 +52,33 @@ bool Parser::init(const std::string& filename) {
 
   return initVariants(xml_doc);
 }
+
+bool Parser::initVariants(TiXmlDocument* xml_doc) {
+  xml_root_ = xml_doc->RootElement();  // Robot
+  // Initialize the class_loader
+  TiXmlElement* lib_root = xml_root_->FirstChildElement("lib_paths");
+  if (nullptr == lib_root) {
+    LOG_ERROR << "No define the 'lib_paths' child element in configure";
+    return false;
+  }
+  TiXmlElement* propa_lib = lib_root->FirstChildElement("propagate");
+  TiXmlElement* unit_lib  = lib_root->FirstChildElement("hw_unit");
+  if ((nullptr == propa_lib) || (nullptr == propa_lib->Attribute("path"))) {
+    LOG_ERROR << "No define the lib paths of propagate";
+    return false;
+  } else {
+    propa_loader_ = new class_loader::ClassLoader(propa_lib->Attribute("path"));
+  }
+  if ((nullptr == unit_lib) || (nullptr == unit_lib->Attribute("path"))) {
+    LOG_ERROR << "No define the lib paths of unit";
+    return false;
+  } else {
+    unit_loader_ = new class_loader::ClassLoader(unit_lib->Attribute("path"));
+  }
+
+  return true;
+}
+#endif
 
 bool Parser::init() {
   std::string xml;
@@ -88,32 +115,6 @@ bool Parser::init() {
   return true;
 }
 
-bool Parser::initVariants(TiXmlDocument* xml_doc) {
-  xml_root_ = xml_doc->RootElement();  // Robot
-  // Initialize the class_loader
-  TiXmlElement* lib_root = xml_root_->FirstChildElement("lib_paths");
-  if (nullptr == lib_root) {
-    LOG_ERROR << "No define the 'lib_paths' child element in configure";
-    return false;
-  }
-  TiXmlElement* propa_lib = lib_root->FirstChildElement("propagate");
-  TiXmlElement* unit_lib  = lib_root->FirstChildElement("hw_unit");
-  if ((nullptr == propa_lib) || (nullptr == propa_lib->Attribute("path"))) {
-    LOG_ERROR << "No define the lib paths of propagate";
-    return false;
-  } else {
-    propa_loader_ = new class_loader::ClassLoader(propa_lib->Attribute("path"));
-  }
-  if ((nullptr == unit_lib) || (nullptr == unit_lib->Attribute("path"))) {
-    LOG_ERROR << "No define the lib paths of unit";
-    return false;
-  } else {
-    unit_loader_ = new class_loader::ClassLoader(unit_lib->Attribute("path"));
-  }
-
-  return true;
-}
-
 bool Parser::checkPropagatesFormat() {
   if (nullptr == propa_loader_) {
     LOG_FATAL << "propa_loader is nullptr!";
@@ -141,7 +142,7 @@ bool Parser::parsePropagates() {
 
   tmp_xml_ele_ = xml_root_->FirstChildElement("propagates");
   LOG_INFO << "Assemble propagates: '" << tmp_xml_ele_->Attribute("name") << "'";
-  Middleware::getInstance()->propagate_.label_ = tmp_xml_ele_->Attribute("name");
+  Middleware::instance()->propagate_.label_ = tmp_xml_ele_->Attribute("name");
 
   int counter = 0;
   for (auto c_root = tmp_xml_ele_->FirstChildElement("channel");
@@ -159,11 +160,11 @@ bool Parser::parsePropagates() {
     if (!channel->init(c_root)) {
       LOG_FATAL << "The " << channel->propa_name_ << "channel initialize fail!";
     }
-    LOG_INFO << "Push the " << Middleware::getInstance()->propagate_.size()
+    LOG_INFO << "Push the " << Middleware::instance()->propagate_.size()
         << "st propagates('" << channel->propa_name_
-        << "') into '" << Middleware::getInstance()->propagate_.label_ << "'";
+        << "') into '" << Middleware::instance()->propagate_.label_ << "'";
 
-    Middleware::getInstance()->propagate_.add(channel->propa_name_, channel);
+    Middleware::instance()->propagate_.add(channel->propa_name_, channel);
     ++counter;
   }
 
@@ -176,7 +177,7 @@ bool Parser::checkHwUnitFormat() {
     LOG_FATAL << "unit_loader is nullptr!";
     return false;
   }
-  if (Middleware::getInstance()->propagate_.empty()) {
+  if (Middleware::instance()->propagate_.empty()) {
   // if (nullptr == robot->propagate_.get()) {
     LOG_FATAL << "The instance of Middleware is nullptr"
         << ", Is you call the parserJoints method before parserPropagates method?";
@@ -206,7 +207,7 @@ bool Parser::checkHwUnitFormat() {
  * Parser Helper Method
  * parserJointStates(), parserJoint() and parserPropagates()
  */
-bool Parser::parseHwUnit() {
+bool Parser::parseHwUnits() {
 
   if (!checkHwUnitFormat()) return false;
   tmp_xml_ele_ = xml_root_->FirstChildElement("hardwares");
@@ -233,9 +234,9 @@ bool Parser::parseHwUnit() {
       HwUnitSp joint_handle = unit_loader_->createInstance<HwUnit>(jnt_tag->Attribute("type"));
       joint_handle->init(jnt_tag);
 
-      Middleware::getInstance()->propagate_[joint_handle->cmd_channel_]->registerHandle(joint_handle);
+      Middleware::instance()->propagate_[joint_handle->cmd_channel_]->registerHandle(joint_handle);
       if (0 != joint_handle->cmd_channel_.compare(joint_handle->state_channel_)) {
-        Middleware::getInstance()->propagate_[joint_handle->state_channel_]->registerHandle(joint_handle);
+        Middleware::instance()->propagate_[joint_handle->state_channel_]->registerHandle(joint_handle);
       }
     }
   }

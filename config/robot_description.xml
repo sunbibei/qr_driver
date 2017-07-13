@@ -12,36 +12,46 @@
 		<channel name="pcan" type="middleware::PcanChannel" />
 	</propagates>
 	
-	<hardwares name="hardwares" list="joint power imu" >
-		<joint type="middleware::Joint">
-			<parameter name="yaw" actuators="yaw_motor" encoders="yaw_encoder" />
-			<actuator type="middleware::Motor" channel="pcan">
-    			<parameter name = "yaw_motor" value="1.23" mode="velocity" leg="fl" jnt="yaw"/>
- 	 		</actuator>
-			<encoder type="middleware::Encoder" channel="pcan">
-				<parameter name = "yaw_encoder" leg="fl" jnt="yaw" />
-			</encoder>
-		</joint>
+	<hardwares name="hardwares" list="joints power" >
+		<joints type="middleware::Joint">
+			<joint type="middleware::Joint" channel="pcan"
+				name="fl_yaw"  leg="fl" jnt="yaw"  />
 
-		<joint type="middleware::Joint">
-			<parameter name="knee" actuators="knee_motor" encoders="knee_encoder" />
-			<actuator type="middleware::Motor" channel="pcan">
-    			<parameter name = "knee_motor" value="1.23" mode="velocity" leg="fl" jnt="knee"/>
- 	 		</actuator>
-			<encoder type="middleware::Encoder" channel="pcan">
-				<parameter name = "knee_encoder" leg="fl" jnt="knee" />
-			</encoder>
-		</joint>
+			<joint type="middleware::Joint" channel="pcan"
+				name="fl_knee" leg="fl" jnt="knee" />
 
-		<joint type="middleware::Joint" >
-			<parameter name="hip" actuators="hip_motor" encoders="hip_encoder" />
-			<actuator type="middleware::Motor" channel="pcan">
-  				<parameter name = "hip_motor" value="2.01" mode="position" leg="fl" jnt="hip" />
-			</actuator>
-			<encoder type="middleware::Encoder" channel="pcan">
-				<parameter name = "hip_encoder" leg="fl" jnt="hip" />
-			</encoder>
-		</joint>
+			<joint type="middleware::Joint" channel="pcan"
+				name="fl_hip"  leg="fl" jnt="hip"  />
+
+			<joint type="middleware::Joint" channel="pcan"
+				name="hl_yaw"  leg="hl" jnt="yaw"  />
+
+			<joint type="middleware::Joint" channel="pcan"
+				name="hl_knee" leg="hl" jnt="knee" />
+
+			<joint type="middleware::Joint" channel="pcan"
+				name="hl_hip"  leg="hl" jnt="hip"  />
+
+			<joint type="middleware::Joint" channel="pcan"
+				name="fr_yaw"  leg="fr" jnt="yaw"  />
+
+			<joint type="middleware::Joint" channel="pcan"
+				name="fr_knee" leg="fr" jnt="knee" />
+
+			<joint type="middleware::Joint" channel="pcan"
+				name="fr_hip"  leg="fr" jnt="hip"  />
+
+			<joint type="middleware::Joint" channel="pcan"
+				name="hr_yaw"  leg="hr" jnt="yaw"  />
+
+			<joint type="middleware::Joint" channel="pcan"
+				name="hr_knee" leg="hr" jnt="knee" />
+
+			<joint type="middleware::Joint" channel="pcan"
+				name="hr_hip"  leg="hr" jnt="hip"  />
+		</joints>
+
+		<power type="middleware::Power" name="power" />
 	</hardwares>
 
 </robot>

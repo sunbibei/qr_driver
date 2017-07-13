@@ -14,13 +14,8 @@
 #include <boost/shared_ptr.hpp>
 #include <sensor_msgs/JointState.h>
 
-#include "middleware/hardware/encoder.h"
-#include "middleware/hardware/motor.h"
-
 #include "middleware/propagate/propagate.h"
-
-#include "middleware/util/parser.h"
-#include "middleware/util/log.h"
+#include "middleware/hardware/hw_unit.h"
 #include "middleware/util/composite.h"
 
 namespace middleware {
@@ -28,7 +23,7 @@ namespace middleware {
 typedef boost::shared_ptr<HwCommand> HwCmdSp;
 typedef boost::shared_ptr<HwState>   HwStateSp;
 typedef boost::shared_ptr<Propagate> PropaSp;
-typedef boost::shared_ptr<HwUnit> HwUnitSp;
+typedef boost::shared_ptr<HwUnit>    HwUnitSp;
 
 class Middleware {
 public:
@@ -39,9 +34,11 @@ public:
   std::vector<std::string> jnt_names_;
 
   // 初始化所有变量, 以及线程等.
+#ifndef ROS_BUILD
   bool init(const std::string& xml = "robot.xml");
+#endif
+
   bool init(ros::NodeHandle&);
-  bool isInit();
 
   // 开始/停止运行
   bool start();
@@ -82,7 +79,7 @@ public:
 public:
   ~Middleware();
   // 获取QuadrupedRobotDriver对象实例
-  static Middleware* getInstance();
+  static Middleware* instance();
 
 private:
   /**
@@ -94,6 +91,8 @@ private:
 
 private:
   Middleware();
+  Middleware(const Middleware&) { };
+  Middleware& operator=(const Middleware&) {return *this;};
 
   /*
    * 创建硬件接口的工厂方法

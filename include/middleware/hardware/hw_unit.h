@@ -14,6 +14,7 @@
 #include <boost/variant.hpp>
 #include <boost/shared_ptr.hpp>
 
+#include "middleware/util/composite2.h"
 #include "middleware/propagate/proto/dragon.pb.h"
 
 namespace middleware {
@@ -22,23 +23,26 @@ namespace middleware {
  * 状态基类
  */
 struct HwState {
-  HwState() { };
   virtual ~HwState() { };
 
-  virtual bool update(const Feedback*) { return true; };
+  std::string  channel_;
+  virtual bool updateFrom(const Feedback*) { return true; };
 };
 
 /**
  * 命令基类
  */
 struct HwCommand {
-  HwCommand() { };
   virtual ~HwCommand() { };
 
-  virtual bool update(Command*) { return true; };
+  std::string  channel_;
+  virtual bool parseTo(Command*) { return true; };
 };
 
-class HwUnit {
+typedef boost::shared_ptr<HwState>   HwStateSp;
+typedef boost::shared_ptr<HwCommand> HwCmdSp;
+
+class HwUnit : public Composite2<HwUnit> {
 public:
   /**************************************************
    * 任何该类的子类, 若包含State or Cmd
@@ -75,26 +79,21 @@ public:
  * set函数, 也以名称为标识符, 设定对应的数据
  **************************************************/
   virtual StateTypeSp getState();
-  virtual CmdTypeSp getCommand();
+  virtual CmdTypeSp   getCommand();
   virtual void setState(const StateType&);
   virtual void setCommand(const CmdType&);
 
-  void setName(const std::string& n) {hw_name_ = n;};
+  /*void setName(const std::string& n) {hw_name_ = n;};
   const std::string& getName() {return hw_name_;};
 
-/*  virtual void setStateChannel(const std::string& c) {state_channel_ = c;};
+  virtual void setStateChannel(const std::string& c) {state_channel_ = c;};
   virtual void setCmdChannel(const std::string& c) {cmd_channel_ = c;};
   virtual const std::string& getStateChannel() {return state_channel_;};
   virtual const std::string& getCmdChannel() {return cmd_channel_;};
 
 protected:*/
   std::string hw_name_;
-  std::string state_channel_;
-  std::string cmd_channel_;
 };
-
-typedef boost::shared_ptr<HwState>   HwStateSp;
-typedef boost::shared_ptr<HwCommand> HwCmdSp;
 
 } /* namespace quadruped_robot_driver */
 

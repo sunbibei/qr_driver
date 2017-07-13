@@ -52,14 +52,9 @@ bool RosWrapper::start() {
     google::SetStderrLogging(google::GLOG_WARNING);
   }
   
-  robot_ = Middleware::getInstance();
+  robot_ = Middleware::instance();
   if (!robot_->init(nh_)) {
     LOG_ERROR << "Launch the robot fail from ros::NodeHandle";
-    return false;
-  }
-
-  if (!robot_->isInit()) {
-    LOG_ERROR << "Start RosWrapper FAIL";
     return false;
   }
 
@@ -352,6 +347,7 @@ void RosWrapper::cbForDebug(const std_msgs::Int32ConstPtr& msg) {
   std::vector<HwCmdSp> cmd_vec;
   std::vector<std::string> cmd_name;
   for (auto& jnt : robot_->jnt_names_) {
+    auto cmd =
     Motor::CmdTypeSp cmd(new Motor::CmdType(msg->data, Motor::CmdType::MODE_POS_));
     cmd_vec.push_back(cmd);
     cmd_name.push_back(jnt);

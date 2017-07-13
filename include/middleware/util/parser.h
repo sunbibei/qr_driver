@@ -27,7 +27,9 @@ public:
    * API, 从文件或ROS 参数中解析对象
    * 两个函数的实现, 仅与初始化方式不同而已
    */
+#ifndef ROS_BUILD
   static bool parse(const std::string&);
+#endif
   static bool parse();
 
 private:
@@ -38,14 +40,18 @@ private:
   static TiXmlElement* tmp_xml_ele_;
 
   // 初始化函数, 从文件或ROS参数
+#ifndef ROS_BUILD
   static bool init(const std::string&);
-  static bool init();
   // initHelper
   static bool initVariants(TiXmlDocument*);
+#endif
+
+  static bool init();
+
 
   // 解析器Helper, 分别解析'joint_states' TAG and 'propagates' TAG
   static bool parsePropagates();
-  static bool parseHwUnit();
+  static bool parseHwUnits();
 
   inline static bool checkPropagatesFormat();
   inline static bool checkHwUnitFormat();

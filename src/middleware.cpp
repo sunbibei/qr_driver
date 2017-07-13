@@ -13,7 +13,7 @@
 namespace middleware {
 
 Middleware* Middleware::instance_ = nullptr;
-Middleware* Middleware::getInstance() {
+Middleware* Middleware::instance() {
   if (nullptr == instance_) {
     instance_ = new Middleware;
     LOG_INFO << "Create and return the singleton instance: Middleware";
@@ -40,6 +40,7 @@ Middleware::~Middleware() {
   }*/
 }
 
+#ifndef ROS_BUILD
 bool Middleware::init(const std::string& xml) {
 
   if (!Parser::parse(xml)) {
@@ -50,6 +51,7 @@ bool Middleware::init(const std::string& xml) {
   LOG_INFO << "The initialization has successful";
   return true;
 }
+#endif
 
 bool Middleware::init(ros::NodeHandle& nh) {
 
@@ -60,10 +62,6 @@ bool Middleware::init(ros::NodeHandle& nh) {
 
   LOG_INFO << "The initialization has successful";
   return true;
-}
-
-bool Middleware::isInit() {
-  return ((!propagate_.empty()) && (!hw_unit_.empty()));
 }
 
 bool Middleware::start() {
@@ -151,7 +149,7 @@ void Middleware::addCommand(const std::vector<std::string>& jnt_names, const std
 
   cmd_lock_.lock();
   new_jnt_cmd_names_.insert(new_jnt_cmd_names_.end(), jnt_names.begin(), jnt_names.end());
-  for (int i = 0; i < jnt_names.size(); ++i) {
+  for (size_t i = 0; i < jnt_names.size(); ++i) {
     hw_unit_[jnt_names[i]]->setCommand(*cmds[i]);
   }
   new_command_ = true;
@@ -168,7 +166,7 @@ void Middleware::addCommand(const std::vector<std::string>& jnt_names, const std
 
   cmd_lock_.lock();
   new_jnt_cmd_names_.insert(new_jnt_cmd_names_.end(), jnt_names.begin(), jnt_names.end());
-  for (int i = 0; i < jnt_names.size(); ++i) {
+  for (size_t i = 0; i < jnt_names.size(); ++i) {
     hw_unit_[jnt_names[i]]->setCommand(cmds[i]);
   }
   new_command_ = true;
@@ -316,8 +314,10 @@ void Middleware::executeJointPositions(const std::vector<std::string>& names, co
   // TODO 需要实际公式计算， 当前实现版本仅仅是电机的位置控制
   // 并未转换到Joint速度指令
   for (std::size_t i = 0; i < jnt_names_.size(); ++i) {
-    cmd_vec.push_back(
-        HwCmdSp(new Motor::CmdType(positions[i], JntCmdType::POS)));
+    auto cmd = boost::dynamic_pointer_cast<Motor::CmdType>(hw_unit_[names[i]]->getCommand());
+    cmd->command_ = positions[i];
+    cmd->mode_    = JntCmdType::POS;
+    cmd_vec.push_back(cmd);
   }
   addCommand(names, cmd_vec);
 }
@@ -330,8 +330,10 @@ void Middleware::executeJointVelocities(const std::vector<std::string>& names, c
   // TODO 需要实际公式计算， 当前实现版本仅仅是电机的速度控制
   // 并未转换到Joint速度指令
   for (std::size_t i = 0; i < jnt_names_.size(); ++i) {
-    cmd_vec.push_back(
-        HwCmdSp(new Motor::CmdType(velocities[i], JntCmdType::VEL)));
+    auto cmd = boost::dynamic_pointer_cast<Motor::CmdType>(hw_unit_[names[i]]->getCommand());
+    cmd->command_ = velocities[i];
+    cmd->mode_    = JntCmdType::VEL;
+    cmd_vec.push_back(cmd);
   }
   addCommand(names, cmd_vec);
 }
