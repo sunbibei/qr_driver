@@ -343,16 +343,16 @@ void RosWrapper::cbForDebug(const std_msgs::Int32ConstPtr& msg) {
     robot_->addCommand(jnt, cmd);
   }*/
   // 实现方式2
-  LOG_INFO << "test write style 2";
+  /*LOG_INFO << "test write style 2";
   std::vector<HwCmdSp> cmd_vec;
   std::vector<std::string> cmd_name;
   for (auto& jnt : robot_->jnt_names_) {
     auto cmd =
-    Motor::CmdTypeSp cmd(new Motor::CmdType(msg->data, Motor::CmdType::MODE_POS_));
+        Joint::CmdTypeSp cmd(new Joint::CmdType(msg->data, JntCmdType::POS));
     cmd_vec.push_back(cmd);
     cmd_name.push_back(jnt);
   }
-  robot_->addCommand(cmd_name, cmd_vec);
+  robot_->addCommand(cmd_name, cmd_vec);*/
 
   LOG_INFO << "Add Command Successful";
 }

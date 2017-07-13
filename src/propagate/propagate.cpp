@@ -77,7 +77,7 @@ bool Propagate::send(const std::vector<std::string>& jnt_names) {
   // memset(propa_w_cache_, '\0', propa_w_cache_size_);
   int cache_w_offset_ = 0;
   for (const auto& jnt : jnt_names) {
-    cmd_composite_[jnt]->update(proto_cmd_);
+    cmd_composite_[jnt]->parseTo(proto_cmd_);
     tmp_ret_ &= proto_cmd_->SerializeToArray(propa_w_cache_ + cache_w_offset_,
         propa_w_cache_size_ - cache_w_offset_);
     tmp_ret_ &= write(propa_w_cache_ + cache_w_offset_, proto_cmd_->ByteSize());

@@ -14,7 +14,7 @@
 #include <boost/variant.hpp>
 #include <boost/shared_ptr.hpp>
 
-#include "middleware/util/composite2.h"
+#include <middleware/util/composite2.h>
 #include "middleware/propagate/proto/dragon.pb.h"
 
 namespace middleware {
@@ -25,7 +25,6 @@ namespace middleware {
 struct HwState {
   virtual ~HwState() { };
 
-  std::string  channel_;
   virtual bool updateFrom(const Feedback*) { return true; };
 };
 
@@ -35,7 +34,6 @@ struct HwState {
 struct HwCommand {
   virtual ~HwCommand() { };
 
-  std::string  channel_;
   virtual bool parseTo(Command*) { return true; };
 };
 
@@ -82,6 +80,7 @@ public:
   virtual CmdTypeSp   getCommand();
   virtual void setState(const StateType&);
   virtual void setCommand(const CmdType&);
+  virtual void publish();
 
   /*void setName(const std::string& n) {hw_name_ = n;};
   const std::string& getName() {return hw_name_;};
@@ -93,6 +92,8 @@ public:
 
 protected:*/
   std::string hw_name_;
+  std::string cmd_channel_;
+  std::string state_channel_;
 };
 
 } /* namespace quadruped_robot_driver */

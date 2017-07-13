@@ -9,6 +9,8 @@
 #include <tinyxml.h>
 
 #include "middleware/middleware.h"
+#include "middleware/hardware/joint.h"
+#include "middleware/util/parser.h"
 
 namespace middleware {
 
@@ -190,8 +192,8 @@ void Middleware::getJointPositions(std::vector<double>& positions) {
   positions.clear();
   positions.reserve(jnt_names_.size());
   for (const auto& jnt : jnt_names_) {
-    Encoder::StateTypeSp state
-      = boost::dynamic_pointer_cast<Encoder::StateType>(
+    Joint::StateTypeSp state
+      = boost::dynamic_pointer_cast<Joint::StateType>(
           hw_unit_[jnt]->getState());
     if (nullptr != state)
       positions.push_back(state->pos_);
@@ -206,8 +208,8 @@ void Middleware::getJointVelocities(std::vector<double>& velocities) {
   velocities.clear();
   velocities.reserve(jnt_names_.size());
   for (const auto& jnt : jnt_names_) {
-    Encoder::StateTypeSp state
-      = boost::dynamic_pointer_cast<Encoder::StateType>(
+    Joint::StateTypeSp state
+      = boost::dynamic_pointer_cast<Joint::StateType>(
           hw_unit_[jnt]->getState());
     if (nullptr != state)
       velocities.push_back(state->vel_);
@@ -243,8 +245,8 @@ void Middleware::getJointStates(sensor_msgs::JointState& jnt_state) {
   jnt_state.effort.reserve(jnt_names_.size());
 
   for (auto& jnt : jnt_names_) {
-    Encoder::StateTypeSp state
-      = boost::dynamic_pointer_cast<Encoder::StateType>(
+    Joint::StateTypeSp state
+      = boost::dynamic_pointer_cast<Joint::StateType>(
           hw_unit_[jnt]->getState());
     if (nullptr != state) {
       jnt_state.name.push_back(jnt);
@@ -314,7 +316,7 @@ void Middleware::executeJointPositions(const std::vector<std::string>& names, co
   // TODO 需要实际公式计算， 当前实现版本仅仅是电机的位置控制
   // 并未转换到Joint速度指令
   for (std::size_t i = 0; i < jnt_names_.size(); ++i) {
-    auto cmd = boost::dynamic_pointer_cast<Motor::CmdType>(hw_unit_[names[i]]->getCommand());
+    auto cmd = boost::dynamic_pointer_cast<Joint::CmdType>(hw_unit_[names[i]]->getCommand());
     cmd->command_ = positions[i];
     cmd->mode_    = JntCmdType::POS;
     cmd_vec.push_back(cmd);
@@ -330,7 +332,7 @@ void Middleware::executeJointVelocities(const std::vector<std::string>& names, c
   // TODO 需要实际公式计算， 当前实现版本仅仅是电机的速度控制
   // 并未转换到Joint速度指令
   for (std::size_t i = 0; i < jnt_names_.size(); ++i) {
-    auto cmd = boost::dynamic_pointer_cast<Motor::CmdType>(hw_unit_[names[i]]->getCommand());
+    auto cmd = boost::dynamic_pointer_cast<Joint::CmdType>(hw_unit_[names[i]]->getCommand());
     cmd->command_ = velocities[i];
     cmd->mode_    = JntCmdType::VEL;
     cmd_vec.push_back(cmd);

@@ -8,10 +8,7 @@
 #ifndef INCLUDE_PROPAGATE_INTERFACE_PROPAGATE_IMP_PCAN_H_
 #define INCLUDE_PROPAGATE_INTERFACE_PROPAGATE_IMP_PCAN_H_
 
-#include "../hardware/encoder.h"
-#include "../hardware/motor.h"
 #include "propagate.h"
-#include <map>
 
 namespace middleware {
 

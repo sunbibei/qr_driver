@@ -30,6 +30,7 @@ HwUnit::StateTypeSp HwUnit::getState()  { return nullptr; }
 HwUnit::CmdTypeSp HwUnit::getCommand()  { return nullptr; }
 void HwUnit::setState(const StateType&) { return; }
 void HwUnit::setCommand(const CmdType&) { return; }
+void HwUnit::publish()                  {for (auto& unit : composite_map_) unit.second->publish();}
 
 } /* namespace quadruped_robot_driver */
 

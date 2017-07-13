@@ -29,7 +29,7 @@ class Middleware {
 public:
   // Unit and Propagate interface
   Composite<Propagate>  propagate_;
-  Composite<HwUnit>     hw_unit_;
+  HwUnit                hw_unit_;
 
   std::vector<std::string> jnt_names_;
 

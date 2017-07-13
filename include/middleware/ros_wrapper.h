@@ -22,8 +22,7 @@
 
 #define DEBUG_TOPIC
 #ifdef DEBUG_TOPIC
-#include "hardware/encoder.h"
-#include "hardware/motor.h"
+#include "hardware/joint.h"
 #endif
 
 namespace middleware {
