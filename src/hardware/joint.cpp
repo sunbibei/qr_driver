@@ -7,6 +7,7 @@
 
 #include "middleware/hardware/joint.h"
 #include "middleware/util/log.h"
+#include "middleware/util/proto/dragon.pb.h"
 
 
 
@@ -18,8 +19,13 @@ JointCommand::JointCommand(const LegType& leg, const JntType& jnt, double cmd, J
         leg_(leg), jnt_(jnt)
 {}
 
-bool JointCommand::parseTo(class Command*) {
-  // TODO
+bool JointCommand::parseTo(Command* c) {
+  c->set_idx(CmdType::JNT_TASK);
+  auto cmd = c->mutable_jnt_cmd();
+  cmd->set_leg(leg_);
+  cmd->set_jnt(jnt_);
+  cmd->set_type(mode_);
+  cmd->set_cmd(command_);
   return true;
 }
 
@@ -28,8 +34,20 @@ JointState::JointState(const LegType& leg, const JntType& jnt, double pos, doubl
        leg_(leg), jnt_(jnt)
 {}
 
-bool JointState::updateFrom(const class Feedback*) {
-  // TODO
+bool JointState::updateFrom(const Feedback* fb) {
+  if (FbType::JOINT_STATES != fb->idx() || leg_ != fb->joint_states().leg()
+      || JntType::N_JNTS != fb->joint_states().pos_size()) {
+    /*LOG_ERROR << "ERROR UPDATE in " << leg_ << "leg(Type: 0 vs " << fb->idx()
+        << ", Leg: " << leg_ << " vs " << fb->joint_states().leg()
+        << ", pos_size: 3 vs " << fb->joint_states().pos_size() << ")";*/
+    return false;
+  }
+
+  vel_ = (fb->joint_states().pos(jnt_) - pos_)
+      / std::chrono::duration_cast<std::chrono::duration<double>>(
+          std::chrono::high_resolution_clock::now() - previous_time_).count();
+  pos_ = fb->joint_states().pos(jnt_);
+  previous_time_ = std::chrono::high_resolution_clock::now();
   return true;
 }
 

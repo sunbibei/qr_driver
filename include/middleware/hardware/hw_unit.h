@@ -15,7 +15,7 @@
 #include <boost/shared_ptr.hpp>
 
 #include <middleware/util/composite2.h>
-#include "middleware/propagate/proto/dragon.pb.h"
+#include <middleware/util/proto/dragon.pb.h>
 
 namespace middleware {
 

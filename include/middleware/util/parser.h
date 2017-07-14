@@ -54,7 +54,7 @@ private:
   static bool parseHwUnits();
 
   inline static bool checkPropagatesFormat();
-  inline static bool checkHwUnitFormat();
+  inline static bool checkHwUnitFormat(std::vector<std::string>&);
 };
 
 } /* namespace middleware */

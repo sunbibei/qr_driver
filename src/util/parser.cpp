@@ -172,7 +172,7 @@ bool Parser::parsePropagates() {
   return true;
 }
 
-bool Parser::checkHwUnitFormat() {
+bool Parser::checkHwUnitFormat(std::vector<std::string>& hw_units) {
   if (nullptr == unit_loader_) {
     LOG_FATAL << "unit_loader is nullptr!";
     return false;
@@ -200,6 +200,17 @@ bool Parser::checkHwUnitFormat() {
     return false;
   }
 
+  std::stringstream list_ss;
+  list_ss << tmp_xml_ele_->Attribute("list");
+  std::string tmp;
+
+  hw_units.clear();
+  while (list_ss >> tmp) hw_units.push_back(tmp);
+  if (hw_units.empty()) {
+    LOG_FATAL << "The 'hardwares' tag has no anything!";
+    return false;
+  }
+
   return true;
 }
 
@@ -208,31 +219,37 @@ bool Parser::checkHwUnitFormat() {
  * parserJointStates(), parserJoint() and parserPropagates()
  */
 bool Parser::parseHwUnits() {
-
-  if (!checkHwUnitFormat()) return false;
-  tmp_xml_ele_ = xml_root_->FirstChildElement("hardwares");
-
   std::vector<std::string> hw_units;
-  std::stringstream list_ss;
-  list_ss << tmp_xml_ele_->Attribute("list");
-  std::string tmp;
-  while (list_ss >> tmp) hw_units.push_back(tmp);
-  if (hw_units.empty()) {
-    LOG_FATAL << "The 'hardwares' tag has no anything!";
-    return false;
-  }
+  if (!checkHwUnitFormat(hw_units)) return false;
 
-  for (const auto& unit : hw_units) {
-    HwUnitSp group(new HwUnit());
-    for (auto jnt_tag = tmp_xml_ele_->FirstChildElement(unit);
-          nullptr != jnt_tag; jnt_tag = jnt_tag->NextSiblingElement()) {
-      if (nullptr == jnt_tag->Attribute("type")) {
+  tmp_xml_ele_ = xml_root_->FirstChildElement("hardwares");
+  for (const auto& unit_names : hw_units) {
+    auto unit_tag = tmp_xml_ele_->FirstChildElement(unit_names);
+    if (nullptr == unit_tag->Attribute("type")) {
+      LOG_FATAL << "No 'type' attribute tag in the '" << unit_names << "'";
+      return false;
+    }
+
+    HwUnitSp group = unit_loader_->createInstance<HwUnit>(unit_tag->Attribute("type"));
+    if (!unit_tag->NextSiblingElement()) {
+      group->init(unit_tag);
+      Middleware::instance()->propagate_[group->cmd_channel_]
+                            ->registerHandle(group->hw_name_, group->getCmdHandle());
+      Middleware::instance()->propagate_[group->state_channel_]
+                            ->registerHandle(group->hw_name_, group->getStataHandle());
+      unit_tag = unit_tag->NextSiblingElement();
+    } else
+      group->hw_name_ = unit_names;
+
+    for ( ; nullptr != unit_tag; unit_tag = unit_tag->NextSiblingElement()) {
+      if (nullptr == unit_tag->Attribute("type")) {
         // joint_handle.reset(new HwUnit(jnt_root->Attribute("name")));
-        LOG_FATAL << "No 'type' attribute tag in the '" << unit << "'";
+        LOG_FATAL << "No 'type' attribute tag in the '" << unit_names << "'";
         return false;
       }
-      HwUnitSp unit = unit_loader_->createInstance<HwUnit>(jnt_tag->Attribute("type"));
-      unit->init(jnt_tag);
+
+      HwUnitSp unit = unit_loader_->createInstance<HwUnit>(unit_tag->Attribute("type"));
+      unit->init(unit_tag);
       Middleware::instance()->propagate_[unit->cmd_channel_]
                             ->registerHandle(unit->hw_name_, unit->getCmdHandle());
       Middleware::instance()->propagate_[unit->state_channel_]

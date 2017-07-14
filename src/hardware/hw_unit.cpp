@@ -5,10 +5,10 @@
  *      Author: silence
  */
 
+#include <middleware/util/proto/dragon.pb.h>
 #include "middleware/hardware/hw_unit.h"
 #include "middleware/util/log.h"
 
-#include "middleware/propagate/proto/dragon.pb.h"
 
 namespace middleware {
 

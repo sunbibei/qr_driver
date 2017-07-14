@@ -2,7 +2,7 @@
 // source: dragon.proto
 
 #define INTERNAL_SUPPRESS_PROTOBUF_FIELD_DEPRECATION
-#include "dragon.pb.h"
+#include <middleware/util/proto/dragon.pb.h>
 
 #include <algorithm>
 

@@ -57,8 +57,14 @@ public:
 protected:
   size_t                propa_r_cache_size_;
   size_t                propa_w_cache_size_;
+  size_t                cache_r_offset_;
+  size_t                cache_w_offset_;
+  size_t                cache_w_base_;
   uint8_t*              propa_r_cache_;
   uint8_t*              propa_w_cache_;
+
+  bool                  tmp_ret_;
+  int                   tmp_read_size_;
 
   Composite<HwCommand>  cmd_composite_;
   Composite<HwState>    state_composite_;

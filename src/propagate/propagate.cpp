@@ -5,10 +5,10 @@
  *      Author: silence
  */
 
+#include <middleware/util/proto/dragon.pb.h>
 #include "middleware/propagate/propagate.h"
 #include "middleware/util/log.h"
 
-#include "middleware/propagate/proto/dragon.pb.h"
 
 namespace middleware {
 
@@ -20,8 +20,13 @@ Propagate::Propagate(const std::string& name)
   : propa_name_(name),
     propa_r_cache_size_(1024),
     propa_w_cache_size_(1024),
+    cache_r_offset_(0),
+    cache_w_offset_(0),
+    cache_w_base_(0),
     propa_r_cache_(new uint8_t[propa_r_cache_size_]),
     propa_w_cache_(new uint8_t[propa_w_cache_size_]),
+    tmp_ret_(false),
+    tmp_read_size_(-1),
     proto_cmd_(new Command()),
     proto_fb_(new Feedback())
 { }
@@ -59,9 +64,9 @@ void Propagate::registerHandle(const std::string& hw_name, HwCmdSp c_sp) {
 }
 
 bool Propagate::send(const std::vector<std::string>& jnt_names) {
-  bool tmp_ret_ = true;
+  tmp_ret_ = true;
   // memset(propa_w_cache_, '\0', propa_w_cache_size_);
-  int cache_w_offset_ = 0;
+
   for (const auto& jnt : jnt_names) {
     cmd_composite_[jnt]->parseTo(proto_cmd_);
     tmp_ret_ &= proto_cmd_->SerializeToArray(propa_w_cache_ + cache_w_offset_,
@@ -81,21 +86,30 @@ bool Propagate::send(const std::vector<std::string>& jnt_names) {
 }
 
 bool Propagate::recv() {
-  bool tmp_ret_ = true;
-  int read_size = read(propa_r_cache_, propa_r_cache_size_);
-  if (read_size < 0) {
-    LOG_ERROR << "read " << propa_name_ << "ERROR!";
+  tmp_ret_ = true;
+  tmp_read_size_ = read(propa_r_cache_ + cache_r_offset_, propa_r_cache_size_ - cache_r_offset_);
+  if (tmp_read_size_ < 0) {
+    LOG_ERROR << "read " << propa_name_ << "ERROR (ERROR CODE: "
+        << tmp_read_size_ << ")!";
     return false;
   }
 
-  int cache_r_offset_ = 0;
-  proto_fb_->ParseFromArray(propa_r_cache_ + cache_r_offset_,
-      propa_r_cache_size_ - cache_r_offset_);
+  cache_r_offset_ += tmp_read_size_;
+  if (!proto_fb_->ParseFromArray(propa_r_cache_ + cache_w_base_,
+      cache_r_offset_ - cache_w_base_)) return true; // waiting more data
+  else cache_w_base_ += proto_fb_->ByteSize();
 
+  for (auto& state : state_composite_) {
+    state.second->updateFrom(proto_fb_);
+  }
 
+  if (propa_r_cache_size_ - cache_r_offset_ < 8 * proto_fb_->ByteSize()) {
+    // 以8倍的当前长度作为一个参考
+    memset(propa_r_cache_, '\0', propa_r_cache_size_ * sizeof(uint8_t));
+    cache_r_offset_ = 0;
+  }
 
-
-  return tmp_ret_;
+  return true;
 }
 
 /*bool Propagate::parse(Command* cmd) {
