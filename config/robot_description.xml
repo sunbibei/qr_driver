@@ -12,44 +12,42 @@
 		<channel name="pcan" type="middleware::PcanChannel" />
 	</propagates>
 	
-	<hardwares name="hardwares" list="joints power" >
-		<joints type="middleware::Joint">
-			<joint type="middleware::Joint" channel="pcan"
-				name="fl_yaw"  leg="fl" jnt="yaw"  />
+	<hardwares name="hardwares" list="joint power" >
+		<joint type="middleware::Joint" channel="pcan"
+			name="fl_yaw"  leg="fl" jnt="yaw"  />
 
-			<joint type="middleware::Joint" channel="pcan"
-				name="fl_knee" leg="fl" jnt="knee" />
+		<joint type="middleware::Joint" channel="pcan"
+			name="fl_knee" leg="fl" jnt="knee" />
 
-			<joint type="middleware::Joint" channel="pcan"
-				name="fl_hip"  leg="fl" jnt="hip"  />
+		<joint type="middleware::Joint" channel="pcan"
+			name="fl_hip"  leg="fl" jnt="hip"  />
 
-			<joint type="middleware::Joint" channel="pcan"
-				name="hl_yaw"  leg="hl" jnt="yaw"  />
+		<joint type="middleware::Joint" channel="pcan"
+			name="hl_yaw"  leg="hl" jnt="yaw"  />
 
-			<joint type="middleware::Joint" channel="pcan"
-				name="hl_knee" leg="hl" jnt="knee" />
+		<joint type="middleware::Joint" channel="pcan"
+			name="hl_knee" leg="hl" jnt="knee" />
 
-			<joint type="middleware::Joint" channel="pcan"
-				name="hl_hip"  leg="hl" jnt="hip"  />
+		<joint type="middleware::Joint" channel="pcan"
+			name="hl_hip"  leg="hl" jnt="hip"  />
 
-			<joint type="middleware::Joint" channel="pcan"
-				name="fr_yaw"  leg="fr" jnt="yaw"  />
+		<joint type="middleware::Joint" channel="pcan"
+			name="fr_yaw"  leg="fr" jnt="yaw"  />
 
-			<joint type="middleware::Joint" channel="pcan"
-				name="fr_knee" leg="fr" jnt="knee" />
+		<joint type="middleware::Joint" channel="pcan"
+			name="fr_knee" leg="fr" jnt="knee" />
 
-			<joint type="middleware::Joint" channel="pcan"
-				name="fr_hip"  leg="fr" jnt="hip"  />
+		<joint type="middleware::Joint" channel="pcan"
+			name="fr_hip"  leg="fr" jnt="hip"  />
 
-			<joint type="middleware::Joint" channel="pcan"
-				name="hr_yaw"  leg="hr" jnt="yaw"  />
+		<joint type="middleware::Joint" channel="pcan"
+			name="hr_yaw"  leg="hr" jnt="yaw"  />
 
-			<joint type="middleware::Joint" channel="pcan"
-				name="hr_knee" leg="hr" jnt="knee" />
+		<joint type="middleware::Joint" channel="pcan"
+			name="hr_knee" leg="hr" jnt="knee" />
 
-			<joint type="middleware::Joint" channel="pcan"
-				name="hr_hip"  leg="hr" jnt="hip"  />
-		</joints>
+		<joint type="middleware::Joint" channel="pcan"
+			name="hr_hip"  leg="hr" jnt="hip"  />
 
 		<power type="middleware::Power" name="power" />
 	</hardwares>

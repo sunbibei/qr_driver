@@ -46,7 +46,8 @@ public:
    * 参数2: 指定注册句柄, 共享指针
    * 参数3: 可选, 指定注册的通信通道
    **************************************************/
-  void registerHandle(boost::shared_ptr<HwUnit>);
+  void registerHandle(const std::string&, HwStateSp);
+  void registerHandle(const std::string&, HwCmdSp);
   // void registerHandle(HwUnit*);
   bool send(const std::vector<std::string>&);
   bool recv();
