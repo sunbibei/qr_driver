@@ -81,6 +81,7 @@ bool Parser::initVariants(TiXmlDocument* xml_doc) {
 #endif
 
 bool Parser::init() {
+  LOG_INFO << "Parser initialize start!";
   std::string xml;
   // if (!nh.getParam("configure", configure)) {
   if (!ros::param::get("~configure", xml)) {
@@ -112,6 +113,8 @@ bool Parser::init() {
   xml_doc->Parse(xml.c_str());
   propa_loader_ = new class_loader::ClassLoader(lib_propa);
   unit_loader_  = new class_loader::ClassLoader(lib_hwunit);
+
+  LOG_INFO << "Parser initialize successful!";
   return true;
 }
 
@@ -137,7 +140,7 @@ bool Parser::checkPropagatesFormat() {
 }
 
 bool Parser::parsePropagates() {
-
+  LOG_INFO << "[Parser]: " << "parse propagates start";
   if (!checkPropagatesFormat()) return false;
 
   tmp_xml_ele_ = xml_root_->FirstChildElement("propagates");
@@ -169,6 +172,8 @@ bool Parser::parsePropagates() {
   }
 
   tmp_xml_ele_ = nullptr;
+
+  LOG_INFO << "[Parser]: " << "parse propagates successfule";
   return true;
 }
 
@@ -219,6 +224,7 @@ bool Parser::checkHwUnitFormat(std::vector<std::string>& hw_units) {
  * parserJointStates(), parserJoint() and parserPropagates()
  */
 bool Parser::parseHwUnits() {
+  LOG_INFO << "[Parser]: " << "parse hardwares start";
   std::vector<std::string> hw_units;
   if (!checkHwUnitFormat(hw_units)) return false;
 
@@ -261,6 +267,7 @@ bool Parser::parseHwUnits() {
     Middleware::instance()->hw_unit_.add(group->hw_name_, group);
   }
 
+  LOG_INFO << "[Parser]: " << "parse propagates successful";
   return true;
 }
 

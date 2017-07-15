@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(qr_driver-0.2.9)
+project(qr_driver_alpha)
 
 add_definitions(-std=c++11)
 # Load catkin and all dependencies required for this package
@@ -66,13 +66,11 @@ add_library(${PROJECT_NAME}_loader_plugins
 target_link_libraries(${PROJECT_NAME}_loader_plugins ${PROJECT_NAME}_loader)]]
 
 
-set(HW_PATH include/middleware/hardware)
-set(PROPA_PATH include/middleware/propagate)
+set(HW_PATH src/hardware)
+set(PROPA_PATH src/propagate)
 
 set(HW_FILES  ${HW_PATH}/hw_unit.cpp
               ${HW_PATH}/joint.cpp
-              ${HW_PATH}/encoder.cpp
-              ${HW_PATH}/motor.cpp
 )
 
 set(PROPA_FILES   ${PROPA_PATH}/propagate.cpp
@@ -81,19 +79,21 @@ set(PROPA_FILES   ${PROPA_PATH}/propagate.cpp
 )
 
 set(BIN_FILES src/main.cpp
-              include/middleware/middleware.cpp
-              include/middleware/ros_robothw.cpp
-              include/middleware/ros_wrapper.cpp
-              include/middleware/util/parser.cpp
+              src/middleware.cpp
+              src/ros_robothw.cpp
+              src/ros_wrapper.cpp
+              src/util/parser.cpp
 )
 
 ## Declare a C++ library
-add_library(${PROJECT_NAME}hardware_lib
+add_library(${PROJECT_NAME}_hw_unit
   ${HW_FILES}
+  include/middleware/util/proto/dragon.pb.cc
 )
 
-add_library(${PROJECT_NAME}propagate_lib
+add_library(${PROJECT_NAME}_propagate
   ${PROPA_FILES}
+  include/middleware/util/proto/dragon.pb.cc
 )
 
 ## Declare a C++ executable
@@ -102,14 +102,16 @@ add_executable(${PROJECT_NAME}_exe
 )
 
 ## Specify libraries to link a library or executable target against
-target_link_libraries(${PROJECT_NAME}hardware_lib
+target_link_libraries(${PROJECT_NAME}_hw_unit
   ${catkin_LIBRARIES}
   glog
+  protobuf
 )
 
-target_link_libraries(${PROJECT_NAME}propagate_lib
+target_link_libraries(${PROJECT_NAME}_propagate
   ${catkin_LIBRARIES}
   glog
+  protobuf
 #  pcanbasic
 )
 
@@ -117,8 +119,8 @@ target_link_libraries(${PROJECT_NAME}_exe
   ${catkin_LIBRARIES}
   glog
 #  pcanbasic
-  hardware_lib
-  propagate_lib
+  ${PROJECT_NAME}_hw_unit
+  ${PROJECT_NAME}_propagate
 )
 
 #############
@@ -128,8 +130,8 @@ target_link_libraries(${PROJECT_NAME}_exe
 install(DIRECTORY include/middleware/
   DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION})
 
-install(TARGETS hardware_lib
-                propagate_lib
+install(TARGETS ${PROJECT_NAME}_hw_unit
+                ${PROJECT_NAME}_propagate
                 ${PROJECT_NAME}_exe
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
