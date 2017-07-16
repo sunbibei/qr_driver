@@ -47,7 +47,7 @@ message Command {
 enum FbType {
   JOINT_STATES = 0;
   POWER_STATES = 1;
-  N_FBS = 2;sr
+  N_FBS = 2;
 }
 
 message JointStates {
