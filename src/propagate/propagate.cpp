@@ -72,12 +72,13 @@ bool Propagate::send(const std::vector<std::string>& jnt_names) {
     tmp_ret_ &= proto_cmd_->SerializeToArray(propa_w_cache_ + cache_w_offset_,
         propa_w_cache_size_ - cache_w_offset_);
     tmp_ret_ &= write(propa_w_cache_ + cache_w_offset_, proto_cmd_->ByteSize());
-    if (propa_w_cache_size_ - cache_w_offset_ < 8 * proto_cmd_->ByteSize()) {
+    cache_w_offset_ += proto_cmd_->ByteSize();
+
+    if (propa_w_cache_size_ < 8 * proto_cmd_->ByteSize() + cache_w_offset_) {
       // 以8倍的当前长度作为一个参考
       memset(propa_w_cache_, '\0', propa_w_cache_size_ * sizeof(uint8_t));
       cache_w_offset_ = 0;
     }
-    cache_w_offset_ += proto_cmd_->ByteSize();
   }
   if (!tmp_ret_)
     LOG_ERROR << "write " << propa_name_ << "ERROR!";

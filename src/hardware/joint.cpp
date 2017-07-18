@@ -15,9 +15,9 @@ namespace middleware {
 typedef boost::shared_ptr<Joint> JointSp;
 
 JointCommand::JointCommand(const LegType& leg, const JntType& jnt, double cmd, JntCmdType mode)
-      : command_(cmd), mode_(mode),
+      : id_(-1), command_(cmd), mode_(mode),
         leg_(leg), jnt_(jnt)
-{}
+{ }
 
 bool JointCommand::parseTo(Command* c) {
   c->set_idx(CmdType::JNT_TASK);

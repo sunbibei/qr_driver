@@ -24,6 +24,7 @@ namespace middleware {
  */
 struct HwState {
   virtual ~HwState() { };
+  uint32_t id_;
 
   virtual bool updateFrom(const Feedback*) { return true; };
 };
@@ -33,6 +34,7 @@ struct HwState {
  */
 struct HwCommand {
   virtual ~HwCommand() { };
+  uint32_t id_;
 
   virtual bool parseTo(Command*) { return true; };
 };
@@ -81,6 +83,19 @@ public:
   virtual void setState(const StateType&);
   virtual void setCommand(const CmdType&);
   virtual void publish();
+
+  boost::shared_ptr<HwUnit>& operator[](const std::string& key) {
+    if (end() != find(key))
+      return composite_map_[key];
+
+    for (auto& ele : composite_map_) {
+      if (ele.second->end() != ele.second->find(key)) {
+        return ele.second->composite_map_[key];
+      }
+    }
+    composite_map_.insert(std::make_pair(key, boost::shared_ptr<HwUnit>(new HwUnit)));
+    return composite_map_[key];
+  }
 
   /*void setName(const std::string& n) {hw_name_ = n;};
   const std::string& getName() {return hw_name_;};

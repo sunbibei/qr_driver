@@ -119,10 +119,13 @@ bool Parser::init() {
 }
 
 bool Parser::checkPropagatesFormat() {
+  LOG_INFO << "format: test0";
   if (nullptr == propa_loader_) {
     LOG_FATAL << "propa_loader is nullptr!";
     return false;
   }
+
+  LOG_INFO << "format: test1";
   tmp_xml_ele_ = xml_root_->FirstChildElement("propagates");
   if (nullptr == tmp_xml_ele_) {
     LOG_FATAL << "No 'propagates' parameter in configure content, "
@@ -130,6 +133,7 @@ bool Parser::checkPropagatesFormat() {
     return false;
   }
 
+  LOG_INFO << "format: test2";
   // auto& propa = Middleware::getInstance()->propagate_;
   if (nullptr == tmp_xml_ele_->Attribute("name")) {
     LOG_WARNING << "Could not found the 'name' attribute of the 'propagates' block, "
@@ -143,6 +147,7 @@ bool Parser::parsePropagates() {
   LOG_INFO << "[Parser]: " << "parse propagates start";
   if (!checkPropagatesFormat()) return false;
 
+  LOG_INFO << "test1";
   tmp_xml_ele_ = xml_root_->FirstChildElement("propagates");
   LOG_INFO << "Assemble propagates: '" << tmp_xml_ele_->Attribute("name") << "'";
   Middleware::instance()->propagate_.label_ = tmp_xml_ele_->Attribute("name");
