@@ -37,63 +37,41 @@ catkin_package(
 # Build
 include_directories(include ${catkin_INCLUDE_DIRS} ${TinyXML_INCLUDE_DIRS})
 
-# Transmission parser Library
-#[[add_library(${PROJECT_NAME}_parser
-  src/transmission_parser.cpp include/transmission_interface/transmission_parser.h
-)
-target_link_libraries(${PROJECT_NAME}_parser ${catkin_LIBRARIES} ${TinyXML_LIBRARIES})
+set(SRC_ROOT        src/middleware)
+set(SRC_HW_PATH     ${SRC_ROOT}/hardware)
+set(SRC_PROPA_PATH  ${SRC_ROOT}/propagate)
+set(SRC_UTIL_PATH   ${SRC_ROOT}/util)
 
+set(INC_ROOT        include/middleware)
+set(INC_HW_PATH     ${INC_ROOT}/hardware)
+set(INC_PROPA_PATH  ${INC_ROOT}/propagate)
+set(INC_UTIL_PATH   ${INC_ROOT}/util)
 
-# Transmission loader library
-add_library(${PROJECT_NAME}_loader
-  src/transmission_loader.cpp           include/transmission_interface/transmission_loader.h
-  src/transmission_interface_loader.cpp include/transmission_interface/transmission_interface_loader.h
-)
-target_link_libraries(${PROJECT_NAME}_loader
-  ${PROJECT_NAME}_parser
-  ${catkin_LIBRARIES}
-  ${TinyXML_LIBRARIES})
-
-
-add_library(${PROJECT_NAME}_loader_plugins
-  src/simple_transmission_loader.cpp           include/transmission_interface/simple_transmission_loader.h
-  src/differential_transmission_loader.cpp     include/transmission_interface/differential_transmission_loader.h
-  src/four_bar_linkage_transmission_loader.cpp include/transmission_interface/four_bar_linkage_transmission_loader.h
-  src/joint_state_interface_provider.cpp       include/transmission_interface/joint_state_interface_provider.h
-  src/position_joint_interface_provider.cpp    include/transmission_interface/position_joint_interface_provider.h
-  src/velocity_joint_interface_provider.cpp    include/transmission_interface/velocity_joint_interface_provider.h
-  src/effort_joint_interface_provider.cpp      include/transmission_interface/effort_joint_interface_provider.h)
-target_link_libraries(${PROJECT_NAME}_loader_plugins ${PROJECT_NAME}_loader)]]
-
-
-set(HW_PATH src/hardware)
-set(PROPA_PATH src/propagate)
-
-set(HW_FILES  ${HW_PATH}/hw_unit.cpp
-              ${HW_PATH}/joint.cpp
+set(HW_FILES  ${SRC_HW_PATH}/hw_unit.cpp
+              ${SRC_HW_PATH}/joint.cpp
 )
 
-set(PROPA_FILES   ${PROPA_PATH}/propagate.cpp
-                  ${PROPA_PATH}/pcan.cpp
-                  # ${PROPA_PATH}/com.cpp
+set(PROPA_FILES   ${SRC_PROPA_PATH}/propagate.cpp
+                  ${SRC_PROPA_PATH}/pcan.cpp
+                  # ${SRC_PROPA_PATH}/com.cpp
 )
 
 set(BIN_FILES src/main.cpp
-              src/middleware.cpp
-              src/ros_robothw.cpp
-              src/ros_wrapper.cpp
-              src/util/parser.cpp
+              ${SRC_ROOT}/middleware.cpp
+              ${SRC_ROOT}/ros_robothw.cpp
+              ${SRC_ROOT}/ros_wrapper.cpp
+              ${SRC_UTIL_PATH}/parser.cpp
 )
 
 ## Declare a C++ library
 add_library(${PROJECT_NAME}_hw_unit
   ${HW_FILES}
-  include/middleware/util/proto/dragon.pb.cc
+  ${INC_UTIL_PATH}/proto/dragon.pb.cc
 )
 
 add_library(${PROJECT_NAME}_propagate
   ${PROPA_FILES}
-  include/middleware/util/proto/dragon.pb.cc
+  ${INC_UTIL_PATH}/proto/dragon.pb.cc
 )
 
 ## Declare a C++ executable

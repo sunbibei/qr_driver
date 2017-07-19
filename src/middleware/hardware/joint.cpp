@@ -15,7 +15,7 @@ namespace middleware {
 typedef boost::shared_ptr<Joint> JointSp;
 
 JointCommand::JointCommand(const LegType& leg, const JntType& jnt, double cmd, JntCmdType mode)
-      : id_(-1), command_(cmd), mode_(mode),
+      : /*id_(0), */command_(cmd), mode_(mode),
         leg_(leg), jnt_(jnt)
 { }
 
@@ -86,14 +86,13 @@ void Joint::publish() {
 }
 
 bool Joint::init(TiXmlElement* root) {
-  if ((!root) || (!root->Attribute("name"))
-      || (!root->Attribute("channel"))
-      || (!root->Attribute("leg"))
+  if ((!root) || (!root->Attribute("leg"))
       || (!root->Attribute("jnt"))) {
     LOG_ERROR << "The format of 'joint' tag is wrong!";
     return false;
   }
 
+  LOG_INFO << "[Joint] initialize start...";
   std::string tmp_str = root->Attribute("leg");
   if (0 == tmp_str.compare("fl") || 0 == tmp_str.compare("FL")) {
     leg_ = LegType::FL;
@@ -128,7 +127,8 @@ bool Joint::init(TiXmlElement* root) {
     // TODO ros::NodeHandle ;
   }
 
-  return true;
+  LOG_INFO << "[Joint] initialize end, call HwUnit::init()...";
+  return HwUnit::init(root);;
 }
 
 HwStateSp Joint::getStataHandle() { return joint_state_; }
@@ -154,6 +154,8 @@ void Joint::setCommand(const HwCommand& c) {
   double val = motor_cmd.command_;
   joint_command_->command_ = val;
 }
+
+void Joint::check() { ; }
 
 } /* namespace middleware */
 

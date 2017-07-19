@@ -20,7 +20,26 @@ HwUnit::HwUnit(const std::string& name)
 HwUnit::~HwUnit() { };
 void HwUnit::check() { ; }
 
-bool HwUnit::init(TiXmlElement*) {
+bool HwUnit::init(TiXmlElement* root) {
+  if ((!root) || (!root->Attribute("name"))) {
+    LOG_ERROR << "The format of 'joint' tag is wrong!";
+    return false;
+  }
+  if (!root->Attribute("channel")
+      && (root->Attribute("cmd_channel") || root->Attribute("state_channel"))) {
+    LOG_ERROR << "The format of 'joint' tag is wrong!";
+    return false;
+  }
+
+  if (root->Attribute("channel")) {
+    cmd_channel_   = root->Attribute("channel");
+    state_channel_ = root->Attribute("channel");
+  } else {
+    cmd_channel_   = root->Attribute("cmd_channel");
+    state_channel_ = root->Attribute("state_channel");
+  }
+
+  hw_name_ = root->Attribute("name");
   return true;
 }
 

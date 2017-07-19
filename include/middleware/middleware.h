@@ -17,6 +17,7 @@
 #include "middleware/propagate/propagate.h"
 #include "middleware/hardware/hw_unit.h"
 #include "middleware/util/composite.h"
+#include "middleware/util/noncopyable.h"
 
 namespace middleware {
 
@@ -25,7 +26,7 @@ typedef boost::shared_ptr<HwState>   HwStateSp;
 typedef boost::shared_ptr<Propagate> PropaSp;
 typedef boost::shared_ptr<HwUnit>    HwUnitSp;
 
-class Middleware {
+class Middleware : public NonCopyable {
 public:
   // Unit and Propagate interface
   Composite<Propagate>  propagate_;
@@ -91,8 +92,6 @@ private:
 
 private:
   Middleware();
-  Middleware(const Middleware&) { };
-  Middleware& operator=(const Middleware&) {return *this;};
 
   /*
    * 创建硬件接口的工厂方法

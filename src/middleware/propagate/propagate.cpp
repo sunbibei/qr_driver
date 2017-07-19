@@ -96,7 +96,7 @@ bool Propagate::recv() {
   }
 
   cache_r_offset_ += tmp_read_size_;
-  if (!proto_fb_->ParseFromArray(propa_r_cache_ + cache_w_base_,
+  /*if (!proto_fb_->ParseFromArray(propa_r_cache_ + cache_w_base_,
       cache_r_offset_ - cache_w_base_)) return true; // waiting more data
   else cache_w_base_ += proto_fb_->ByteSize();
 
@@ -108,7 +108,7 @@ bool Propagate::recv() {
     // 以8倍的当前长度作为一个参考
     memset(propa_r_cache_, '\0', propa_r_cache_size_ * sizeof(uint8_t));
     cache_r_offset_ = 0;
-  }
+  }*/
 
   return true;
 }

@@ -24,7 +24,7 @@ namespace middleware {
  */
 struct HwState {
   virtual ~HwState() { };
-  uint32_t id_;
+  // uint32_t id_;
 
   virtual bool updateFrom(const Feedback*) { return true; };
 };
@@ -34,7 +34,7 @@ struct HwState {
  */
 struct HwCommand {
   virtual ~HwCommand() { };
-  uint32_t id_;
+  // uint32_t id_;
 
   virtual bool parseTo(Command*) { return true; };
 };

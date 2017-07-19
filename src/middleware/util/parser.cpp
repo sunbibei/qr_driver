@@ -111,10 +111,14 @@ bool Parser::init() {
   // 初始化XML文档相关内容
   TiXmlDocument* xml_doc = new TiXmlDocument();
   xml_doc->Parse(xml.c_str());
+  xml_root_ = xml_doc->RootElement();
   propa_loader_ = new class_loader::ClassLoader(lib_propa);
   unit_loader_  = new class_loader::ClassLoader(lib_hwunit);
 
   LOG_INFO << "Parser initialize successful!";
+
+  // delete xml_doc;
+  // xml_doc = nullptr;
   return true;
 }
 
@@ -125,7 +129,6 @@ bool Parser::checkPropagatesFormat() {
     return false;
   }
 
-  LOG_INFO << "format: test1";
   tmp_xml_ele_ = xml_root_->FirstChildElement("propagates");
   if (nullptr == tmp_xml_ele_) {
     LOG_FATAL << "No 'propagates' parameter in configure content, "
@@ -147,7 +150,6 @@ bool Parser::parsePropagates() {
   LOG_INFO << "[Parser]: " << "parse propagates start";
   if (!checkPropagatesFormat()) return false;
 
-  LOG_INFO << "test1";
   tmp_xml_ele_ = xml_root_->FirstChildElement("propagates");
   LOG_INFO << "Assemble propagates: '" << tmp_xml_ele_->Attribute("name") << "'";
   Middleware::instance()->propagate_.label_ = tmp_xml_ele_->Attribute("name");
@@ -231,6 +233,7 @@ bool Parser::checkHwUnitFormat(std::vector<std::string>& hw_units) {
 bool Parser::parseHwUnits() {
   LOG_INFO << "[Parser]: " << "parse hardwares start";
   std::vector<std::string> hw_units;
+
   if (!checkHwUnitFormat(hw_units)) return false;
 
   tmp_xml_ele_ = xml_root_->FirstChildElement("hardwares");
@@ -242,7 +245,7 @@ bool Parser::parseHwUnits() {
     }
 
     HwUnitSp group = unit_loader_->createInstance<HwUnit>(unit_tag->Attribute("type"));
-    if (!unit_tag->NextSiblingElement()) {
+    if (!unit_tag->NextSiblingElement(unit_names)) {
       group->init(unit_tag);
       Middleware::instance()->propagate_[group->cmd_channel_]
                             ->registerHandle(group->hw_name_, group->getCmdHandle());
@@ -252,7 +255,7 @@ bool Parser::parseHwUnits() {
     } else
       group->hw_name_ = unit_names;
 
-    for ( ; nullptr != unit_tag; unit_tag = unit_tag->NextSiblingElement()) {
+    for ( ; nullptr != unit_tag; unit_tag = unit_tag->NextSiblingElement(unit_names)) {
       if (nullptr == unit_tag->Attribute("type")) {
         // joint_handle.reset(new HwUnit(jnt_root->Attribute("name")));
         LOG_FATAL << "No 'type' attribute tag in the '" << unit_names << "'";
