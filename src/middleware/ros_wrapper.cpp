@@ -53,7 +53,7 @@ bool RosWrapper::start() {
   }
   
   robot_ = Middleware::instance();
-  if (!robot_->init(nh_)) {
+  if (!robot_->init()) {
     LOG_ERROR << "Launch the robot fail from ros::NodeHandle";
     return false;
   }
@@ -347,9 +347,11 @@ void RosWrapper::cbForDebug(const std_msgs::Int32ConstPtr& msg) {
   LOG_INFO << "test write style 2";
   std::vector<HwCmdSp> cmd_vec;
   std::vector<std::string> cmd_name;
-  for (auto& jnt : robot_->jnt_names_) {
-    auto cmd =
-        Joint::CmdTypeSp cmd(new Joint::CmdType(msg->data, JntCmdType::POS));
+  for (const auto& jnt : robot_->jnt_names_) {
+    auto cmd = boost::dynamic_pointer_cast<Joint::CmdType>(robot_->hw_unit_[jnt]->getCommand());
+    cmd->command_ = msg->data;
+    cmd->mode_    = JntCmdType::POS;
+
     cmd_vec.push_back(cmd);
     cmd_name.push_back(jnt);
   }

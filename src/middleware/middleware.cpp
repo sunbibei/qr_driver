@@ -44,7 +44,6 @@ Middleware::~Middleware() {
 
 #ifndef ROS_BUILD
 bool Middleware::init(const std::string& xml) {
-
   if (!Parser::parse(xml)) {
     LOG_ERROR << "The initialization FAIL in the Middleware";
     return false;
@@ -55,10 +54,9 @@ bool Middleware::init(const std::string& xml) {
 }
 #endif
 
-bool Middleware::init(ros::NodeHandle& nh) {
-
+bool Middleware::init() {
   if (!Parser::parse()) {
-    LOG_ERROR << "The initialization FAIL in the Middleware";
+    LOG_FATAL << "The initialization FATAL FAIL in the Middleware";
     return false;
   }
 
@@ -69,6 +67,12 @@ bool Middleware::init(ros::NodeHandle& nh) {
 bool Middleware::start() {
   propagate_.check();
   hw_unit_.check();
+  std::stringstream ss;
+  ss << "The list of joint names:\n";
+  for (const auto& n : jnt_names_)
+    ss << n << "\t";
+
+  LOG_INFO << ss.str();
   propagate_thread_ = new std::thread(&Middleware::runPropagate, this);
   LOG_INFO << "The propagate thread has started to run!";
   return true;
@@ -222,6 +226,7 @@ void Middleware::getJointVelocities(std::vector<double>& velocities) {
  */
 void Middleware::getJointTorques(std::vector<double>& torques) {
   torques.clear();
+  torques.resize(jnt_names_.size());
   /*
   torques.reserve(jnt_names_.size());
   for (auto& jnt : jnt_names_) {
@@ -238,7 +243,7 @@ void Middleware::getJointTorques(std::vector<double>& torques) {
 /**
  * Actual JointState( Recommended )
  */
-void Middleware::getJointStates(sensor_msgs::JointState& jnt_state) {
+/*void Middleware::getJointStates(sensor_msgs::JointState& jnt_state) {
   jnt_state.name.reserve(jnt_names_.size());
   jnt_state.position.reserve(jnt_names_.size());
   jnt_state.velocity.reserve(jnt_names_.size());
@@ -256,7 +261,7 @@ void Middleware::getJointStates(sensor_msgs::JointState& jnt_state) {
     } else
       LOG_ERROR << "No \"" << jnt << "\" joint";
   }
-}
+}*/
 
 void Middleware::stopTraj() {
   executing_traj_ = false;

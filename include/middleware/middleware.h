@@ -10,9 +10,7 @@
 
 #include <mutex>
 #include <thread>
-#include <ros/ros.h>
 #include <boost/shared_ptr.hpp>
-#include <sensor_msgs/JointState.h>
 
 #include "middleware/propagate/propagate.h"
 #include "middleware/hardware/hw_unit.h"
@@ -36,10 +34,10 @@ public:
 
   // 初始化所有变量, 以及线程等.
 #ifndef ROS_BUILD
-  bool init(const std::string& xml = "robot.xml");
+  bool init(const std::string& xml);
 #endif
 
-  bool init(ros::NodeHandle&);
+  bool init();
 
   // 开始/停止运行
   bool start();
@@ -62,7 +60,7 @@ public:
   void getJointPositions(std::vector<double>&);
   void getJointVelocities(std::vector<double>&);
   void getJointTorques(std::vector<double>&);
-  void getJointStates(sensor_msgs::JointState&);
+  // void getJointStates(sensor_msgs::JointState&);
 
   /**
    * 执行/停止轨迹命令执行

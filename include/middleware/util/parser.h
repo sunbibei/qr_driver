@@ -16,6 +16,8 @@
 
 namespace middleware {
 
+#define JNT_TAG ("joint")
+
 class Middleware;
 /**
  * 从参数文件中解析初始化middleware对象.
@@ -52,6 +54,7 @@ private:
   // 解析器Helper, 分别解析'joint_states' TAG and 'propagates' TAG
   static bool parsePropagates();
   static bool parseHwUnits();
+  static bool parseJointNames();
 
   inline static bool checkPropagatesFormat();
   inline static bool checkHwUnitFormat(std::vector<std::string>&);

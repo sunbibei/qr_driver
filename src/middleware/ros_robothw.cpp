@@ -82,7 +82,10 @@ void RosRobotHW::init() {
 /// \brief Read the state from the robot hardware.
 void RosRobotHW::read() {
   sensor_msgs::JointState msg;
-  robot_->getJointStates(msg);
+  robot_->getJointNames(msg.name);
+  robot_->getJointPositions(msg.position);
+  robot_->getJointVelocities(msg.velocity);
+  robot_->getJointTorques(msg.effort);
   for (std::size_t idx_msg = 0; idx_msg < msg.name.size(); ++idx_msg) {
     for (std::size_t idx_jnt = 0; idx_jnt < num_joints_; ++idx_jnt) {
       if (0 == msg.name[idx_msg].compare(joint_names_[idx_jnt])) {

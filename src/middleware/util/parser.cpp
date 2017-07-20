@@ -27,7 +27,30 @@ bool Parser::parse() {
     return false;
   }
 
-  return (parsePropagates() && parseHwUnits());
+  return (parsePropagates() && parseHwUnits() && parseJointNames());
+}
+
+bool Parser::parseJointNames() {
+  auto robot = Middleware::instance();
+  robot->jnt_names_.clear();
+
+  tmp_xml_ele_ = xml_root_->FirstChildElement("hardwares");
+  auto unit_tag = tmp_xml_ele_->FirstChildElement(JNT_TAG);
+  if (nullptr == unit_tag) {
+    LOG_FATAL << "No 'joint' attribute tag in the '" << JNT_TAG << "'";
+    return false;
+  }
+
+  for ( ; nullptr != unit_tag; unit_tag = unit_tag->NextSiblingElement(JNT_TAG)) {
+    if (nullptr == unit_tag->Attribute("name")) {
+      // joint_handle.reset(new HwUnit(jnt_root->Attribute("name")));
+      LOG_WARNING << "No 'name' attribute tag in the '" << JNT_TAG << "'";
+      continue;
+    } else
+      robot->jnt_names_.push_back(unit_tag->Attribute("name"));
+  }
+
+  return true;
 }
 
 #ifndef ROS_BUILD
