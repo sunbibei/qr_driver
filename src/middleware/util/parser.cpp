@@ -236,6 +236,8 @@ bool Parser::parseHwUnits() {
 
   if (!checkHwUnitFormat(hw_units)) return false;
 
+  auto robot = Middleware::instance();
+
   tmp_xml_ele_ = xml_root_->FirstChildElement("hardwares");
   for (const auto& unit_names : hw_units) {
     auto unit_tag = tmp_xml_ele_->FirstChildElement(unit_names);
@@ -247,9 +249,9 @@ bool Parser::parseHwUnits() {
     HwUnitSp group = unit_loader_->createInstance<HwUnit>(unit_tag->Attribute("type"));
     if (!unit_tag->NextSiblingElement(unit_names)) {
       group->init(unit_tag);
-      Middleware::instance()->propagate_[group->cmd_channel_]
+      robot->propagate_[group->cmd_channel_]
                             ->registerHandle(group->hw_name_, group->getCmdHandle());
-      Middleware::instance()->propagate_[group->state_channel_]
+      robot->propagate_[group->state_channel_]
                             ->registerHandle(group->hw_name_, group->getStataHandle());
       unit_tag = unit_tag->NextSiblingElement();
     } else
@@ -264,9 +266,9 @@ bool Parser::parseHwUnits() {
 
       HwUnitSp unit = unit_loader_->createInstance<HwUnit>(unit_tag->Attribute("type"));
       unit->init(unit_tag);
-      Middleware::instance()->propagate_[unit->cmd_channel_]
+      robot->propagate_[unit->cmd_channel_]
                             ->registerHandle(unit->hw_name_, unit->getCmdHandle());
-      Middleware::instance()->propagate_[unit->state_channel_]
+      robot->propagate_[unit->state_channel_]
                             ->registerHandle(unit->hw_name_, unit->getStataHandle());
 
       group->add(unit->hw_name_, unit);

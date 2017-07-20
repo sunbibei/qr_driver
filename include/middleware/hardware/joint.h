@@ -67,14 +67,18 @@ public:
 
   virtual void publish() override;
 
+  // for debug
+  virtual void check() override;
+
 protected:
   LegType leg_;
   JntType jnt_;
   StateTypeSp joint_state_;
   CmdTypeSp   joint_command_;
 
-  static sensor_msgs::JointState* s_joint_states_msg_;
-  static ros::Publisher*          s_joint_states_pub_;
+  static sensor_msgs::JointState s_joint_states_msg_;
+  static ros::Publisher          s_joint_states_pub_;
+  static bool                    s_ros_pub_init_;
 };
 
 } /* namespace middleware */

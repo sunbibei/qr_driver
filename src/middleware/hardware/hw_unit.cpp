@@ -18,7 +18,11 @@ HwUnit::HwUnit(const std::string& name)
     : hw_name_(name) { };
 
 HwUnit::~HwUnit() { };
-void HwUnit::check() { ; }
+void HwUnit::check() {
+  for (auto& e : composite_map_) {
+    e.second->check();
+  }
+}
 
 bool HwUnit::init(TiXmlElement* root) {
   if ((!root) || (!root->Attribute("name"))) {
@@ -49,7 +53,8 @@ HwUnit::StateTypeSp HwUnit::getState()  { return nullptr; }
 HwUnit::CmdTypeSp HwUnit::getCommand()  { return nullptr; }
 void HwUnit::setState(const StateType&) { return; }
 void HwUnit::setCommand(const CmdType&) { return; }
-void HwUnit::publish()                  {for (auto& unit : composite_map_) unit.second->publish();}
+void HwUnit::publish()
+{for (auto& unit : composite_map_) unit.second->publish();}
 
 } /* namespace quadruped_robot_driver */
 

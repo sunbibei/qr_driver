@@ -9,7 +9,7 @@
 #include "middleware/util/log.h"
 #include "middleware/util/proto/dragon.pb.h"
 
-
+#include <ros/ros.h>
 
 namespace middleware {
 typedef boost::shared_ptr<Joint> JointSp;
@@ -51,8 +51,9 @@ bool JointState::updateFrom(const Feedback* fb) {
   return true;
 }
 
-sensor_msgs::JointState* Joint::s_joint_states_msg_ = nullptr;
-ros::Publisher*          Joint::s_joint_states_pub_ = nullptr;
+sensor_msgs::JointState Joint::s_joint_states_msg_;
+ros::Publisher          Joint::s_joint_states_pub_;
+bool                    Joint::s_ros_pub_init_ = false;
 
 Joint::Joint(const std::string& name)
   : HwUnit(name),
@@ -62,27 +63,27 @@ Joint::Joint(const std::string& name)
 
 void Joint::publish() {
   if (composite_map_.empty()) return;
-  if (0 == s_joint_states_msg_->name.size()) {
-    s_joint_states_msg_->name.reserve(composite_map_.size());
-    s_joint_states_msg_->position.reserve(composite_map_.size());
-    s_joint_states_msg_->velocity.reserve(composite_map_.size());
-    s_joint_states_msg_->effort.reserve(composite_map_.size());
+  if (0 == s_joint_states_msg_.name.size()) {
+    s_joint_states_msg_.name.reserve(composite_map_.size());
+    s_joint_states_msg_.position.reserve(composite_map_.size());
+    s_joint_states_msg_.velocity.reserve(composite_map_.size());
+    s_joint_states_msg_.effort.reserve(composite_map_.size());
   }
 
-  s_joint_states_msg_->name.clear();
-  s_joint_states_msg_->position.clear();
-  s_joint_states_msg_->velocity.clear();
-  s_joint_states_msg_->effort.clear();
+  s_joint_states_msg_.name.clear();
+  s_joint_states_msg_.position.clear();
+  s_joint_states_msg_.velocity.clear();
+  s_joint_states_msg_.effort.clear();
   for (auto& j : composite_map_) {
     JointSp jnt = boost::dynamic_pointer_cast<Joint>(j.second);
-    s_joint_states_msg_->name.push_back(jnt->hw_name_);
-    s_joint_states_msg_->position.push_back(jnt->joint_state_->pos_);
-    s_joint_states_msg_->velocity.push_back(jnt->joint_state_->vel_);
-    s_joint_states_msg_->effort.push_back(0);
+    s_joint_states_msg_.name.push_back(jnt->hw_name_);
+    s_joint_states_msg_.position.push_back(jnt->joint_state_->pos_);
+    s_joint_states_msg_.velocity.push_back(jnt->joint_state_->vel_);
+    s_joint_states_msg_.effort.push_back(0);
   }
 
-  s_joint_states_msg_->header.stamp = ros::Time::now();
-  s_joint_states_pub_->publish(*s_joint_states_msg_);
+  s_joint_states_msg_.header.stamp = ros::Time::now();
+  s_joint_states_pub_.publish(s_joint_states_msg_);
 }
 
 bool Joint::init(TiXmlElement* root) {
@@ -92,7 +93,7 @@ bool Joint::init(TiXmlElement* root) {
     return false;
   }
 
-  LOG_INFO << "[Joint] initialize start...";
+  LOG_INFO << "[Joint: '" << root->Attribute("name") << "'] initialize start...";
   std::string tmp_str = root->Attribute("leg");
   if (0 == tmp_str.compare("fl") || 0 == tmp_str.compare("FL")) {
     leg_ = LegType::FL;
@@ -123,12 +124,14 @@ bool Joint::init(TiXmlElement* root) {
   joint_command_.reset(new CmdType(leg_, jnt_));
   hw_name_ = root->Attribute("name");
 
-  if (!s_joint_states_pub_) {
-    // TODO ros::NodeHandle ;
+  if (!s_ros_pub_init_) {
+    ros::NodeHandle nh;
+    s_joint_states_pub_ = nh.advertise<sensor_msgs::JointState>("joint_states", 1);
+    s_ros_pub_init_     = true;
   }
 
-  LOG_INFO << "[Joint] initialize end, call HwUnit::init()...";
-  return HwUnit::init(root);;
+  LOG_INFO << "[Joint: '" << root->Attribute("name") << "'] initialize end, call HwUnit::init()...";
+  return HwUnit::init(root);
 }
 
 HwStateSp Joint::getStataHandle() { return joint_state_; }
@@ -155,7 +158,21 @@ void Joint::setCommand(const HwCommand& c) {
   joint_command_->command_ = val;
 }
 
-void Joint::check() { ; }
+void Joint::check() {
+  if (!composite_map_.empty()) {
+    for (auto& ele : composite_map_) {
+      ele.second->check();
+    }
+  } else {
+    LOG_WARNING << "=============CHECK=============";
+    LOG_INFO << "NAME\tCMD_C\tSTATE_C";
+    LOG_INFO << hw_name_ << "\t" << cmd_channel_ << "\t" << state_channel_;
+    LOG_INFO << "TYPE\tADDR\tCOUNT";
+    LOG_INFO << "STATE\t" << joint_state_.get() << "\t" << joint_state_.use_count();
+    LOG_INFO << "COMMAND\t" << joint_command_.get() << "\t" << joint_command_.use_count();
+    LOG_WARNING << "===============================";
+  }
+}
 
 } /* namespace middleware */
 

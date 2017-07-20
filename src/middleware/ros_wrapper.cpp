@@ -256,17 +256,18 @@ void RosWrapper::cancelCB(
 }
 
 void RosWrapper::publishRTMsg() {
-  ros::Publisher joint_pub = nh_.advertise<sensor_msgs::JointState>("joint_states", 1);
+  // ros::Publisher joint_pub = nh_.advertise<sensor_msgs::JointState>("joint_states", 1);
   std::chrono::high_resolution_clock::time_point t0;
   std::chrono::milliseconds sleep_time;
 
   t0 = std::chrono::high_resolution_clock::now();
   while (alive_ && ros::ok()) {
     // TODO 待实现
-    sensor_msgs::JointState joint_msg;
-    robot_->getJointStates(joint_msg);
-    joint_msg.header.stamp = ros::Time::now();
-    joint_pub.publish(joint_msg);
+    // sensor_msgs::JointState joint_msg;
+    // robot_->getJointStates(joint_msg);
+    // joint_msg.header.stamp = ros::Time::now();
+    // joint_pub.publish(joint_msg);
+    robot_->hw_unit_.publish();
 
     // 控制发布Message的频率
     sleep_time = rt_duration_ - std::chrono::duration_cast<std::chrono::milliseconds>(
@@ -343,7 +344,7 @@ void RosWrapper::cbForDebug(const std_msgs::Int32ConstPtr& msg) {
     robot_->addCommand(jnt, cmd);
   }*/
   // 实现方式2
-  /*LOG_INFO << "test write style 2";
+  LOG_INFO << "test write style 2";
   std::vector<HwCmdSp> cmd_vec;
   std::vector<std::string> cmd_name;
   for (auto& jnt : robot_->jnt_names_) {
@@ -352,7 +353,7 @@ void RosWrapper::cbForDebug(const std_msgs::Int32ConstPtr& msg) {
     cmd_vec.push_back(cmd);
     cmd_name.push_back(jnt);
   }
-  robot_->addCommand(cmd_name, cmd_vec);*/
+  robot_->addCommand(cmd_name, cmd_vec);
 
   LOG_INFO << "Add Command Successful";
 }
