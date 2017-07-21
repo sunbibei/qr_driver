@@ -67,14 +67,10 @@ bool Propagate::send(const std::vector<std::string>& jnt_names) {
   tmp_ret_ = true;
   // memset(propa_w_cache_, '\0', propa_w_cache_size_);
 
-  LOG_WARNING << "test1";
   for (const auto& jnt : jnt_names) {
-    LOG_WARNING << "test1.1\t" << jnt;
     cmd_composite_[jnt]->parseTo(proto_cmd_);
-    LOG_WARNING << "test1.2";
     tmp_ret_ &= proto_cmd_->SerializeToArray(propa_w_cache_ + cache_w_offset_,
         propa_w_cache_size_ - cache_w_offset_);
-    LOG_WARNING << "test1.3";
     tmp_ret_ &= write(propa_w_cache_ + cache_w_offset_, proto_cmd_->ByteSize());
     cache_w_offset_ += proto_cmd_->ByteSize();
 
@@ -84,7 +80,6 @@ bool Propagate::send(const std::vector<std::string>& jnt_names) {
       cache_w_offset_ = 0;
     }
   }
-  LOG_WARNING << "test end for";
   if (!tmp_ret_)
     LOG_ERROR << "write " << propa_name_ << "ERROR!";
 

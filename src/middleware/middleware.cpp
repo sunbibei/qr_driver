@@ -65,7 +65,9 @@ bool Middleware::init() {
 }
 
 bool Middleware::start() {
-  propagate_.check();
+  for (const auto& p : propagate_)
+    p.second->check();
+
   hw_unit_.check();
   std::stringstream ss;
   ss << "The list of joint names:\n";
@@ -82,10 +84,13 @@ void Middleware::runPropagate() {
   while (keepalive_) {
     while (connected_ && keepalive_) {
       // Everything is OK!
-      connected_ = propagate_.recv();
+      for (auto& p : propagate_)
+        connected_ &= p.second->recv();
       if (new_command_) {
         while (!cmd_lock_.try_lock()) {}
-        connected_ = propagate_.send(new_jnt_cmd_names_);
+        for (auto& p : propagate_)
+          connected_ &= p.second->send(new_jnt_cmd_names_);
+
         new_command_ = false;
         new_jnt_cmd_names_.clear();
         cmd_lock_.unlock();

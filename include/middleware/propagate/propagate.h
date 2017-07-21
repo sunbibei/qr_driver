@@ -35,7 +35,18 @@ public:
   virtual int  read(void*, size_t) {return 0;};
   virtual void stop() { };
   // for Debug
-  virtual void check() { ; };
+  virtual void check() {
+    LOG_WARNING << "=============CHECK=============";
+    LOG_INFO << "COMMAND:\nNAME\tADDR\tCOUNT";
+    for (const auto& c : cmd_composite_) {
+      LOG_INFO << c.first << "\t" << c.second.get() << "\t" << c.second.use_count();
+    }
+    LOG_INFO << "STATE:\nNAME\tADDR\tCOUNT";
+    for (const auto& s : state_composite_) {
+      LOG_INFO << s.first << "\t" << s.second.get() << "\t" << s.second.use_count();
+    }
+    LOG_WARNING << "===============================";
+  }
   /**************************************************
    * 下述两个函数注册机构单元的状态或命令句柄
    * 注册句柄, 是为了效率考虑, 注册后, 解析更新后的数据
