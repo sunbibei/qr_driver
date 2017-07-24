@@ -31,8 +31,14 @@ public:
    */
   virtual bool init(TiXmlElement* root);
   virtual bool start() { return true; }
-  virtual bool write(void*, size_t) {return true;};
-  virtual int  read(void*, size_t) {return 0;};
+  /**
+   * TODO
+   */
+  virtual bool write(void*, size_t, uint32_t) {return true;};
+  /**
+   * TODO
+   */
+  virtual int  read(void*, size_t, uint32_t&) {return 0;};
   virtual void stop() { };
   // for Debug
   virtual void check() {
@@ -73,6 +79,7 @@ protected:
   size_t                cache_w_base_;
   uint8_t*              propa_r_cache_;
   uint8_t*              propa_w_cache_;
+  uint32_t              recv_index_;
 
   bool                  tmp_ret_;
   int                   tmp_read_size_;

@@ -18,8 +18,8 @@ public:
   virtual ~PcanChannel();
 
   virtual bool init(TiXmlElement*) override;
-  virtual bool write(void*, size_t) override;
-  virtual int  read(void*, size_t) override;
+  virtual bool write(void*, size_t, int) override;
+  virtual int  read(void*, size_t, int&) override;
   virtual void stop() override;
 
   virtual void check() override;

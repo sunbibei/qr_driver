@@ -26,7 +26,7 @@ void PcanChannel::stop() {
 }
 
 // 完成数据的读写. (下面全是测试代码)
-bool PcanChannel::write(void*, size_t) {
+bool PcanChannel::write(void*, size_t, int) {
  /* if (names.empty()) return true;
 
   // LOG_INFO << "PCAN write: ";
@@ -76,7 +76,7 @@ bool PcanChannel::write(void*, size_t) {
 }
 
 // (下面全是测试代码)
-int  PcanChannel::read(void*, size_t) {
+int  PcanChannel::read(void*, size_t, int&) {
   // 从PCAN中获取到的数据对应到具体的状态name
   // 也可以从PCAN的数据中， 明确到底是什么类型的State
   // 转化为对应类型的State, 在进行赋值

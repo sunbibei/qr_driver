@@ -16,9 +16,27 @@ to Group 0| 1       GROUP ID         | COMMAND ID
 to Host  1| NODE ID               |    FEEDBACK ID
 ////////////////////////////////////////////////////////*/
 
-#define MII_MSG_ID_BITS_SIZE (16)
-#define MII_MSG_ID_BYTE_SIZE (2)
-#define MII_HOST_MSG_MASK    (0x8000)
+#define MII_MSG_ID_BITS_SIZE      (16)
+#define MII_MSG_ID_BYTE_SIZE      (2)
+#define MII_HOST_MSG_MASK         (0x8000)
+#define MII_HOST_MSG_NODE_ID_MASK (0x7F80)
+#define MII_MSG_NODE_ID_MASK      (0x3FC0)
+#define MII_MSG_GROUP_MASK        (0x4000)
+#define MII_MSG_GROUP_ID_MASK     (0x3FC0)
+#define MII_TO_NODE_TEMPLATE      (0x0000)
+#define MII_TO_GROUP_TEMPLATE     (0x4000)
+#define MII_TO_HOST_TEMPLATE      (0x8000)
+
+///! define the command id
+#define MII_CMD_JOINT_POS         (0x0001)
+#define MII_CMD_JOINT_VEL         (0x0002)
+#define MII_CMD_JOINT_TOR         (0x0003)
+
+///! define the feedback id
+#define MII_FB_JOINT_POS          (0x0001)
+#define MII_FB_JOINT_VEL          (0x0002)
+#define MII_FB_JOINT_TOR          (0x0003)
+#define MII_FB_POWER_STATE        (0x0004)
 
 
 
