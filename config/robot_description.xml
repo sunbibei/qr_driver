@@ -12,42 +12,28 @@
 		<channel name="pcan" type="middleware::PcanChannel" />
 	</propagates>
 	
-	<hardwares name="hardwares" list="joint" >
-		<joint type="middleware::Joint" channel="pcan"
-			name="fl_yaw"  leg="fl" jnt="yaw"  />
+	<hardwares name="hardwares" list="joints" >
+		<joints type="middleware::Joint" channel="pcan" name="joints" >
+			<joint name="fl_yaw"  leg="fl" jnt="yaw"  />
+			<joint name="fl_knee" leg="fl" jnt="knee" />
+			<joint name="fl_hip"  leg="fl" jnt="hip"  />
+			<joint name="hl_yaw"  leg="hl" jnt="yaw"  />
+			<joint name="hl_knee" leg="hl" jnt="knee" />
+			<joint name="hl_hip"  leg="hl" jnt="hip"  />
+			<joint name="fr_yaw"  leg="fr" jnt="yaw"  />
+			<joint name="fr_knee" leg="fr" jnt="knee" />
+			<joint name="fr_hip"  leg="fr" jnt="hip"  />
+			<joint name="hr_yaw"  leg="hr" jnt="yaw"  />
+			<joint name="hr_knee" leg="hr" jnt="knee" />
+			<joint name="hr_hip"  leg="hr" jnt="hip"  />
+		</joints>
 
-		<joint type="middleware::Joint" channel="pcan"
-			name="fl_knee" leg="fl" jnt="knee" />
-
-		<joint type="middleware::Joint" channel="pcan"
-			name="fl_hip"  leg="fl" jnt="hip"  />
-
-		<joint type="middleware::Joint" channel="pcan"
-			name="hl_yaw"  leg="hl" jnt="yaw"  />
-
-		<joint type="middleware::Joint" channel="pcan"
-			name="hl_knee" leg="hl" jnt="knee" />
-
-		<joint type="middleware::Joint" channel="pcan"
-			name="hl_hip"  leg="hl" jnt="hip"  />
-
-		<joint type="middleware::Joint" channel="pcan"
-			name="fr_yaw"  leg="fr" jnt="yaw"  />
-
-		<joint type="middleware::Joint" channel="pcan"
-			name="fr_knee" leg="fr" jnt="knee" />
-
-		<joint type="middleware::Joint" channel="pcan"
-			name="fr_hip"  leg="fr" jnt="hip"  />
-
-		<joint type="middleware::Joint" channel="pcan"
-			name="hr_yaw"  leg="hr" jnt="yaw"  />
-
-		<joint type="middleware::Joint" channel="pcan"
-			name="hr_knee" leg="hr" jnt="knee" />
-
-		<joint type="middleware::Joint" channel="pcan"
-			name="hr_hip"  leg="hr" jnt="hip"  />
+		<touchdowns type="middleware::TouchDown" channel="pcan" name="touchdowns">
+			<touchdown name="fl_td" leg="fl" />
+			<touchdown name="hl_td" leg="hl" />
+			<touchdown name="fr_td" leg="fr" />
+			<touchdown name="hr_td" leg="hr" />
+		</touchdowns>
 
 		<power type="middleware::Power" name="power" />
 	</hardwares>

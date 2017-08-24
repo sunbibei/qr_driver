@@ -7,6 +7,7 @@
 
 #include <middleware/util/proto/dragon.pb.h>
 #include "middleware/hardware/hw_unit.h"
+#include "middleware/middleware.h"
 #include "middleware/util/log.h"
 
 
@@ -18,11 +19,7 @@ HwUnit::HwUnit(const std::string& name)
     : hw_name_(name) { };
 
 HwUnit::~HwUnit() { };
-void HwUnit::check() {
-  for (auto& e : composite_map_) {
-    e.second->check();
-  }
-}
+void HwUnit::check() { }
 
 bool HwUnit::init(TiXmlElement* root) {
   if ((!root) || (!root->Attribute("name"))) {
@@ -44,17 +41,27 @@ bool HwUnit::init(TiXmlElement* root) {
   }
 
   hw_name_ = root->Attribute("name");
+
+  if (requireCmdReg())
+    Middleware::instance()->propagate_[cmd_channel_]
+                          ->registerHandle(hw_name_, getCmdHandle());
+  if (requireStateReg())
+    Middleware::instance()->propagate_[state_channel_]
+                          ->registerHandle(hw_name_, getStateHandle());
   return true;
 }
 
-HwStateSp HwUnit::getStataHandle()      { return nullptr; }
-HwCmdSp HwUnit::getCmdHandle()          { return nullptr; }
-HwUnit::StateTypeSp HwUnit::getState()  { return nullptr; }
-HwUnit::CmdTypeSp HwUnit::getCommand()  { return nullptr; }
-void HwUnit::setState(const StateType&) { return; }
-void HwUnit::setCommand(const CmdType&) { return; }
-void HwUnit::publish()
-{for (auto& unit : composite_map_) unit.second->publish();}
+bool                HwUnit::requireStateReg()  { return true;   }
+bool                HwUnit::requireCmdReg()    { return true;   }
+HwStateSp           HwUnit::getStateHandle()   { return nullptr; }
+HwCmdSp             HwUnit::getCmdHandle()     { return nullptr; }
+HwUnit::StateTypeSp HwUnit::getState()         { return nullptr; }
+HwUnit::CmdTypeSp   HwUnit::getCommand()       { return nullptr; }
+
+void                HwUnit::setState(const StateType&) { return; }
+void                HwUnit::setCommand(const CmdType&) { return; }
+
+void                HwUnit::publish() { }
 
 } /* namespace quadruped_robot_driver */
 

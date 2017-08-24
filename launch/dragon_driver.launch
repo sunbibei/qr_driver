@@ -16,8 +16,8 @@
   <!-- Load hardware interface -->
   <node name="qr_driver_alpha_exe" pkg="qr_driver_alpha" type="qr_driver_alpha_exe" output="screen">
     <param name="configure"           command="cat '$(find qr_driver_alpha)/config/robot_description.xml'"/>
-    <param name="lib_propagate"       value="/home/silence/Workspace/qr_ws/devel/lib/libqr_driver_alpha_propagate.so"/>
-    <param name="lib_hwunit"          value="/home/silence/Workspace/qr_ws/devel/lib/libqr_driver_alpha_hw_unit.so" />
+    <param name="lib_propagate"       value="/home/bibei/Workspaces/qr_ws/devel/lib/libqr_driver_alpha_propagate.so"/>
+    <param name="lib_hwunit"          value="/home/bibei/Workspaces/qr_ws/devel/lib/libqr_driver_alpha_hw_unit.so" />
     <param name="use_ros_control"     type="bool"   value="$(arg use_ros_control)"/>
     <param name="debug"               type="bool"   value="$(arg debug)" />
     <param name="rt_frequency"        type="double" value="$(arg rt_frequency)" />

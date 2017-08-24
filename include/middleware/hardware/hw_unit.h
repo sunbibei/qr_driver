@@ -42,7 +42,7 @@ struct HwCommand {
 typedef boost::shared_ptr<HwState>   HwStateSp;
 typedef boost::shared_ptr<HwCommand> HwCmdSp;
 
-class HwUnit : public Composite2<HwUnit> {
+class HwUnit {
 public:
   /**************************************************
    * 任何该类的子类, 若包含State or Cmd
@@ -68,7 +68,9 @@ public:
    * 返回所保存状态/命令数据的地址
    * 用以在初始化时注册到Propagate中
    */
-  virtual StateTypeSp   getStataHandle();
+  virtual bool          requireStateReg();
+  virtual bool          requireCmdReg();
+  virtual StateTypeSp   getStateHandle();
   virtual CmdTypeSp     getCmdHandle();
 /**************************************************
  * 下述四个函数选择性进行实现, 在函数内部, 需要完成数据的读写.
@@ -84,28 +86,6 @@ public:
   virtual void setCommand(const CmdType&);
   virtual void publish();
 
-  boost::shared_ptr<HwUnit>& operator[](const std::string& key) {
-    if (end() != find(key))
-      return composite_map_[key];
-
-    for (auto& ele : composite_map_) {
-      if (ele.second->end() != ele.second->find(key)) {
-        return ele.second->composite_map_[key];
-      }
-    }
-    composite_map_.insert(std::make_pair(key, boost::shared_ptr<HwUnit>(new HwUnit)));
-    return composite_map_[key];
-  }
-
-  /*void setName(const std::string& n) {hw_name_ = n;};
-  const std::string& getName() {return hw_name_;};
-
-  virtual void setStateChannel(const std::string& c) {state_channel_ = c;};
-  virtual void setCmdChannel(const std::string& c) {cmd_channel_ = c;};
-  virtual const std::string& getStateChannel() {return state_channel_;};
-  virtual const std::string& getCmdChannel() {return cmd_channel_;};
-
-protected:*/
   std::string hw_name_;
   std::string cmd_channel_;
   std::string state_channel_;

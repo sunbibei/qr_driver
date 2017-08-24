@@ -34,7 +34,6 @@ struct JointState : public HwState {
 };
 
 struct JointCommand : public HwCommand {
-
   std::atomic<double>     command_;
   std::atomic<JntCmdType> mode_;
 
@@ -58,7 +57,7 @@ public:
   Joint(const std::string& name = "joint");
 
   virtual bool init(TiXmlElement*)   override;
-  virtual HwStateSp getStataHandle() override;
+  virtual HwStateSp getStateHandle() override;
   virtual HwCmdSp   getCmdHandle()   override;
   virtual HwStateSp getState()       override;
   virtual HwCmdSp   getCommand()     override;
@@ -69,6 +68,10 @@ public:
 
   // for debug
   virtual void check() override;
+
+private:
+  bool initComposite(TiXmlElement*);
+  bool initComponent(TiXmlElement*);
 
 protected:
   LegType leg_;

@@ -68,7 +68,9 @@ bool Middleware::start() {
   for (const auto& p : propagate_)
     p.second->check();
 
-  hw_unit_.check();
+  for (const auto& p : hw_unit_)
+    p.second->check();
+
   std::stringstream ss;
   ss << "The list of joint names:\n";
   for (const auto& n : jnt_names_)

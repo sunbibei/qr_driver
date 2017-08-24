@@ -71,7 +71,7 @@ bool Propagate::send(const std::vector<std::string>& jnt_names) {
     cmd_composite_[jnt]->parseTo(proto_cmd_);
     tmp_ret_ &= proto_cmd_->SerializeToArray(propa_w_cache_ + cache_w_offset_,
         propa_w_cache_size_ - cache_w_offset_);
-    tmp_ret_ &= write(propa_w_cache_ + cache_w_offset_, proto_cmd_->ByteSize(), uint32_t);
+    tmp_ret_ &= write(propa_w_cache_ + cache_w_offset_, proto_cmd_->ByteSize(), 20);
     cache_w_offset_ += proto_cmd_->ByteSize();
 
     if (propa_w_cache_size_ < 8 * proto_cmd_->ByteSize() + cache_w_offset_) {

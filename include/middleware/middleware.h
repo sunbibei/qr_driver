@@ -28,7 +28,7 @@ class Middleware : public NonCopyable {
 public:
   // Unit and Propagate interface
   Composite<Propagate>  propagate_;
-  HwUnit                hw_unit_;
+  Composite<HwUnit>     hw_unit_;
 
   std::vector<std::string> jnt_names_;
 

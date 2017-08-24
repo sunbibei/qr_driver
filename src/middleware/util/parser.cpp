@@ -27,7 +27,7 @@ bool Parser::parse() {
     return false;
   }
 
-  return (parsePropagates() && parseHwUnits() && parseJointNames());
+  return (parsePropagates() && parseHwUnits());// && parseJointNames());
 }
 
 bool Parser::parseJointNames() {
@@ -256,48 +256,25 @@ bool Parser::checkHwUnitFormat(std::vector<std::string>& hw_units) {
 bool Parser::parseHwUnits() {
   LOG_INFO << "[Parser]: " << "parse hardwares start";
   std::vector<std::string> hw_units;
-
   if (!checkHwUnitFormat(hw_units)) return false;
 
   auto robot = Middleware::instance();
-
   tmp_xml_ele_ = xml_root_->FirstChildElement("hardwares");
   for (const auto& unit_names : hw_units) {
+
+    HwUnitSp unit;
     auto unit_tag = tmp_xml_ele_->FirstChildElement(unit_names);
-    if (nullptr == unit_tag->Attribute("type")) {
-      LOG_FATAL << "No 'type' attribute tag in the '" << unit_names << "'";
-      return false;
-    }
-
-    HwUnitSp group = unit_loader_->createInstance<HwUnit>(unit_tag->Attribute("type"));
-    if (!unit_tag->NextSiblingElement(unit_names)) {
-      group->init(unit_tag);
-      robot->propagate_[group->cmd_channel_]
-                            ->registerHandle(group->hw_name_, group->getCmdHandle());
-      robot->propagate_[group->state_channel_]
-                            ->registerHandle(group->hw_name_, group->getStataHandle());
-      unit_tag = unit_tag->NextSiblingElement();
-    } else
-      group->hw_name_ = unit_names;
-
     for ( ; nullptr != unit_tag; unit_tag = unit_tag->NextSiblingElement(unit_names)) {
       if (nullptr == unit_tag->Attribute("type")) {
-        // joint_handle.reset(new HwUnit(jnt_root->Attribute("name")));
-        LOG_FATAL << "No 'type' attribute tag in the '" << unit_names << "'";
-        return false;
+        LOG_ERROR << "No 'type' attribute tag in the '" << unit_names << "'";
+        continue;
       }
 
-      HwUnitSp unit = unit_loader_->createInstance<HwUnit>(unit_tag->Attribute("type"));
+      unit = unit_loader_->createInstance<HwUnit>(unit_tag->Attribute("type"));
       unit->init(unit_tag);
-      robot->propagate_[unit->cmd_channel_]
-                            ->registerHandle(unit->hw_name_, unit->getCmdHandle());
-      robot->propagate_[unit->state_channel_]
-                            ->registerHandle(unit->hw_name_, unit->getStataHandle());
-
-      group->add(unit->hw_name_, unit);
     }
 
-    Middleware::instance()->hw_unit_.add(group->hw_name_, group);
+    robot->hw_unit_.add(unit->hw_name_, unit);
   }
 
   LOG_INFO << "[Parser]: " << "parse propagates successful";
