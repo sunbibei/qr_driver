@@ -12,30 +12,30 @@
 		<channel name="pcan" type="middleware::PcanChannel" />
 	</propagates>
 	
-	<hardwares name="hardwares" list="joints" >
-		<joints type="middleware::Joint" channel="pcan" name="joints" >
-			<joint name="fl_yaw"  leg="fl" jnt="yaw"  />
-			<joint name="fl_knee" leg="fl" jnt="knee" />
-			<joint name="fl_hip"  leg="fl" jnt="hip"  />
-			<joint name="hl_yaw"  leg="hl" jnt="yaw"  />
-			<joint name="hl_knee" leg="hl" jnt="knee" />
-			<joint name="hl_hip"  leg="hl" jnt="hip"  />
-			<joint name="fr_yaw"  leg="fr" jnt="yaw"  />
-			<joint name="fr_knee" leg="fr" jnt="knee" />
-			<joint name="fr_hip"  leg="fr" jnt="hip"  />
-			<joint name="hr_yaw"  leg="hr" jnt="yaw"  />
-			<joint name="hr_knee" leg="hr" jnt="knee" />
-			<joint name="hr_hip"  leg="hr" jnt="hip"  />
+	<hardwares name="hardwares" list="joints touchdowns" >
+		<joints type="middleware::Joint" channel="pcan" name="AllofJoints" >
+			<joint name="fl_yaw"  leg="fl" jnt="yaw"  id="0x01"  />
+			<joint name="fl_knee" leg="fl" jnt="knee" id="0x02"  />
+			<joint name="fl_hip"  leg="fl" jnt="hip"  id="0x03"  />
+			<joint name="hl_yaw"  leg="hl" jnt="yaw"  id="0x04"  />
+			<joint name="hl_knee" leg="hl" jnt="knee" id="0x05"  />
+			<joint name="hl_hip"  leg="hl" jnt="hip"  id="0x06"  />
+			<joint name="fr_yaw"  leg="fr" jnt="yaw"  id="0x07"  />
+			<joint name="fr_knee" leg="fr" jnt="knee" id="0x08"  />
+			<joint name="fr_hip"  leg="fr" jnt="hip"  id="0x09"  />
+			<joint name="hr_yaw"  leg="hr" jnt="yaw"  id="0x0A"  />
+			<joint name="hr_knee" leg="hr" jnt="knee" id="0x0B"  />
+			<joint name="hr_hip"  leg="hr" jnt="hip"  id="0x0C"  />
 		</joints>
 
 		<touchdowns type="middleware::TouchDown" channel="pcan" name="touchdowns">
-			<touchdown name="fl_td" leg="fl" />
-			<touchdown name="hl_td" leg="hl" />
-			<touchdown name="fr_td" leg="fr" />
-			<touchdown name="hr_td" leg="hr" />
+			<touchdown name="fl_td" leg="fl" id="0x0D"  />
+			<touchdown name="hl_td" leg="hl" id="0x0E"  />
+			<touchdown name="fr_td" leg="fr" id="0x0F"  />
+			<touchdown name="hr_td" leg="hr" id="0x10"  />
 		</touchdowns>
 
-		<power type="middleware::Power" name="power" />
+		<power type="middleware::Power" name="power" id="0x11"  />
 	</hardwares>
 
 </robot>

@@ -32,7 +32,7 @@ bool TouchDown::init(TiXmlElement* root) {
   } else if (0 == tmp_str.compare("hr")) {
     leg_ = LegType::HR;
   } else {
-    LOG_ERROR << "Error the 'leg' TAG(" << tmp_str << ") in the 'joint' TAG, "
+    LOG_ERROR << "Error the 'leg' TAG(" << tmp_str << ") in the 'touchdown' TAG, "
         << "require 'fl', 'fr', 'hl' or 'hr'";
     return false;
   }
