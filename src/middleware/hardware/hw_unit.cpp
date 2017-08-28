@@ -13,55 +13,44 @@
 
 namespace middleware {
 
-HwUnit::HwUnit() : HwUnit("") { ; }
-
-HwUnit::HwUnit(const std::string& name)
-    : hw_name_(name) { };
-
-HwUnit::~HwUnit() { };
-void HwUnit::check() { }
+HwUnit::HwUnit() : node_id_(INVALID_ID) {
+  HwManager::instance()->add(this);
+}
 
 bool HwUnit::init(TiXmlElement* root) {
   if ((!root) || (!root->Attribute("name"))) {
     LOG_ERROR << "The format of 'joint' tag is wrong!";
     return false;
   }
-  if (!root->Attribute("channel")
-      && (root->Attribute("cmd_channel") || root->Attribute("state_channel"))) {
+  hw_name_ = root->Attribute("name");
+
+  if ((!root->Attribute("id")) && (!root->Attribute("node_id"))) {
     LOG_ERROR << "The format of 'joint' tag is wrong!";
     return false;
   }
-
-  if (root->Attribute("channel")) {
-    cmd_channel_   = root->Attribute("channel");
-    state_channel_ = root->Attribute("channel");
+  unsigned int id = 0;
+  std::string id_str = (root->Attribute("id") ?
+      root->Attribute("id") : root->Attribute("node_id"));
+  std::string template_str;
+  if (('0' == id_str[0]) && ('x' == id_str[1])) {
+    // Hex to id
+    template_str = "0x%x";
   } else {
-    cmd_channel_   = root->Attribute("cmd_channel");
-    state_channel_ = root->Attribute("state_channel");
+    template_str = "%d";
   }
+  sscanf(id_str.c_str(), template_str.c_str(), &id);
+  node_id_ = id;
 
-  hw_name_ = root->Attribute("name");
-
-  if (requireCmdReg())
-    Middleware::instance()->propagate_[cmd_channel_]
-                          ->registerHandle(hw_name_, getCmdHandle());
-  if (requireStateReg())
-    Middleware::instance()->propagate_[state_channel_]
-                          ->registerHandle(hw_name_, getStateHandle());
   return true;
 }
 
-bool                HwUnit::requireStateReg()  { return true;   }
-bool                HwUnit::requireCmdReg()    { return true;   }
-HwStateSp           HwUnit::getStateHandle()   { return nullptr; }
-HwCmdSp             HwUnit::getCmdHandle()     { return nullptr; }
-HwUnit::StateTypeSp HwUnit::getState()         { return nullptr; }
-HwUnit::CmdTypeSp   HwUnit::getCommand()       { return nullptr; }
+void HwUnit::handleMsg(const Packet&) {
+  ;
+}
 
-void                HwUnit::setState(const StateType&) { return; }
-void                HwUnit::setCommand(const CmdType&) { return; }
-
-void                HwUnit::publish() { }
+HwUnit::~HwUnit()                 { }
+bool HwUnit::generateCmd(Packet&) { return false;  }
+bool HwUnit::requireCmdDeliver()  { return true;   }
 
 } /* namespace quadruped_robot_driver */
 

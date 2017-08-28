@@ -8,6 +8,27 @@
 #ifndef INCLUDE_MIDDLEWARE_UTIL_QR_PROTOCOL_H_
 #define INCLUDE_MIDDLEWARE_UTIL_QR_PROTOCOL_H_
 
+namespace middleware {
+
+// if the type of communication is can
+// uncomment the follow line
+#define PACKET_CAN
+
+#ifndef PACKET_CAN
+#define DATA_SIZE (0)
+#else
+#define DATA_SIZE (8)
+#endif
+
+struct Packet {
+  unsigned char node_id;
+  unsigned char msg_id;
+  unsigned int  size;
+  char data[DATA_SIZE];
+};
+
+#define INVALID_ID (0xFF)
+
 /*////////////////////////////////////////////////////////
 The message id define:
         15 14 13 12 11 10 09 08 07 06 05 04 03 02 01 00
@@ -39,6 +60,6 @@ to Host  1| NODE ID               |    FEEDBACK ID
 #define MII_FB_POWER_STATE        (0x0004)
 
 
-
+} /* namespace quadruped_robot_driver */
 
 #endif /* INCLUDE_MIDDLEWARE_UTIL_QR_PROTOCOL_H_ */

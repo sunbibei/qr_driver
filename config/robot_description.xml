@@ -1,41 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
 <robot name="quadruped_robot">
 
-<!--
-	<lib_paths >
-    <propagate path="/home/silence/Workspace/qr_ws/devel/lib/libpropagate_lib.so"/>
-    <hw_unit path="/home/silence/Workspace/qr_ws/devel/lib/libhardware_lib.so"/>
-  </lib_paths>
--->
-
 	<propagates name="propagates" >
 		<channel name="pcan" type="middleware::PcanChannel" />
 	</propagates>
 	
-	<hardwares name="hardwares" list="joints touchdowns" >
-		<joints type="middleware::Joint" channel="pcan" name="AllofJoints" >
-			<joint name="fl_yaw"  leg="fl" jnt="yaw"  id="0x01"  />
-			<joint name="fl_knee" leg="fl" jnt="knee" id="0x02"  />
-			<joint name="fl_hip"  leg="fl" jnt="hip"  id="0x03"  />
-			<joint name="hl_yaw"  leg="hl" jnt="yaw"  id="0x04"  />
-			<joint name="hl_knee" leg="hl" jnt="knee" id="0x05"  />
-			<joint name="hl_hip"  leg="hl" jnt="hip"  id="0x06"  />
-			<joint name="fr_yaw"  leg="fr" jnt="yaw"  id="0x07"  />
-			<joint name="fr_knee" leg="fr" jnt="knee" id="0x08"  />
-			<joint name="fr_hip"  leg="fr" jnt="hip"  id="0x09"  />
-			<joint name="hr_yaw"  leg="hr" jnt="yaw"  id="0x0A"  />
-			<joint name="hr_knee" leg="hr" jnt="knee" id="0x0B"  />
-			<joint name="hr_hip"  leg="hr" jnt="hip"  id="0x0C"  />
-		</joints>
+	<hardwares name="hardwares" >
+		<node type="middleware::LegNode" name="lf_node" leg="fl" node_id="0x02" >
+			<joint     name="fl_yaw"  jnt="yaw"  msg_id="0x03"  />
+			<joint     name="fl_knee" jnt="knee" msg_id="0x01"  />
+			<joint     name="fl_hip"  jnt="hip"  msg_id="0x02"  />
+			<touchdown name="fl_td"              msg_id="0x04"  />
+		</node>
+		<node type="middleware::LegNode" name="hl_node" leg="hl" node_id="0x03" >
+			<joint     name="hl_yaw"  jnt="yaw"  msg_id="0x03"  />
+			<joint     name="hl_knee" jnt="knee" msg_id="0x01"  />
+			<joint     name="hl_hip"  jnt="hip"  msg_id="0x02"  />
+			<touchdown name="hl_td"              msg_id="0x04"  />
+		</node>
+		<node type="middleware::LegNode" name="fr_node" leg="fr" node_id="0x04" >
+			<joint     name="fr_yaw"  jnt="yaw"  msg_id="0x03"  />
+			<joint     name="fr_knee" jnt="knee" msg_id="0x01"  />
+			<joint     name="fr_hip"  jnt="hip"  msg_id="0x02"  />
+			<touchdown name="fr_td"              msg_id="0x04"  />
+		</node>
+		<node type="middleware::LegNode" name="hr_node" leg="hr" node_id="0x05" >
+			<joint     name="hr_yaw"  jnt="yaw"  msg_id="0x03"  />
+			<joint     name="hr_knee" jnt="knee" msg_id="0x01"  />
+			<joint     name="hr_hip"  jnt="hip"  msg_id="0x02"  />
+			<touchdown name="hr_td"              msg_id="0x04"  />
+		</node>
 
-		<touchdowns type="middleware::TouchDown" channel="pcan" name="touchdowns">
-			<touchdown name="fl_td" leg="fl" id="0x0D"  />
-			<touchdown name="hl_td" leg="hl" id="0x0E"  />
-			<touchdown name="fr_td" leg="fr" id="0x0F"  />
-			<touchdown name="hr_td" leg="hr" id="0x10"  />
-		</touchdowns>
-
-		<power type="middleware::Power" name="power" id="0x11"  />
+		<node type="middleware::Power" name="power" node_id="0x08"  />
 	</hardwares>
 
 </robot>

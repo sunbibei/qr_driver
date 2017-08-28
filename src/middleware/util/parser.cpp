@@ -258,7 +258,6 @@ bool Parser::parseHwUnits() {
   std::vector<std::string> hw_units;
   if (!checkHwUnitFormat(hw_units)) return false;
 
-  auto robot = Middleware::instance();
   tmp_xml_ele_ = xml_root_->FirstChildElement("hardwares");
   for (const auto& unit_names : hw_units) {
 
@@ -273,8 +272,6 @@ bool Parser::parseHwUnits() {
       unit = unit_loader_->createInstance<HwUnit>(unit_tag->Attribute("type"));
       unit->init(unit_tag);
     }
-
-    robot->hw_unit_.add(unit->hw_name_, unit);
   }
 
   LOG_INFO << "[Parser]: " << "parse propagates successful";
