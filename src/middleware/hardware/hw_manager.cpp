@@ -7,31 +7,65 @@
 
 #include <middleware/hardware/hw_manager.h>
 #include <system/utils/log.h>
+#include "middleware/propagate/propagate_manager.h"
 
-#include "middleware/hardware/hw_unit.h"
+#include <boost/bind.hpp>
 
 namespace middleware {
 
+#define TIME_INIT \
+    std::chrono::high_resolution_clock::time_point t0; \
+    std::chrono::milliseconds sleep_time; \
+    t0 = std::chrono::high_resolution_clock::now();
+
+#define TIME_CONTROL(duration) \
+    sleep_time = duration - std::chrono::duration_cast<std::chrono::milliseconds>( \
+        std::chrono::high_resolution_clock::now() - t0); \
+    if (sleep_time.count() > 0) { \
+      std::this_thread::sleep_for(sleep_time); \
+    } \
+    t0 = std::chrono::high_resolution_clock::now();
+
+const size_t MAX_PKTS_SIZE = 512;
 HwManager* HwManager::instance_ = nullptr;
 
-/*HwManager::~HwManager() {
-  if (nullptr != s_propagate_manager_) {
-    delete s_propagate_manager_;
-    s_propagate_manager_ = nullptr;
-  }
-
-  for (auto& hw : s_hw_list_) {
-    delete hw;
-    hw = nullptr;
-  }
-
-  LOG_INFO << "Destroy all of the hw_unit";
-}*/
-
-HwManager* HwManager::instance() {
-  if (nullptr == instance_) instance_ = new HwManager();
+HwManager* HwManager::create_instance() {
+  if (nullptr != instance_)
+    LOG_WARNING << "This method is called twice.";
+  else
+    instance_ = new HwManager();
 
   return instance_;
+}
+
+void HwManager::destroy_instance() {
+  if (nullptr != instance_) {
+    delete instance_;
+    instance_ = nullptr;
+  }
+}
+
+HwManager* HwManager::instance() {
+  if (nullptr == instance_)
+    LOG_WARNING << "This method HwManager::instance() should be called after "
+        << "HwManager::create_instance()";
+
+  return instance_;
+}
+
+HwManager::HwManager()
+: tick_interval_(10), thread_alive_(true), tick_thread_(nullptr),
+  propagate_manager_(nullptr) {
+  packets_.reserve(MAX_PKTS_SIZE);
+}
+
+HwManager::~HwManager() {
+  thread_alive_ = false;
+  if (nullptr != tick_thread_) {
+    tick_thread_->join();
+    delete tick_thread_;
+    tick_thread_ = nullptr;
+  }
 }
 
 bool HwManager::init() {
@@ -68,23 +102,40 @@ bool HwManager::init() {
   return true;
 }
 
+bool HwManager::run() {
+  if (nullptr != tick_thread_) {
+    LOG_WARNING << "Call HwManager::run() twice!";
+    return false;
+  }
+
+  tick_thread_ = new std::thread(
+            boost::bind(&HwManager::tick, this));
+  LOG_INFO << "The propagate thread which for the real-time message communication "
+      << "has started.";
+  return true;
+}
+
 void HwManager::tick() {
-  packets_.clear();
-  /*TODO get Packet from robot*/
-  // The manager delivers each packet which read from Propagate for hardware update.
-  for (const auto& pkt : packets_) {
-    hw_list_by_id_[pkt.node_id]->handleMsg(pkt);
+
+  TIME_INIT
+  while (thread_alive_) {
+    packets_.clear();
+    propagate_manager_->readPackets(packets_);
+    // The manager delivers each packet which read from Propagate for hardware update.
+    for (const auto& pkt : packets_) {
+      hw_list_by_id_[pkt.node_id]->handleMsg(pkt);
+    }
+
+    // Collecting all of the new command to control the robot
+    packets_.clear();
+    for (auto hw : hw_list_by_cmd_) {
+      hw->generateCmd(packets_);
+        // packets_.push_back(pkt);
+    }
+    propagate_manager_->writePackets(packets_);
+
+    TIME_CONTROL(tick_interval_)
   }
-
-  // Collecting all of the new command to control the robot
-  packets_.clear();
-  for (auto hw : hw_list_by_cmd_) {
-    hw->generateCmd(packets_);
-      // packets_.push_back(pkt);
-    // TODO write the Packet to robot
-  }
-
-
 }
 
 } /* namespace middleware */

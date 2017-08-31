@@ -24,9 +24,8 @@ void MiiRobot::auto_inst(MiiStringConstRef __p, MiiStringConstRef __type) {
   AutoInstanceor::instance()->make_instance(__p, __type);
 }
 
-MiiRobot::MiiRobot(MiiStringConstRef l)
-: Label(l), hw_manager_(HwManager::instance()) {
-  ;
+MiiRobot::MiiRobot(MiiStringConstRef __tag)
+: prefix_tag_(Label::make_label(__tag, "robot")), hw_manager_(nullptr) {
 }
 
 MiiRobot::~MiiRobot() {
@@ -34,6 +33,8 @@ MiiRobot::~MiiRobot() {
 }
 
 bool MiiRobot::init() {
+  create_system_instance();
+
   auto cfg = MiiCfgReader::instance();
   if (nullptr == cfg) {
     LOG_FATAL << "The MiiCfgReader::create_instance(MiiStringConstRef) "
@@ -46,14 +47,11 @@ bool MiiRobot::init() {
   // Just for debug
   Label::printfEveryInstance();
 
-  HwManager::instance()->init();
-
   std::vector<std::string> names;
-  cfg->get_value_fatal(Label::make_label(getLabel(), JOINT_TAG_NAME),
+  cfg->get_value_fatal(Label::make_label(prefix_tag_, JOINT_TAG_NAME),
       "names", names);
 
   joint_list_.reserve(names.size());
-
   bool is_init_list_by_type = false;
   if (0 == (names.size() % JntType::N_JNTS)) {
     joint_list_by_type_.resize(names.size() / JntType::N_JNTS);
@@ -69,7 +67,7 @@ bool MiiRobot::init() {
   std::stringstream ss;
   ss << "The joint in the Robot contains ";
   for (const auto& n : names) {
-    Joint* j = getHardwareByName<Joint>(n);
+    Joint* j = Label::getHardwareByName<Joint>(n);
     if (nullptr == j) {
       LOG_ERROR << "Something is wrong! Don't got the hardware " << n;
     } else {
@@ -84,7 +82,7 @@ bool MiiRobot::init() {
   LOG_INFO << ss.str();
 
   names.clear();
-  cfg->get_value_fatal(Label::make_label(getLabel(), TOUCHDOWN_TAG_NAME),
+  cfg->get_value_fatal(Label::make_label(prefix_tag_, TOUCHDOWN_TAG_NAME),
         "names", names);
 
   td_list_.reserve(names.size());
@@ -98,7 +96,7 @@ bool MiiRobot::init() {
   ss.str("");
   ss << "The touchdown in the Robot contains ";
   for (const auto& n : names) {
-    TouchDown* td = getHardwareByName<TouchDown>(n);
+    TouchDown* td = Label::getHardwareByName<TouchDown>(n);
     if (nullptr == td) {
       LOG_ERROR << "Something is wrong! Don't got the hardware " << n;
     } else {
@@ -112,6 +110,9 @@ bool MiiRobot::init() {
   }
   LOG_INFO << ss.str();
 
+  hw_manager_ = HwManager::instance();
+  hw_manager_->init();
+  hw_manager_->run();
   return true;
 }
 

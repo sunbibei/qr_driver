@@ -15,8 +15,9 @@ RosRobotHW::~RosRobotHW()
 
 RosRobotHW::RosRobotHW(ros::NodeHandle& nh, Middleware* robot)
   : nh_(nh), robot_(robot),
-    joint_names_(robot->jnt_names_),
-    num_joints_(joint_names_.size()) {
+    num_joints_(-1) {
+  robot->getJointNames(joint_names_);
+  num_joints_ = joint_names_.size();
   init();
   LOG_INFO << "Loaded QrHardwareInterface";
 }

@@ -5,16 +5,18 @@
  *      Author: silence
  */
 
-#include "leg_node.h"
-#include "touchdown.h"
-#include "joint.h"
+#include "middleware/hardware/touchdown.h"
+#include "middleware/hardware/leg_node.h"
+#include "middleware/hardware/joint.h"
+#include "system/utils/cfg_reader.h"
+#include "system/utils/log.h"
+
 #include <boost/algorithm/string.hpp>
-#include <system/utils/log.h>
 
 namespace middleware {
 
-LegNode::LegNode()
-  : leg_(LegType::FL), td_(nullptr) {
+LegNode::LegNode(MiiStringConstRef __l)
+  : HwUnit(__l), leg_(LegType::UNKNOWN_LEG), td_(nullptr) {
 }
 
 LegNode::~LegNode() {
@@ -27,11 +29,12 @@ LegNode::~LegNode() {
   td_ = nullptr;
 }
 
-bool LegNode::init(TiXmlElement* root) {
-  if (!HwUnit::init(root))     return false;
-  if (!root->Attribute("leg")) return false;
+bool LegNode::init() {
+  if (!HwUnit::init())     return false;
+  auto cfg = MiiCfgReader::instance();
 
-  std::string tmp_str = root->Attribute("leg");
+  MiiString tmp_str;
+  cfg->get_value_fatal(getLabel(), "leg", tmp_str);
   boost::to_lower(tmp_str);
   if (0 == tmp_str.compare("fl")) {
     leg_ = LegType::FL;
@@ -47,26 +50,33 @@ bool LegNode::init(TiXmlElement* root) {
     return false;
   }
 
+  int count = 0;
   unsigned char max_id = 0x00;
-  for (auto sub = root->FirstChildElement("joint");
-      sub != nullptr; sub = sub->NextSiblingElement("joint")) {
-    Joint* jnt = new Joint(sub);
+  while(cfg->get_value(getLabel(), "joint_" + std::to_string(count++), tmp_str)) {
+    Joint* jnt = Label::getHardwareByName<Joint>(tmp_str);
+    if (nullptr == jnt) {
+      LOG_WARNING << "Can't get joint '" << tmp_str
+          << "' pointer from LabelSystem.";
+      continue;
+    }
+
     joints_.push_back(jnt);
     if (max_id < jnt->msg_id_) max_id = jnt->msg_id_;
   }
-  if (!max_id) {
-    LOG_ERROR << "No joint push back!";
+  if (0x00 == max_id) {
+    LOG_WARNING << "No joint push back!";
+    return false;
   }
 
   joints_by_id_.resize(max_id);
   for (auto j : joints_)
     joints_by_id_[j->msg_id_] = j;
 
-  auto sub = root->FirstChildElement("touchdown");
-  if (nullptr == sub) return false;
-  td_ = new TouchDown(sub);
-
-  return true;
+  if ((cfg->get_value(getLabel(), "touchdown", tmp_str))
+      && (td_ = Label::getHardwareByName<TouchDown>(tmp_str)))
+    return true;
+  else
+    return false;
 }
 
 void LegNode::handleMsg(const Packet& pkt) {

@@ -8,15 +8,22 @@
 #ifndef INCLUDE_SYSTEM_ROBOT_MII_ROBOT_H_
 #define INCLUDE_SYSTEM_ROBOT_MII_ROBOT_H_
 
-#include "system/label/label.h"
-
 #include <map>
 #include <vector>
 
+#include "system/label/label.h"
+
 namespace middleware {
 
-class MiiRobot : public Label {
+class MiiRobot {
 public:
+  /**
+   * @brief The pure virtual function is asked to implemented by subclass
+   *        The function should be completed these tasks include but not
+   *        limited to: instantiate JointManger, PropagateManager, HwManager,
+   *        MiiCfgReader etc. Throw a fatal exception if something is wrong.
+   */
+  virtual void create_system_instance() = 0;
   /**
    * 子类在实现本函数时，必须完成初始化MiiCfgReader对象
    */
@@ -41,12 +48,21 @@ public:
   void getJointTorques(std::vector<double>&);
 
 public:
-  static void auto_inst(MiiStringConstRef __p, MiiStringConstRef __l);
+  static void auto_inst(MiiStringConstRef __p, MiiStringConstRef __type);
 
 protected:
-  MiiRobot(MiiStringConstRef);
+  /**
+   * @brief Constructed function.
+   * @param __tag Every necessary parameters will be found in this __tag
+   */
+  MiiRobot(MiiStringConstRef __tag);
   virtual ~MiiRobot();
 
+  /**
+   * Given by subclass in the parameters list of the constructed function.
+   * Tell MiiRobot what necessary parameters are found in @prefix_tag_.
+   */
+  MiiString                     prefix_tag_;
   class HwManager*              hw_manager_;
   std::vector<class Joint*>     joint_list_;
   std::vector<class TouchDown*> td_list_;

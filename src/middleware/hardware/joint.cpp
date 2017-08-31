@@ -81,14 +81,15 @@ bool Joint::init() {
   cfg->get_value_fatal(getLabel(), "scale",  scale_);
   cfg->get_value_fatal(getLabel(), "offset", offset_);
 
-  return true;
+  return ret;
 }
 
 inline const JntType& Joint::joint_type() const { return jnt_type_; }
 inline const LegType& Joint::leg_type()   const { return leg_type_; }
 
 inline void Joint::updateJointPosition(short _count) {
-  double pos = _count * scale_ + offset_;
+  // double pos = _count * scale_ + offset_;
+  joint_state_->pos_ = _count * scale_ + offset_;
   /*auto t = std::chrono::high_resolution_clock::now();
   auto duration = t - joint_state_->previous_time_;
   auto count = std::chrono::duration_cast<std::chrono::duration<double>>(duration.count());

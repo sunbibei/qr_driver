@@ -37,7 +37,7 @@ protected:
   bool position_interface_running_;
   bool effort_interface_running_;
 
-  const std::vector<std::string>& joint_names_;
+  std::vector<std::string> joint_names_;
   std::size_t num_joints_;
 
   // Shared memory

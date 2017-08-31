@@ -68,24 +68,30 @@
 
 	<hr>
 		<node auto_inst="middleware::LegNode" leg="hr" node_id="0x05" >
-			<joint     jnt="yaw"  name="qr.hr.yaw"       />
-			<joint     jnt="hip"  name="qr.hr.hip"       />
-			<joint     jnt="knee" name="qr.hr.knee"      />
-			<touchdown            name="qr.hr.touchdown" />
+			<joint_0     jnt="yaw"  name="qr.hr.yaw"       />
+			<joint_1     jnt="hip"  name="qr.hr.hip"       />
+			<joint_2     jnt="knee" name="qr.hr.knee"      />
+			<touchdown              name="qr.hr.touchdown" />
 		</node>
 	</hr>
 
 	<!-- power_node auto_inst="middleware::Power" node_id="0x08"  /-->
 
 	<!-- User Layer -->
-	<robot>
-		<joints     names="qr.fl.yaw qr.fl.hip qr.fl.knee
-											 qr.hl.yaw qr.hl.hip qr.hl.knee
-											 qr.fr.yaw qr.fr.hip qr.fr.knee
-											 qr.hr.yaw qr.hr.hip qr.hr.knee" />
+	<middleware>
+		<!-- The necessary parameters are asked by MiiRobot -->
+		<robot>
+			<joints     names="qr.fl.yaw qr.fl.hip qr.fl.knee
+												 qr.hl.yaw qr.hl.hip qr.hl.knee
+												 qr.fr.yaw qr.fr.hip qr.fr.knee
+												 qr.hr.yaw qr.hr.hip qr.hr.knee" />
 
-		<touchdowns names="qr.fl.touchdown qr.hl.touchdown
-											 qr.fr.touchdown qr.hr.touchdown" />
-	</robot>
+			<touchdowns names="qr.fl.touchdown qr.hl.touchdown
+												 qr.fr.touchdown qr.hr.touchdown" />
+		</robot>
+		<!-- The necessary parameters are asked by RosWrapper -->
+		<roswrapper>
+		</roswrapper>
+	</middleware>
 
 </qr>

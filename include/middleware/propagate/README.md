@@ -1,8 +1,8 @@
 # Prerequisites
   PCAN-BASIC is a simple driver for pcan devices. The PcanChannel class use PCAN-BASIC library for reading, processing and writing Packet from can bus. Download and install instructions can be found at:
-  peak-linux-driver: [http://www.peak-system.com/fileadmin/media/linux/files/peak-linux-driver-8.4.0.tar.gz](http://www.peak-system.com/fileadmin/media/linux/files/peak-linux-driver-8.4.0.tar.gz)
+  [peak-linux-driver](http://www.peak-system.com/fileadmin/media/linux/files/peak-linux-driver-8.4.0.tar.gz)
   **and**
-  PCAN-Basic-Linux: [http://www.peak-system.com/produktcd/Develop/PC%20interfaces/Linux/PCAN-Basic_API_for_Linux/PCAN_Basic_Linux-4.1.1.tar.gz](http://www.peak-system.com/produktcd/Develop/PC%20interfaces/Linux/PCAN-Basic_API_for_Linux/PCAN_Basic_Linux-4.1.1.tar.gz)
+  [PCAN-Basic-Linux](http://www.peak-system.com/produktcd/Develop/PC%20interfaces/Linux/PCAN-Basic_API_for_Linux/PCAN_Basic_Linux-4.1.1.tar.gz)
 
   We have tested the library in **Ubuntu 16.14**.
 

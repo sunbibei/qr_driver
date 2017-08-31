@@ -10,7 +10,7 @@
 
 namespace middleware {
 
-#define MUTEX_TRY_LOCK(locker)    while (!locker.try_lock()) { }
+#define MUTEX_TRY_LOCK(locker)    while (!locker.try_lock()) { };
 #define MUTEX_UNLOCK(locker)  locker.unlock();
 #define SEND_EVERY_PTKS     \
     while (!pkts_queue_4_send_.empty()) { \
@@ -112,6 +112,24 @@ void PropagateManager::updatePktsQueues() {
 
     TIME_CONTROL(propa_interval_)
   }
+}
+
+bool PropagateManager::readPackets(std::vector<Packet>& pkts) {
+  MUTEX_TRY_LOCK(lock_4_recv_)
+  if (!pkts_queue_4_recv_.empty())
+    for (const auto& pkt : pkts_queue_4_recv_)
+      pkts.push_back(pkt);
+  MUTEX_UNLOCK(lock_4_recv_)
+  return true;
+}
+
+bool PropagateManager::writePackets(const std::vector<Packet>& pkts) {
+  MUTEX_TRY_LOCK(lock_4_send_)
+  if (!pkts.empty())
+    for (const auto& pkt : pkts)
+      pkts_queue_4_send_.push_back(pkt);
+  MUTEX_UNLOCK(lock_4_send_)
+  return true;
 }
 
 } /* namespace middleware */

@@ -5,35 +5,21 @@
  *      Author: silence
  */
 
-#include <system/utils/parser.h>
-#include <thread>
-#include <tinyxml.h>
 
 #include "middleware/middleware.h"
-#include "middleware/hardware/joint.h"
+
+#include <thread>
 
 namespace middleware {
 
-Middleware* Middleware::instance_ = nullptr;
-Middleware* Middleware::instance() {
-  if (nullptr == instance_) {
-    instance_ = new Middleware;
-    LOG_INFO << "Create and return the singleton instance: Middleware";
-    return instance_;
-  }
-
-  LOG_INFO << "Return the singleton instance: Middleware";
-  return instance_;
-}
-
 Middleware::Middleware()
-    : new_command_(false), servoj_time_(200),
-      executing_traj_(false), keepalive_(true),
+    : MiiRobot(Label::make_label("qr", "middleware")),
+      servoj_time_(200), executing_traj_(false), keepalive_(true),
       connected_(false), propagate_thread_(nullptr) {
 }
 
 Middleware::~Middleware() {
-  this->halt();
+  halt();
   /*propagate_->clear();
   hw_unit_->clear();*/
   /*if (nullptr != instance_) {
@@ -42,6 +28,7 @@ Middleware::~Middleware() {
   }*/
 }
 
+/*
 #ifndef ROS_BUILD
 bool Middleware::init(const std::string& xml) {
   if (!Parser::parse(xml)) {
@@ -53,14 +40,11 @@ bool Middleware::init(const std::string& xml) {
   return true;
 }
 #endif
+*/
 
 bool Middleware::init() {
-  if (!Parser::parse()) {
-    LOG_FATAL << "The initialization FATAL FAIL in the Middleware";
-    return false;
-  }
-
-  LOG_INFO << "The initialization has successful";
+  // TODO Nothing to initialize?
+  getJointNames(jnt_names_);
   return true;
 }
 
@@ -69,40 +53,6 @@ bool Middleware::start() {
   LOG_INFO << "The propagate thread has started to run!";
   return true;
 }
-
-/*void Middleware::runPropagate() {
-  while (keepalive_) {
-    while (connected_ && keepalive_) {
-      // Everything is OK!
-      for (auto& p : propagate_)
-        connected_ &= p.second->recv();
-      if (new_command_) {
-        while (!cmd_lock_.try_lock()) {}
-        for (auto& p : propagate_)
-          connected_ &= p.second->send(new_jnt_cmd_names_);
-
-        new_command_ = false;
-        new_jnt_cmd_names_.clear();
-        cmd_lock_.unlock();
-      }
-    }
-    if (keepalive_) {
-      // reconnect
-      LOG_WARNING << "Disconnected! In order to keep alive, we try to reconnect... ...";
-      int count = 0;
-      while (keepalive_ && !connected_) {
-        propagate_.stop();
-        LOG_WARNING << "Attempt to reconnect (" << count++ << " times)";
-        connected_ = propagate_.start();
-        if (!connected_) {
-          // wait for 500ms
-          std::this_thread::sleep_for(std::chrono::milliseconds(500));
-        }
-      } // end while(keepalive_ && !connected_)
-    } // end if (keepalive_)
-  } // end while (keepalive_)
-  propagate_.stop();
-}*/
 
 void Middleware::halt() {
   keepalive_ = false;
@@ -126,10 +76,10 @@ bool Middleware::doTraj(const std::vector<double>& inp_timestamps,
   std::vector<double> positions;
   unsigned int j;
 
-  if ((propagate_.empty()) || (hw_unit_.empty())) {
+  /*if ((propagate_.empty()) || (hw_unit_.empty())) {
     LOG_ERROR << "Invalidate propagate or robot state";
     return false;
-  }
+  }*/
   executing_traj_ = true;
   t0 = std::chrono::high_resolution_clock::now();
   t = t0;
@@ -165,36 +115,12 @@ bool Middleware::doTraj(const std::vector<double>& inp_timestamps,
   return true;
 }
 
-void Middleware::executeJointPositions(const std::vector<std::string>& names, const std::vector<double>& positions) {
-  ; // TODO
-  std::vector<HwCmdSp> cmd_vec;
-  cmd_vec.reserve(jnt_names_.size());
-
-  // TODO 需要实际公式计算， 当前实现版本仅仅是电机的位置控制
-  // 并未转换到Joint速度指令
-  for (std::size_t i = 0; i < jnt_names_.size(); ++i) {
-    auto cmd = boost::dynamic_pointer_cast<Joint::CmdType>(hw_unit_[names[i]]->getCommand());
-    cmd->command_ = positions[i];
-    cmd->mode_    = JntCmdType::POS;
-    cmd_vec.push_back(cmd);
-  }
-  addCommand(names, cmd_vec);
+inline void Middleware::executeJointPositions(const std::vector<std::string>& names, const std::vector<double>& positions) {
+  addCommand(names, positions);
 }
 
 void Middleware::executeJointVelocities(const std::vector<std::string>& names, const std::vector<double>& velocities) {
-  // TODO do some rate limiting?
-  std::vector<HwCmdSp> cmd_vec;
-  cmd_vec.reserve(jnt_names_.size());
-
-  // TODO 需要实际公式计算， 当前实现版本仅仅是电机的速度控制
-  // 并未转换到Joint速度指令
-  for (std::size_t i = 0; i < jnt_names_.size(); ++i) {
-    auto cmd = boost::dynamic_pointer_cast<Joint::CmdType>(hw_unit_[names[i]]->getCommand());
-    cmd->command_ = velocities[i];
-    cmd->mode_    = JntCmdType::VEL;
-    cmd_vec.push_back(cmd);
-  }
-  addCommand(names, cmd_vec);
+  // TODO Need to implement
 }
 
 /**

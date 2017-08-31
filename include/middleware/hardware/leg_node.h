@@ -15,10 +15,11 @@ namespace middleware {
 
 class LegNode: public HwUnit {
 public:
-  LegNode();
+  LegNode(MiiStringConstRef __l = Label::null);
+  virtual bool init() override;
+
   virtual ~LegNode();
 
-  virtual bool init(TiXmlElement*)               override;
   virtual void handleMsg(const Packet&)          override;
   virtual bool generateCmd(std::vector<Packet>&) override;
 

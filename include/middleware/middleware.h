@@ -12,18 +12,19 @@
 #include <thread>
 #include <boost/shared_ptr.hpp>
 
-#include <system/robot/mii_robot.h>
+#include "system/robot/mii_robot.h"
 
 namespace middleware {
 
 class Middleware : public MiiRobot {
 public:
   // 初始化所有变量, 以及线程等.
+/*
 #ifndef ROS_BUILD
-  bool init(const std::string& xml);
+  virtual bool init(const std::string& xml);
 #endif
-
-  bool init();
+*/
+  virtual bool init() override;
 
   // 开始/停止运行
   bool start();
@@ -45,9 +46,9 @@ public:
   void executeJointPositions(const std::vector<std::string>&, const std::vector<double>&);
   void executeJointVelocities(const std::vector<std::string>&, const std::vector<double>&);
 public:
-  ~Middleware();
+  virtual ~Middleware();
   // 获取QuadrupedRobotDriver对象实例
-  static Middleware* instance();
+  // static Middleware* instance();
 
 private:
   /**
@@ -57,22 +58,11 @@ private:
       const std::vector<double>& p0_pos, const std::vector<double>& p1_pos,
       const std::vector<double>& p0_vel, const std::vector<double>& p1_vel);
 
-private:
+protected:
   Middleware();
 
-  /*
-   * 创建硬件接口的工厂方法
-   * 从robot.xml文件中读取配置信息， 完成propagate_和robot_的初始化。
-   */
-  static Middleware* instance_;
-
+  std::vector<MiiString> jnt_names_;
   void runPropagate();
-
-  // 用于保存每一次需要写入命令的关节名称列表
-  // 设定命令和写命令使用互斥锁
-  std::mutex cmd_lock_;
-  bool new_command_;
-  std::vector<std::string> new_jnt_cmd_names_;
 
   // 每次电机指令执行的延时(ms)
   double servoj_time_;

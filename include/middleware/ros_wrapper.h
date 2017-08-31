@@ -16,7 +16,6 @@
 #include <actionlib/server/server_goal_handle.h>
 #include <control_msgs/FollowJointTrajectoryAction.h>
 #include <controller_manager/controller_manager.h>
-#include <system/utils/parser.h>
 
 #include "middleware.h"
 
@@ -29,8 +28,7 @@ namespace middleware {
 
 class RosRobotHW;
 
-class RosWrapper {
-
+class RosWrapper : public Middleware {
 public:
   ~RosWrapper();
   // 获取QuadrupedRobotDriver对象实例
@@ -82,7 +80,6 @@ private:
   control_msgs::FollowJointTrajectoryResult result_;
   bool has_goal_;
 
-  Middleware* robot_;
   std::chrono::milliseconds rt_duration_; // 实时消息发布频率， 默认是50Hz(使用周期表示, 即20ms）
   std::chrono::milliseconds ros_ctrl_duration_; // ros_control_thread_循环频率， 默认是100Hz(使用周期表示, 即10ms）
   std::thread* rt_publish_thread_; // 该线程发布实时消息
