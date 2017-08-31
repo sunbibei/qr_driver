@@ -41,9 +41,10 @@ struct HwUnit {
   virtual void handleMsg(const Packet&);
   /**
    * 某些硬件类型或许会有命令需要下发
+   * The new command packet will be pushed back into queue;
    * if generate the Command packet, return true. Or return false.
    */
-  virtual bool generateCmd(Packet&);
+  virtual bool generateCmd(std::vector<Packet>&);
 
 protected:
   unsigned char node_id_;

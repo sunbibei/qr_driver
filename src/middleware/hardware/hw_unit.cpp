@@ -6,9 +6,9 @@
  */
 
 #include <middleware/util/proto/dragon.pb.h>
+#include <system/utils/log.h>
 #include "middleware/hardware/hw_unit.h"
 #include "middleware/middleware.h"
-#include "middleware/util/log.h"
 
 
 namespace middleware {

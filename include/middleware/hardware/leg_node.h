@@ -9,6 +9,7 @@
 #define INCLUDE_MIDDLEWARE_HARDWARE_LEG_NODE_H_
 
 #include "hw_unit.h"
+#include "middleware/util/proto/dragon.pb.h"
 
 namespace middleware {
 
@@ -17,14 +18,15 @@ public:
   LegNode();
   virtual ~LegNode();
 
-  virtual bool init(TiXmlElement*)      override;
-  virtual void handleMsg(const Packet&) override;
-  virtual bool generateCmd(Packet&)     override;
+  virtual bool init(TiXmlElement*)               override;
+  virtual void handleMsg(const Packet&)          override;
+  virtual bool generateCmd(std::vector<Packet>&) override;
 
 protected:
   // there are three joint in each leg
   LegType                   leg_;
   std::vector<class Joint*> joints_;
+  std::vector<class Joint*> joints_by_id_;
   class TouchDown*          td_;
 };
 

@@ -1,37 +1,90 @@
 <?xml version="1.0" encoding="utf-8"?>
-<robot name="quadruped_robot">
+<qr name="quadruped_robot">
 
+	<!-- All of the hardwares list here, and it will be automatic instance -->
+	<fl>
+		<yaw  auto_inst="middleware::Joint" leg="fl" jnt="yaw"  msg_id="0x03" scale="0.0001" offset="0" />
+		<hip  auto_inst="middleware::Joint" leg="fl" jnt="hip"  msg_id="0x02" scale="0.0001" offset="0" />
+		<knee auto_inst="middleware::Joint" leg="fl" jnt="knee" msg_id="0x01" scale="0.0001" offset="0" />
+		<touchdown auto_inst="middleware::TouchDown" leg="fl"   msg_id="0x04" scale="0.0001" offset="0" />
+	</fl>
+
+	<hl>
+		<yaw  auto_inst="middleware::Joint" leg="hl" jnt="yaw"  msg_id="0x03" scale="0.0001" offset="0" />
+		<hip  auto_inst="middleware::Joint" leg="hl" jnt="hip"  msg_id="0x02" scale="0.0001" offset="0" />
+		<knee auto_inst="middleware::Joint" leg="hl" jnt="knee" msg_id="0x01" scale="0.0001" offset="0" />
+		<touchdown auto_inst="middleware::TouchDown" leg="hl"   msg_id="0x04" scale="0.0001" offset="0" />
+	</hl>
+
+	<fr>
+		<yaw  auto_inst="middleware::Joint" leg="fr" jnt="yaw"  msg_id="0x03" scale="0.0001" offset="0" />
+		<hip  auto_inst="middleware::Joint" leg="fr" jnt="hip"  msg_id="0x02" scale="0.0001" offset="0" />
+		<knee auto_inst="middleware::Joint" leg="fr" jnt="knee" msg_id="0x01" scale="0.0001" offset="0" />
+		<touchdown auto_inst="middleware::TouchDown" leg="fr"   msg_id="0x04" scale="0.0001" offset="0" />
+	</fr>
+
+	<hr>
+		<yaw  auto_inst="middleware::Joint" leg="hr" jnt="yaw"  msg_id="0x03" scale="0.0001" offset="0" />
+		<hip  auto_inst="middleware::Joint" leg="hr" jnt="hip"  msg_id="0x02" scale="0.0001" offset="0" />
+		<knee auto_inst="middleware::Joint" leg="hr" jnt="knee" msg_id="0x01" scale="0.0001" offset="0" />
+		<touchdown auto_inst="middleware::TouchDown" leg="hr"   msg_id="0x04" scale="0.0001" offset="0" />
+	</hr>
+
+	<!-- About propagates, it will be automatic instance and addtion to PropagatesManager -->
+	<!-- These objects as follow communication between the real robot directly -->
 	<propagates name="propagates" >
-		<channel name="pcan" type="middleware::PcanChannel" />
+		<pcan auto_inst="middleware::PcanChannel" />
 	</propagates>
 	
-	<hardwares name="hardwares" >
-		<node type="middleware::LegNode" name="lf_node" leg="fl" node_id="0x02" >
-			<joint     name="fl_yaw"  jnt="yaw"  msg_id="0x03"  />
-			<joint     name="fl_knee" jnt="knee" msg_id="0x01"  />
-			<joint     name="fl_hip"  jnt="hip"  msg_id="0x02"  />
-			<touchdown name="fl_td"              msg_id="0x04"  />
+	<!-- Got the packet message from PropagateManager and update the information of hardware -->
+	<!-- All of the nodes will be managed by HwManager which contains propagates-->
+	<lf name="hardwares" >
+		<node auto_inst="middleware::LegNode" leg="fl" node_id="0x02" >
+			<joint_0     jnt="yaw"  name="qr.fl.yaw"       />
+			<joint_1     jnt="hip"  name="qr.fl.hip"       />
+			<joint_2     jnt="knee" name="qr.fl.knee"      />
+			<touchdown              name="qr.fl.touchdown" />
 		</node>
-		<node type="middleware::LegNode" name="hl_node" leg="hl" node_id="0x03" >
-			<joint     name="hl_yaw"  jnt="yaw"  msg_id="0x03"  />
-			<joint     name="hl_knee" jnt="knee" msg_id="0x01"  />
-			<joint     name="hl_hip"  jnt="hip"  msg_id="0x02"  />
-			<touchdown name="hl_td"              msg_id="0x04"  />
-		</node>
-		<node type="middleware::LegNode" name="fr_node" leg="fr" node_id="0x04" >
-			<joint     name="fr_yaw"  jnt="yaw"  msg_id="0x03"  />
-			<joint     name="fr_knee" jnt="knee" msg_id="0x01"  />
-			<joint     name="fr_hip"  jnt="hip"  msg_id="0x02"  />
-			<touchdown name="fr_td"              msg_id="0x04"  />
-		</node>
-		<node type="middleware::LegNode" name="hr_node" leg="hr" node_id="0x05" >
-			<joint     name="hr_yaw"  jnt="yaw"  msg_id="0x03"  />
-			<joint     name="hr_knee" jnt="knee" msg_id="0x01"  />
-			<joint     name="hr_hip"  jnt="hip"  msg_id="0x02"  />
-			<touchdown name="hr_td"              msg_id="0x04"  />
-		</node>
+	</lf>
 
-		<node type="middleware::Power" name="power" node_id="0x08"  />
-	</hardwares>
+	<hl>
+		<node auto_inst="middleware::LegNode" leg="hl" node_id="0x03" >
+			<joint_0     jnt="yaw"  name="qr.hl.yaw"       />
+			<joint_1     jnt="hip"  name="qr.hl.hip"       />
+			<joint_2     jnt="knee" name="qr.hl.knee"      />
+			<touchdown              name="qr.hl.touchdown" />
+		</node>
+	</hl>
 
-</robot>
+	<fr>
+		<node auto_inst="middleware::LegNode" leg="fr" node_id="0x04" >
+			<joint_0     jnt="yaw"  name="qr.fr.yaw"       />
+			<joint_1     jnt="hip"  name="qr.fr.hip"       />
+			<joint_2     jnt="knee" name="qr.fr.knee"      />
+			<touchdown              name="qr.fr.touchdown" />
+		</node>
+	</fr>
+
+	<hr>
+		<node auto_inst="middleware::LegNode" leg="hr" node_id="0x05" >
+			<joint     jnt="yaw"  name="qr.hr.yaw"       />
+			<joint     jnt="hip"  name="qr.hr.hip"       />
+			<joint     jnt="knee" name="qr.hr.knee"      />
+			<touchdown            name="qr.hr.touchdown" />
+		</node>
+	</hr>
+
+	<!-- power_node auto_inst="middleware::Power" node_id="0x08"  /-->
+
+	<!-- User Layer -->
+	<robot>
+		<joints     names="qr.fl.yaw qr.fl.hip qr.fl.knee
+											 qr.hl.yaw qr.hl.hip qr.hl.knee
+											 qr.fr.yaw qr.fr.hip qr.fr.knee
+											 qr.hr.yaw qr.hr.hip qr.hr.knee" />
+
+		<touchdowns names="qr.fl.touchdown qr.hl.touchdown
+											 qr.fr.touchdown qr.hr.touchdown" />
+	</robot>
+
+</qr>

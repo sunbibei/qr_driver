@@ -25,10 +25,6 @@ class Middleware;
  */
 class Parser final {
 public:
-  /**
-   * API, 从文件或ROS 参数中解析对象
-   * 两个函数的实现, 仅与初始化方式不同而已
-   */
 #ifndef ROS_BUILD
   static bool parse(const std::string&);
 #endif

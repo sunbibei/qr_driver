@@ -8,12 +8,15 @@
 #ifndef INCLUDE_MIDDLEWARE_HARDWARE_HW_MANAGER_H_
 #define INCLUDE_MIDDLEWARE_HARDWARE_HW_MANAGER_H_
 
-#include "middleware/util/resource_manager.h"
+#include <system/utils/resource_manager.h>
+#include "hw_unit.h"
 
 namespace middleware {
 
 class HwManager : public ResourceManager<HwUnit> {
 public:
+  // virtual ~HwManager();
+  static HwManager* instance();
   // After all of the hw_unit instance, call it.
   virtual bool init();
 
@@ -30,6 +33,8 @@ protected:
 
 private:
   std::vector<Packet> packets_;
+
+  static HwManager* instance_;
 };
 
 } /* namespace middleware */

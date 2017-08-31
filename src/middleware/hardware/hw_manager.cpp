@@ -6,11 +6,13 @@
  */
 
 #include <middleware/hardware/hw_manager.h>
+#include <system/utils/log.h>
 
 #include "middleware/hardware/hw_unit.h"
-#include "middleware/util/log.h"
 
 namespace middleware {
+
+HwManager* HwManager::instance_ = nullptr;
 
 /*HwManager::~HwManager() {
   if (nullptr != s_propagate_manager_) {
@@ -25,6 +27,12 @@ namespace middleware {
 
   LOG_INFO << "Destroy all of the hw_unit";
 }*/
+
+HwManager* HwManager::instance() {
+  if (nullptr == instance_) instance_ = new HwManager();
+
+  return instance_;
+}
 
 bool HwManager::init() {
   if (res_list_.empty()) {

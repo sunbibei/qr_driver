@@ -8,44 +8,34 @@
 #ifndef INCLUDE_MIDDLEWARE_HARDWARE_TOUCHDOWN_H_
 #define INCLUDE_MIDDLEWARE_HARDWARE_TOUCHDOWN_H_
 
-#include "hw_unit.h"
-
-#include <atomic>
+#include "system/label/label.h"
 
 namespace middleware {
 
-struct TDState : public HwState {
-  TDState(double d = 0) : data(0) {}
-  std::atomic<double> data;
-};
-
-
-class TouchDown: public HwUnit {
+class TouchDown : public Label {
+  friend class LegNode;
 public:
-  typedef TDState                      StateType;
-  typedef boost::shared_ptr<TDState>   StateTypeSp;
+  TouchDown(class TiXmlElement*);
+  ~TouchDown();
 
-public:
-  TouchDown(const std::string& name = "touchdown");
-  virtual ~TouchDown();
+  /**
+   * Interface for user layer
+   */
+  double touchdown_data();
 
-  virtual bool init(TiXmlElement*)   override;
-  virtual bool      requireCmdReg()  override;
-  virtual HwStateSp getStateHandle() override;
-  virtual HwCmdSp   getCmdHandle()   override;
-  virtual HwStateSp getState()       override;
-  virtual HwCmdSp   getCommand()     override;
-  virtual void setState(const HwState&)     override;
-  virtual void setCommand(const HwCommand&) override;
+protected:
 
-  virtual void publish() override;
+  /**
+   * Interface for communication layer
+   */
+  // data = count * scale + offset
+  void updateTouchdownState(short count);
 
-  // for debug
-  virtual void check() override;
+  unsigned char  msg_id_;
+  class TDState* td_state_;
 
-private:
-  LegType     leg_;
-  StateTypeSp td_sp_;
+  double         scale_;
+  double         offset_;
 };
 
 } /* namespace middleware */

@@ -12,26 +12,12 @@
 #include <thread>
 #include <boost/shared_ptr.hpp>
 
-#include "middleware/propagate/propagate.h"
-#include "middleware/hardware/hw_unit.h"
-#include "middleware/util/composite.h"
-#include "middleware/util/noncopyable.h"
+#include <system/robot/mii_robot.h>
 
 namespace middleware {
 
-typedef boost::shared_ptr<HwCommand> HwCmdSp;
-typedef boost::shared_ptr<HwState>   HwStateSp;
-typedef boost::shared_ptr<Propagate> PropaSp;
-typedef boost::shared_ptr<HwUnit>    HwUnitSp;
-
-class Middleware : public NonCopyable {
+class Middleware : public MiiRobot {
 public:
-  // Unit and Propagate interface
-  Composite<Propagate>  propagate_;
-  Composite<HwUnit>     hw_unit_;
-
-  std::vector<std::string> jnt_names_;
-
   // 初始化所有变量, 以及线程等.
 #ifndef ROS_BUILD
   bool init(const std::string& xml);
@@ -43,23 +29,6 @@ public:
   bool start();
   void halt();
 
-  /**
-   * 设定关节命令, 并发送给机器人
-   * 参数1: 指定关节名称
-   * 参数2: 指定命令数据
-   */
-  void addCommand(const std::string&, const HwCommand&);
-  void addCommand(const std::string&, const HwCmdSp&);
-  void addCommand(const std::vector<std::string>&, const std::vector<HwCmdSp>&);
-  void addCommand(const std::vector<std::string>&, const std::vector<HwCommand>&);
-  /**
-   * 获取Joint的名称, 位置, 速度, 力矩及JointState等数据
-   * 推荐直接使用获取JointState, 可以一次获取全部数据
-   */
-  void getJointNames(std::vector<std::string>&);
-  void getJointPositions(std::vector<double>&);
-  void getJointVelocities(std::vector<double>&);
-  void getJointTorques(std::vector<double>&);
   // void getJointStates(sensor_msgs::JointState&);
 
   /**

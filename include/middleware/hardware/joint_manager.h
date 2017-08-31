@@ -8,7 +8,7 @@
 #ifndef INCLUDE_MIDDLEWARE_HARDWARE_JOINT_MANAGER_H_
 #define INCLUDE_MIDDLEWARE_HARDWARE_JOINT_MANAGER_H_
 
-#include "middleware/util/resource_manager.h"
+#include <system/utils/resource_manager.h>
 #include "joint.h"
 
 namespace middleware {

@@ -8,9 +8,8 @@
 #include "leg_node.h"
 #include "touchdown.h"
 #include "joint.h"
-#include "middleware/util/log.h"
-
 #include <boost/algorithm/string.hpp>
+#include <system/utils/log.h>
 
 namespace middleware {
 
@@ -53,8 +52,16 @@ bool LegNode::init(TiXmlElement* root) {
       sub != nullptr; sub = sub->NextSiblingElement("joint")) {
     Joint* jnt = new Joint(sub);
     joints_.push_back(jnt);
-    if (max_id < jnt->cmd_id_) max_id = jnt->cmd_id_;
+    if (max_id < jnt->msg_id_) max_id = jnt->msg_id_;
   }
+  if (!max_id) {
+    LOG_ERROR << "No joint push back!";
+  }
+
+  joints_by_id_.resize(max_id);
+  for (auto j : joints_)
+    joints_by_id_[j->msg_id_] = j;
+
   auto sub = root->FirstChildElement("touchdown");
   if (nullptr == sub) return false;
   td_ = new TouchDown(sub);
@@ -68,18 +75,23 @@ void LegNode::handleMsg(const Packet& pkt) {
     return;
   }
 
-  switch (pkt.msg_id) {
-  case MII_FB_JOINT_POS:
-  {
-    joint_state_->pos_ = 0;
-    break;
+  short count = 0;
+  memcpy(&count , pkt.data, sizeof(short));
+  if (pkt.msg_id == td_->msg_id_)
+    td_->updateTouchdownState(count);
+  else
+    joints_by_id_[pkt.msg_id]->updateJointPosition(count);
+}
+
+bool LegNode::generateCmd(std::vector<Packet>& pkts) {
+  for (auto& j : joints_) {
+    Packet cmd;
+    cmd.node_id = node_id_;
+    if (j->new_command(&cmd))
+      pkts.push_back(cmd);
   }
-  case MII_FB_JOINT_VEL: break;
-  case MII_FB_JOINT_TOR: break;
-  default:
-    HwUnit::handleMsg(pkt);
-    break;
-  }
+
+  return true;
 }
 
 } /* namespace middleware */

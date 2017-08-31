@@ -5,8 +5,8 @@
  *      Author: silence
  */
 
-#ifndef INCLUDE_MIDDLEWARE_UTIL_NONCOPYABLE_H_
-#define INCLUDE_MIDDLEWARE_UTIL_NONCOPYABLE_H_
+#ifndef INCLUDE_SYSTEM_UTILS_NONCOPYABLE_H_
+#define INCLUDE_SYSTEM_UTILS_NONCOPYABLE_H_
 
 namespace middleware {
 
@@ -21,4 +21,4 @@ private:
 
 } /* namespace middleware */
 
-#endif /* INCLUDE_MIDDLEWARE_UTIL_NONCOPYABLE_H_ */
+#endif /* INCLUDE_SYSTEM_UTILS_NONCOPYABLE_H_ */

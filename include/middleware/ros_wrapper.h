@@ -16,9 +16,9 @@
 #include <actionlib/server/server_goal_handle.h>
 #include <control_msgs/FollowJointTrajectoryAction.h>
 #include <controller_manager/controller_manager.h>
+#include <system/utils/parser.h>
 
 #include "middleware.h"
-#include "util/parser.h"
 
 #define DEBUG_TOPIC
 #ifdef DEBUG_TOPIC

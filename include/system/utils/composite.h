@@ -5,13 +5,13 @@
  *      Author: silence
  */
 
-#ifndef INCLUDE_MIDDLEWARE_UTIL_COMPOSITE_H_
-#define INCLUDE_MIDDLEWARE_UTIL_COMPOSITE_H_
+#ifndef INCLUDE_SYSTEM_UTILS_COMPOSITE_H_
+#define INCLUDE_SYSTEM_UTILS_COMPOSITE_H_
 
 #include <map>
 #include <string>
 #include <boost/shared_ptr.hpp>
-#include "log.h"
+#include <system/utils/log.h>
 
 namespace middleware {
 /**
@@ -88,4 +88,4 @@ protected:
 
 } /* namespace middleware */
 
-#endif /* INCLUDE_MIDDLEWARE_UTIL_COMPOSITE_H_ */
+#endif /* INCLUDE_SYSTEM_UTILS_COMPOSITE_H_ */

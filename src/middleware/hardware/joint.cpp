@@ -6,22 +6,23 @@
  */
 
 #include "middleware/hardware/joint.h"
-#include "middleware/util/log.h"
-#include "middleware/util/proto/dragon.pb.h"
 #include "middleware/util/qr_protocol.h"
 
 #include <chrono>
-#include <ros/ros.h>
+#include <tinyxml.h>
 #include <boost/algorithm/string.hpp>
+#include <system/utils/log.h>
 
 namespace middleware {
 struct JointState {
-  JointState(double pos = 0, double vel = 0)
-  : pos_(pos), vel_(vel) { };
+  JointState(double pos = 0, double vel = 0, double s = 0, double o = 0)
+  : pos_(pos), vel_(vel), tor_(0)
+  { };
   // 实际获取的数据
   double pos_;
   // 需要propagate实例中， 通过软件代码计算出速度填入数据
   double vel_;
+  double tor_;
 private:
   // 计算速度的辅助变量, 保存前一次更新的时间
   std::chrono::high_resolution_clock::time_point previous_time_;
@@ -35,16 +36,17 @@ struct JointCommand {
 };
 
 Joint::Joint(TiXmlElement* root)
-  : leg_(LegType::FL), jnt_(JntType::HIP), cmd_id_(INVALID_ID),
+  : Label(root->Attribute("name")),
+    new_command_(false), scale_(0), offset_(0), msg_id_(INVALID_ID),
     joint_state_(new JointState), joint_command_(new JointCommand) {
   LOG_INFO << "[Joint: '" << root->Attribute("name") << "'] initialize start...";
-  if ((!root->Attribute("leg")) || (!root->Attribute("jnt")) || (!root->Attribute("cmd_id"))) {
+  if ((!root->Attribute("leg")) || (!root->Attribute("jnt")) || (!root->Attribute("msg_id"))) {
     LOG_ERROR << "The format of 'joint' tag is wrong! An example:";
     LOG_ERROR << "<joint name=\"joint_name\"  leg=\"fl\" jnt=\"yaw\"  id=\"0x01\"  />";
     return;
   }
 
-  std::string tmp_str = root->Attribute("jnt");
+  /*std::string tmp_str = root->Attribute("jnt");
   boost::to_lower(tmp_str);
   if (0 == tmp_str.compare("yaw")) {
     jnt_ = JntType::YAW;
@@ -55,8 +57,8 @@ Joint::Joint(TiXmlElement* root)
   } else {
     LOG_ERROR << "Error the 'jnt' TAG(" << tmp_str << ") in the 'joint' TAG, "
         << "require 'yaw', 'knee' or 'hip'";
-  }
-  tmp_str = root->Attribute("msg_id");
+  }*/
+  std::string tmp_str = root->Attribute("msg_id");
   std::string template_str;
   if (('0' == tmp_str[0]) && ('x' == tmp_str[1])) {
     // Hex to id
@@ -66,97 +68,67 @@ Joint::Joint(TiXmlElement* root)
   }
   unsigned int id;
   sscanf(tmp_str.c_str(), template_str.c_str(), &id);
-  cmd_id_ = id;
+  msg_id_ = id;
+
+  root->Attribute("scale",  &scale_);
+  root->Attribute("offset", &offset_);
 }
 
-/*bool Joint::initComposite(TiXmlElement* root) {
-  joint_state_.reset();
-  joint_command_.reset();
-  if (!root->Attribute("name"))
-    root->SetAttribute("name", "Joints");
-  hw_name_ = root->Attribute("name");
+inline void Joint::updateJointPosition(short _count) {
+  double pos = _count * scale_ + offset_;
+  /*auto t = std::chrono::high_resolution_clock::now();
+  auto duration = t - joint_state_->previous_time_;
+  auto count = std::chrono::duration_cast<std::chrono::duration<double>>(duration.count());
+  joint_state_->vel_ = (pos - joint_state_->pos_) / count;*/
+}
 
-  if (!root->Attribute("channel")
-      && (root->Attribute("cmd_channel") || root->Attribute("state_channel"))) {
-    LOG_ERROR << "The format of 'joint' tag is wrong!";
-    return false;
-  }
+inline double Joint::joint_position() {
+  return joint_state_->pos_;
+}
 
-  if (root->Attribute("channel")) {
-    cmd_channel_   = root->Attribute("channel");
-    state_channel_ = root->Attribute("channel");
-  } else {
-    cmd_channel_   = root->Attribute("cmd_channel");
-    state_channel_ = root->Attribute("state_channel");
-  }
+inline double Joint::joint_velocity() {
+  return joint_state_->vel_;
+}
 
-  if (!s_ros_pub_init_) {
-    ros::NodeHandle nh;
-    s_joint_states_pub_ = nh.advertise<sensor_msgs::JointState>("joint_states", 1);
-    s_ros_pub_init_     = true;
-  }
+inline double Joint::joint_torque() {
+  return joint_state_->tor_;
+}
 
-  LOG_INFO << "[Joints: '" << root->Attribute("name")
-      << "'] initialize end, create the rest 'joint' instance...";
+// About joint command
+inline void Joint::updateJointCommand(double v) {
+  joint_command_->command_ = v;
+  new_command_ = true;
+}
 
-  for (auto j = root->FirstChildElement("joint");
-        j != nullptr; j = j->NextSiblingElement("joint")) {
-    if (!j->Attribute("name"))
-      j->SetAttribute("name", "joint_" + std::to_string(composite_map_.size()));
-    if (!j->Attribute("channel"))
-      j->SetAttribute("channel", root->Attribute("channel"));
+inline void Joint::updateJointCommand(double v, JntCmdType t) {
+  joint_command_->mode_    = t;
+  joint_command_->command_ = v;
+  new_command_ = true;
+}
 
-    HwUnit* unit = new Joint();
-    unit->init(j);
-    this->add(unit->hw_name_, unit);
-  }
+inline double Joint::joint_command() {
+  return joint_command_->command_;
+}
 
-  return true;
-}*/
-/*bool Joint::initComponent(TiXmlElement* root) {
-  LOG_INFO << "[Joint: '" << root->Attribute("name") << "'] initialize start...";
-  std::string tmp_str = root->Attribute("leg");
-  boost::to_lower(tmp_str);
-  if (0 == tmp_str.compare("fl")) {
-    leg_ = LegType::FL;
-  } else if (0 == tmp_str.compare("fr")) {
-    leg_ = LegType::FR;
-  } else if (0 == tmp_str.compare("hl")) {
-    leg_ = LegType::HL;
-  } else if (0 == tmp_str.compare("hr")) {
-    leg_ = LegType::HR;
-  } else {
-    LOG_ERROR << "Error the 'leg' TAG(" << tmp_str << ") in the 'joint' TAG, "
-        << "require 'fl', 'fr', 'hl' or 'hr'";
-    return false;
-  }
+inline void Joint::changeJointCommandMode(JntCmdType mode) {
+  joint_command_->mode_ = mode;
+}
 
-  tmp_str = root->Attribute("jnt");
-  boost::to_lower(tmp_str);
-  if (0 == tmp_str.compare("yaw")) {
-    jnt_ = JntType::YAW;
-  } else if (0 == tmp_str.compare("knee")) {
-    jnt_ = JntType::KNEE;
-  } else if (0 == tmp_str.compare("hip")) {
-    jnt_ = JntType::HIP;
-  } else {
-    LOG_ERROR << "Error the 'jnt' TAG(" << tmp_str << ") in the 'joint' TAG, "
-        << "require 'yaw', 'knee' or 'hip'";
-    return false;
-  }
+inline JntCmdType Joint::joint_command_mode() {
+  return joint_command_->mode_;
+}
 
-  if (!s_ros_pub_init_) {
-    ros::NodeHandle nh;
-    s_joint_states_pub_ = nh.advertise<sensor_msgs::JointState>("joint_states", 1);
-    s_ros_pub_init_     = true;
-  }
+inline bool Joint::new_command(Packet* pkt) {
+  if (!new_command_) return false;
+  new_command_ = false;
 
-  LOG_INFO << "[Joint: '" << root->Attribute("name")
-      << "'] initialize end, call HwUnit::init()...";
-  return HwUnit::init(root);
-}*/
+  pkt->msg_id = msg_id_;
+  pkt->size   = 2;
+  short count = (joint_command_->command_ - offset_) / scale_;
+  pkt->data[0] = count;
+  pkt->data[1] = count >> 8;
+  // memcpy(pkt->data, &count, sizeof(short));
+  return false;
+}
 
 } /* namespace middleware */
-
-#include <class_loader/class_loader_register_macro.h>
-CLASS_LOADER_REGISTER_CLASS(middleware::Joint, middleware::HwUnit)

@@ -5,12 +5,12 @@
  *      Author: silence
  */
 
+#include <system/utils/parser.h>
 #include <thread>
 #include <tinyxml.h>
 
 #include "middleware/middleware.h"
 #include "middleware/hardware/joint.h"
-#include "middleware/util/parser.h"
 
 namespace middleware {
 
@@ -65,24 +65,12 @@ bool Middleware::init() {
 }
 
 bool Middleware::start() {
-  for (const auto& p : propagate_)
-    p.second->check();
-
-  for (const auto& p : hw_unit_)
-    p.second->check();
-
-  std::stringstream ss;
-  ss << "The list of joint names:\n";
-  for (const auto& n : jnt_names_)
-    ss << n << "\t";
-
-  LOG_INFO << ss.str();
   propagate_thread_ = new std::thread(&Middleware::runPropagate, this);
   LOG_INFO << "The propagate thread has started to run!";
   return true;
 }
 
-void Middleware::runPropagate() {
+/*void Middleware::runPropagate() {
   while (keepalive_) {
     while (connected_ && keepalive_) {
       // Everything is OK!
@@ -114,7 +102,7 @@ void Middleware::runPropagate() {
     } // end if (keepalive_)
   } // end while (keepalive_)
   propagate_.stop();
-}
+}*/
 
 void Middleware::halt() {
   keepalive_ = false;
@@ -126,149 +114,6 @@ void Middleware::halt() {
 
   LOG_INFO << "Middleware halt... ...";
 }
-
-/*
- * 设定指定关节命令, 并发送给机器人
- * 参数1: 指定命令数据
- */
-void Middleware::addCommand(const std::string& jnt_name, const HwCommand& cmd) {
-  cmd_lock_.lock();
-  new_jnt_cmd_names_.push_back(jnt_name);
-  hw_unit_[jnt_name]->setCommand(cmd);
-  new_command_ = true;
-  cmd_lock_.unlock();
-}
-
-/*
- * 设定指定关节命令, 并发送给机器人
- * 参数1: 指定关节名称
- * 参数2: 指定命令数据
- */
-void Middleware::addCommand(const std::string& jnt_name, const HwCmdSp& cmd) {
-  cmd_lock_.lock();
-  new_jnt_cmd_names_.push_back(jnt_name);
-  hw_unit_[jnt_name]->setCommand(*cmd);
-  new_command_ = true;
-  cmd_lock_.unlock();
-}
-
-/*
- * 设定指定关节命令, 并发送给机器人
- * 参数1: 指定关节名称
- * 参数2: 指定命令数据
- */
-void Middleware::addCommand(const std::vector<std::string>& jnt_names, const std::vector<HwCmdSp>& cmds) {
-  if (jnt_names.size() != cmds.size()) return;
-
-  cmd_lock_.lock();
-  new_jnt_cmd_names_.insert(new_jnt_cmd_names_.end(), jnt_names.begin(), jnt_names.end());
-  for (size_t i = 0; i < jnt_names.size(); ++i) {
-    hw_unit_[jnt_names[i]]->setCommand(*cmds[i]);
-  }
-  new_command_ = true;
-  cmd_lock_.unlock();
-}
-
-/*
- * 设定指定关节命令, 并发送给机器人
- * 参数1: 指定关节名称
- * 参数2: 指定命令数据
- */
-void Middleware::addCommand(const std::vector<std::string>& jnt_names, const std::vector<HwCommand>& cmds) {
-  if (jnt_names.size() != cmds.size()) return;
-
-  cmd_lock_.lock();
-  new_jnt_cmd_names_.insert(new_jnt_cmd_names_.end(), jnt_names.begin(), jnt_names.end());
-  for (size_t i = 0; i < jnt_names.size(); ++i) {
-    hw_unit_[jnt_names[i]]->setCommand(cmds[i]);
-  }
-  new_command_ = true;
-  cmd_lock_.unlock();
-}
-
-/**
- * 获取Joint的名称
- */
-void Middleware::getJointNames(std::vector<std::string>& names) {
-  names.clear();
-  names.reserve(jnt_names_.size());
-  for (const auto& name : jnt_names_) {
-    names.push_back(name);
-  }
-}
-/**
- * Actual joint positions
- */
-void Middleware::getJointPositions(std::vector<double>& positions) {
-  positions.clear();
-  positions.reserve(jnt_names_.size());
-  for (const auto& jnt : jnt_names_) {
-    Joint::StateTypeSp state
-      = boost::dynamic_pointer_cast<Joint::StateType>(
-          hw_unit_[jnt]->getState());
-    if (nullptr != state)
-      positions.push_back(state->pos_);
-    else
-      LOG_ERROR << "No \"" << jnt << "\" joint";
-  }
-}
-/**
- * Actual joint velocities
- */
-void Middleware::getJointVelocities(std::vector<double>& velocities) {
-  velocities.clear();
-  velocities.reserve(jnt_names_.size());
-  for (const auto& jnt : jnt_names_) {
-    Joint::StateTypeSp state
-      = boost::dynamic_pointer_cast<Joint::StateType>(
-          hw_unit_[jnt]->getState());
-    if (nullptr != state)
-      velocities.push_back(state->vel_);
-    else
-      LOG_ERROR << "No \"" << jnt << "\" joint";
-  }
-}
-/**
- * Actual joint torques TODO NO IMPLEMENTS
- */
-void Middleware::getJointTorques(std::vector<double>& torques) {
-  torques.clear();
-  torques.resize(jnt_names_.size());
-  /*
-  torques.reserve(jnt_names_.size());
-  for (auto& jnt : jnt_names_) {
-    Encoder::StateTypeSharedPtr state
-      = boost::dynamic_pointer_cast<Encoder::StateType>(
-          robot_->getState(jnt));
-    if (nullptr != state)
-      torques.push_back(state->tor_);
-    else
-      LOG_ERROR << "No \"" << jnt << "\" joint";
-  }
-  */
-}
-/**
- * Actual JointState( Recommended )
- */
-/*void Middleware::getJointStates(sensor_msgs::JointState& jnt_state) {
-  jnt_state.name.reserve(jnt_names_.size());
-  jnt_state.position.reserve(jnt_names_.size());
-  jnt_state.velocity.reserve(jnt_names_.size());
-  jnt_state.effort.reserve(jnt_names_.size());
-
-  for (auto& jnt : jnt_names_) {
-    Joint::StateTypeSp state
-      = boost::dynamic_pointer_cast<Joint::StateType>(
-          hw_unit_[jnt]->getState());
-    if (nullptr != state) {
-      jnt_state.name.push_back(jnt);
-      jnt_state.position.push_back(state->pos_);
-      jnt_state.velocity.push_back(state->vel_);
-      jnt_state.effort.push_back(0.0);
-    } else
-      LOG_ERROR << "No \"" << jnt << "\" joint";
-  }
-}*/
 
 void Middleware::stopTraj() {
   executing_traj_ = false;

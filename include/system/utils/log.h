@@ -5,8 +5,8 @@
  *      Author: silence
  */
 
-#ifndef INCLUDE_MIDDLEWARE_UTIL_LOG_H_
-#define INCLUDE_MIDDLEWARE_UTIL_LOG_H_
+#ifndef INCLUDE_SYSTEM_UTILS_LOG_H_
+#define INCLUDE_SYSTEM_UTILS_LOG_H_
 
 #include <glog/logging.h>
 #include <glog/log_severity.h>
@@ -29,4 +29,4 @@ namespace middleware {
 
 
 
-#endif /* INCLUDE_MIDDLEWARE_UTIL_LOG_H_ */
+#endif /* INCLUDE_SYSTEM_UTILS_LOG_H_ */

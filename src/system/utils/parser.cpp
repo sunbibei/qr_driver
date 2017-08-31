@@ -6,11 +6,10 @@
  */
 
 
-#include "middleware/util/parser.h"
-
-#include "middleware/util/log.h"
+#include <system/utils/composite.h>
+#include <system/utils/log.h>
+#include <system/utils/parser.h>
 #include "middleware/middleware.h"
-#include "middleware/util/composite.h"
 #include "middleware/hardware/hw_unit.h"
 #include "middleware/propagate/propagate.h"
 
@@ -62,9 +61,7 @@ bool Parser::parse(const std::string& filename) {
 
   return (parsePropagates() && parseHwUnits());
 }
-/**
- * 完成解析函数MAP的初始化， 以及别的初始化工作
- */
+
 bool Parser::init(const std::string& filename) {
   // 初始化XML文档相关内容
   TiXmlDocument* xml_doc = new TiXmlDocument();
@@ -249,10 +246,6 @@ bool Parser::checkHwUnitFormat(std::vector<std::string>& hw_units) {
   return true;
 }
 
-/**
- * Parser Helper Method
- * parserJointStates(), parserJoint() and parserPropagates()
- */
 bool Parser::parseHwUnits() {
   LOG_INFO << "[Parser]: " << "parse hardwares start";
   std::vector<std::string> hw_units;
