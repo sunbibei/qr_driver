@@ -5,7 +5,7 @@
  *      Author: silence
  */
 
-#include "cfg_reader.h"
+#include "system/utils/cfg_reader.h"
 
 #include <boost/algorithm/string.hpp>
 
@@ -123,10 +123,11 @@ void findAttr(TiXmlElement* __curr, const MiiString& __p,
 
   for (auto __next = __curr->FirstChildElement();
       nullptr != __next; __next = __next->NextSiblingElement()) {
+    MiiString __next_p = Label::make_label(__p, __next->Value());
     if (nullptr != __next->Attribute(attr.c_str()))
-      cb(__p, __next->Value());
+      cb(__next_p, __next->Attribute(attr.c_str()));
     else
-      findAttr(__next, Label::make_label(__p, __next->Value()), attr, cb);
+      findAttr(__next, __next_p, attr, cb);
   }
 }
 
@@ -174,6 +175,16 @@ bool MiiCfgReader::get_value(const MiiString& p, const MiiString& attr,
     sscanf(str.c_str(), template_str.c_str(), &val_i);
     vals.push_back((char)val_i);
   }
+
+  return true;
+}
+
+bool MiiCfgReader::get_value(const MiiString& p, const MiiString& attr, std::vector<unsigned char>& vals) {
+  std::vector<char> vals_char;
+  if (!get_value(p, attr, vals_char) || vals_char.empty()) return false;
+
+  for (auto c : vals_char)
+    vals.push_back(c);
 
   return true;
 }

@@ -12,18 +12,19 @@
 #include "middleware/hardware/joint.h"
 #include "middleware/hardware/touchdown.h"
 
+#include "system/utils/auto_instanceor.h"
+
 namespace middleware {
 
 #define JOINT_TAG_NAME     ("joints")
 #define TOUCHDOWN_TAG_NAME ("touchdowns")
 
 
-void MiiRobot::auto_inst(const MiiString& __l, const MiiString& __t) {
-  // MiiCfgReader::instance()->get_value(__l, "auto_inst");
-
+void MiiRobot::auto_inst(MiiStringConstRef __p, MiiStringConstRef __type) {
+  AutoInstanceor::instance()->make_instance(__p, __type);
 }
 
-MiiRobot::MiiRobot(const MiiString& l)
+MiiRobot::MiiRobot(MiiStringConstRef l)
 : Label(l), hw_manager_(HwManager::instance()) {
   ;
 }
@@ -34,16 +35,36 @@ MiiRobot::~MiiRobot() {
 
 bool MiiRobot::init() {
   auto cfg = MiiCfgReader::instance();
+  if (nullptr == cfg) {
+    LOG_FATAL << "The MiiCfgReader::create_instance(MiiStringConstRef) "
+        << "method must to be called by subclass before MiiRobot::init()";
+  }
 
-
+  // All of the objects mark with "auto_inst" in the configure file
+  // will be instanced here.
+  cfg->registerCallbackAndExcute("auto_inst", MiiRobot::auto_inst);
+  // Just for debug
+  Label::printfEveryInstance();
 
   HwManager::instance()->init();
 
-  auto robot_cfg = cfg->find_first_item(getLabel());
-
   std::vector<std::string> names;
-  robot_cfg.get_value(JOINT_TAG_NAME, names);
+  cfg->get_value_fatal(Label::make_label(getLabel(), JOINT_TAG_NAME),
+      "names", names);
+
   joint_list_.reserve(names.size());
+
+  bool is_init_list_by_type = false;
+  if (0 == (names.size() % JntType::N_JNTS)) {
+    joint_list_by_type_.resize(names.size() / JntType::N_JNTS);
+    for (auto& leg : joint_list_by_type_) {
+      leg.resize(JntType::N_JNTS);
+    }
+    is_init_list_by_type = true;
+  } else {
+    LOG_WARNING << "The number of joint each leg is not " << JntType::N_JNTS
+        << ", Can't initialize joint_list_by_type_";
+  }
 
   std::stringstream ss;
   ss << "The joint in the Robot contains ";
@@ -54,6 +75,8 @@ bool MiiRobot::init() {
     } else {
       joint_list_.push_back(j);
       joint_list_by_name_.insert(std::make_pair(n, j));
+      if (is_init_list_by_type)
+        joint_list_by_type_[j->leg_type()][j->joint_type()] = j;
     }
 
     ss << n << " ";
@@ -61,8 +84,16 @@ bool MiiRobot::init() {
   LOG_INFO << ss.str();
 
   names.clear();
-  robot_cfg.get_value(TOUCHDOWN_TAG_NAME, names);
+  cfg->get_value_fatal(Label::make_label(getLabel(), TOUCHDOWN_TAG_NAME),
+        "names", names);
+
   td_list_.reserve(names.size());
+  if (is_init_list_by_type
+      && (names.size() == joint_list_by_type_.size())) {
+    td_list_by_type_.resize(names.size());
+  } else {
+    is_init_list_by_type = false;
+  }
 
   ss.str("");
   ss << "The touchdown in the Robot contains ";
@@ -73,6 +104,8 @@ bool MiiRobot::init() {
     } else {
       td_list_.push_back(td);
       td_list_by_name_.insert(std::make_pair(n, td));
+      if (is_init_list_by_type)
+        td_list_by_type_[td->leg_type()] = td;
     }
 
     ss << n << " ";
@@ -81,6 +114,12 @@ bool MiiRobot::init() {
 
   return true;
 }
+
+
+bool MiiRobot::start() {
+  return false;
+}
+
 
 void MiiRobot::addCommand(const std::string& name, double command) {
   if (joint_list_by_name_.end() == joint_list_by_name_.find(name)) {

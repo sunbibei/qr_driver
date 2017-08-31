@@ -41,18 +41,22 @@ public:
   void getJointTorques(std::vector<double>&);
 
 public:
-  static void auto_inst(const MiiString&, const MiiString&);
+  static void auto_inst(MiiStringConstRef __p, MiiStringConstRef __l);
 
 protected:
-  MiiRobot(const MiiString&);
+  MiiRobot(MiiStringConstRef);
   virtual ~MiiRobot();
 
   class HwManager*              hw_manager_;
   std::vector<class Joint*>     joint_list_;
   std::vector<class TouchDown*> td_list_;
 
-  std::map<MiiString, class Joint*>     joint_list_by_name_;
-  std::map<MiiString, class TouchDown*> td_list_by_name_;
+  // type: leg * jnt
+  std::vector<std::vector<class Joint*>> joint_list_by_type_;
+  std::map<MiiString, class Joint*>      joint_list_by_name_;
+  // type: leg
+  std::vector<class TouchDown*>          td_list_by_type_;
+  std::map<MiiString, class TouchDown*>  td_list_by_name_;
 };
 
 } /* namespace middleware */

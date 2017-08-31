@@ -10,19 +10,25 @@
 
 #include "propagate.h"
 
+#define linux
+#include <PCANBasic.h>
+
 namespace middleware {
 
 class PcanChannel: public Propagate {
 public:
-  PcanChannel(const std::string& name = "pcan");
-  virtual ~PcanChannel();
+  PcanChannel(MiiStringConstRef l = "pcan");
+  virtual bool init() override;
 
-  virtual bool init(TiXmlElement*) override;
-  virtual bool write(void*, size_t, uint32_t) override;
-  virtual int  read(void*, size_t, uint32_t&) override;
-  virtual void stop() override;
+  virtual bool start() override;
+  virtual void stop()  override;
 
-  virtual void check() override;
+  virtual bool write(const class Packet&) override;
+  virtual bool read (class Packet&)       override;
+
+private:
+  TPCANMsg*     msg_4_send_;
+  TPCANMsg*     msg_4_recv_;
 };
 
 } /* namespace qr_driver */

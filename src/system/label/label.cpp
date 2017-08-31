@@ -5,39 +5,47 @@
  *      Author: silence
  */
 
-#include "label.h"
+#include "system/label/label.h"
 
 namespace middleware {
 
 #define COMMA (".")
 
-const MiiString             Label::null = "";
-std::map<MiiString, Label*> Label::s_label_table_;
+const MiiString                      Label::null = "";
+std::map<MiiString, Label::LabelPtr> Label::s_label_table_;
 
-Label::Label(const std::string& l, const std::string& parent)
-: label_(make_label(parent, l)) {
+Label::Label(MiiStringConstRef __l, MiiStringConstRef __p)
+: label_(make_label(__p, __l)) {
+  /*std::cout << "table's address: " << &s_label_table_ << std::endl;
+  std::cout << "Insert? address: " << this << std::endl;
   label_table().insert(std::make_pair(label_, this));
+  std::cout << "After insert, size: " << s_label_table_.size() << std::endl;*/
 }
 
-Label::Label(const MiiString& _l, const Label& _obj)
-: Label(_obj.getLabel(), _l) {
+Label::Label(MiiStringConstRef _l, const Label& _obj)
+: Label(_l, _obj.getLabel()) {
   ;
 }
 
-Label::Label(const MiiString& _l, Label* _obj)
-: Label(_obj->getLabel(), _l) {
+Label::Label(MiiStringConstRef _l, LabelPtr _obj)
+: Label(_l, _obj->getLabel()) {
+  ;
+}
+
+Label::Label(MiiStringConstRef _l, Label* _obj)
+: Label(_l, _obj->getLabel()) {
   ;
 }
 
 Label::~Label() {
-  label_table().erase(label_);
+  // label_table().erase(label_);
 }
 
-MiiString Label::make_label(const MiiString& p, const MiiString& l) {
+MiiString Label::make_label(MiiStringConstRef p, MiiStringConstRef l) {
   return MiiString(p + COMMA + l);
 }
 
-MiiString Label::parent_label(const MiiString& l) {
+MiiString Label::parent_label(MiiStringConstRef l) {
   size_t p = l.rfind(COMMA);
   if (MiiString::npos == p)
     return null;
@@ -55,5 +63,7 @@ void Label::split_label(MiiString l, MiiString& p, MiiString& v) {
     v = l.substr(pos+1, l.size());
   }
 }
+
+bool Label::init() { return true; }
 
 } /* namespace middleware */

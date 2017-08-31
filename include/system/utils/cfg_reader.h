@@ -26,8 +26,13 @@ public:
   static bool destroy_instance();
 
 public:
-  typedef void (*Callback)(const MiiString&, const MiiString&);
-  void registerCallbackAndExcute(const MiiString&, Callback);
+  /**
+   * @brief The Callback function for specific @__attr
+   * @param __p        The parent of tag which contains the specific attribute.
+   * @param __attr_val The value of __attr under the __p tag.
+   */
+  typedef void (*Callback)(MiiStringConstRef __p, MiiStringConstRef __attr_val);
+  void registerCallbackAndExcute(const MiiString& __attr, Callback);
 
 public:
   /**
@@ -47,6 +52,7 @@ public:
   ////////////////// Template Specialization
   bool get_value(const MiiString& p, const MiiString& attr, std::vector<bool>&);
   bool get_value(const MiiString& p, const MiiString& attr, std::vector<char>&);
+  bool get_value(const MiiString& p, const MiiString& attr, std::vector<unsigned char>&);
 
   /**
    *  @brief  Find the value of @p.@attr in the configure file.
@@ -112,7 +118,7 @@ bool MiiCfgReader::get_value(const MiiString& p, const MiiString& attr, std::vec
 template<class _Type>
 void MiiCfgReader::get_value_fatal(const MiiString& p, const MiiString& attr, _Type& val) {
   std::vector<_Type> __vals;
-  if ((!get_value_fatal(p, attr, __vals)) || (__vals.empty()))
+  if ((!get_value(p, attr, __vals)) || (__vals.empty()))
     LOG_FATAL << "CfgReader can't found the confiure '" << Label::make_label(p, attr) << "' in the configure file.";
 
   val = __vals.back();

@@ -4,31 +4,35 @@ package middleware;
 
 // the type of command from host
 enum CmdType {
-  JNT_TASK = 0;
-  EEF_TASK = 1; // no uesed
-  N_CMDS   = 2;
+  UNKNOWN_TASK  = -1;
+  JNT_TASK      = 0;
+  EEF_TASK      = 1; // no uesed
+  N_CMDS        = 2;
 }
 
 enum JntCmdType {
-  POS = 0;
-  VEL = 1;
-  TOR = 2;
+  UNKNOWN_CMD     = -1;
+  POS             = 0;
+  VEL             = 1;
+  TOR             = 2;
   N_JNT_CMD_TYPES = 3;
 }
 
 enum LegType {
-  FL = 0;
-  FR = 1;
-  HL = 2;
-  HR = 3;
-  N_LEGS = 4;
+  UNKNOWN_LEG = -1;
+  FL          = 0;
+  FR          = 1;
+  HL          = 2;
+  HR          = 3;
+  N_LEGS      = 4;
 }
 
 enum JntType {
-  YAW  = 0;
-  HIP  = 1;
-  KNEE = 2;
-  N_JNTS = 3;
+  UNKNOWN_JNT = -1;
+  YAW         = 0;
+  HIP         = 1;
+  KNEE        = 2;
+  N_JNTS      = 3;
 }
 
 message JntCmd {

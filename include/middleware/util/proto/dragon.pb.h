@@ -41,12 +41,13 @@ class PowerStates;
 class Feedback;
 
 enum CmdType {
+  UNKNOWN_TASK = -1,
   JNT_TASK = 0,
   EEF_TASK = 1,
   N_CMDS = 2
 };
 bool CmdType_IsValid(int value);
-const CmdType CmdType_MIN = JNT_TASK;
+const CmdType CmdType_MIN = UNKNOWN_TASK;
 const CmdType CmdType_MAX = N_CMDS;
 const int CmdType_ARRAYSIZE = CmdType_MAX + 1;
 
@@ -61,13 +62,14 @@ inline bool CmdType_Parse(
     CmdType_descriptor(), name, value);
 }
 enum JntCmdType {
+  UNKNOWN_CMD = -1,
   POS = 0,
   VEL = 1,
   TOR = 2,
   N_JNT_CMD_TYPES = 3
 };
 bool JntCmdType_IsValid(int value);
-const JntCmdType JntCmdType_MIN = POS;
+const JntCmdType JntCmdType_MIN = UNKNOWN_CMD;
 const JntCmdType JntCmdType_MAX = N_JNT_CMD_TYPES;
 const int JntCmdType_ARRAYSIZE = JntCmdType_MAX + 1;
 
@@ -82,6 +84,7 @@ inline bool JntCmdType_Parse(
     JntCmdType_descriptor(), name, value);
 }
 enum LegType {
+  UNKNOWN_LEG = -1,
   FL = 0,
   FR = 1,
   HL = 2,
@@ -89,7 +92,7 @@ enum LegType {
   N_LEGS = 4
 };
 bool LegType_IsValid(int value);
-const LegType LegType_MIN = FL;
+const LegType LegType_MIN = UNKNOWN_LEG;
 const LegType LegType_MAX = N_LEGS;
 const int LegType_ARRAYSIZE = LegType_MAX + 1;
 
@@ -104,13 +107,14 @@ inline bool LegType_Parse(
     LegType_descriptor(), name, value);
 }
 enum JntType {
+  UNKNOWN_JNT = -1,
   YAW = 0,
   HIP = 1,
   KNEE = 2,
   N_JNTS = 3
 };
 bool JntType_IsValid(int value);
-const JntType JntType_MIN = YAW;
+const JntType JntType_MIN = UNKNOWN_JNT;
 const JntType JntType_MAX = N_JNTS;
 const int JntType_ARRAYSIZE = JntType_MAX + 1;
 
@@ -686,7 +690,7 @@ inline void JntCmd::clear_has_leg() {
   _has_bits_[0] &= ~0x00000001u;
 }
 inline void JntCmd::clear_leg() {
-  leg_ = 0;
+  leg_ = -1;
   clear_has_leg();
 }
 inline ::middleware::LegType JntCmd::leg() const {
@@ -711,7 +715,7 @@ inline void JntCmd::clear_has_jnt() {
   _has_bits_[0] &= ~0x00000002u;
 }
 inline void JntCmd::clear_jnt() {
-  jnt_ = 0;
+  jnt_ = -1;
   clear_has_jnt();
 }
 inline ::middleware::JntType JntCmd::jnt() const {
@@ -789,7 +793,7 @@ inline void Command::clear_has_idx() {
   _has_bits_[0] &= ~0x00000001u;
 }
 inline void Command::clear_idx() {
-  idx_ = 0;
+  idx_ = -1;
   clear_has_idx();
 }
 inline ::middleware::CmdType Command::idx() const {
@@ -859,7 +863,7 @@ inline void JointStates::clear_has_leg() {
   _has_bits_[0] &= ~0x00000001u;
 }
 inline void JointStates::clear_leg() {
-  leg_ = 0;
+  leg_ = -1;
   clear_has_leg();
 }
 inline ::middleware::LegType JointStates::leg() const {

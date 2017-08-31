@@ -2,7 +2,7 @@
 // source: dragon.proto
 
 #define INTERNAL_SUPPRESS_PROTOBUF_FIELD_DEPRECATION
-#include <middleware/util/proto/dragon.pb.h>
+#include "dragon.pb.h"
 
 #include <algorithm>
 
@@ -202,15 +202,18 @@ void protobuf_AddDesc_dragon_2eproto() {
     "werFlag\"\211\001\n\010Feedback\022\037\n\003idx\030\001 \002(\0162\022.midd"
     "leware.FbType\022-\n\014joint_states\030\002 \001(\0132\027.mi"
     "ddleware.JointStates\022-\n\014power_states\030\003 \001"
-    "(\0132\027.middleware.PowerStates*1\n\007CmdType\022\014"
-    "\n\010JNT_TASK\020\000\022\014\n\010EEF_TASK\020\001\022\n\n\006N_CMDS\020\002*<"
-    "\n\nJntCmdType\022\007\n\003POS\020\000\022\007\n\003VEL\020\001\022\007\n\003TOR\020\002\022"
-    "\023\n\017N_JNT_CMD_TYPES\020\003*5\n\007LegType\022\006\n\002FL\020\000\022"
-    "\006\n\002FR\020\001\022\006\n\002HL\020\002\022\006\n\002HR\020\003\022\n\n\006N_LEGS\020\004*1\n\007J"
-    "ntType\022\007\n\003YAW\020\000\022\007\n\003HIP\020\001\022\010\n\004KNEE\020\002\022\n\n\006N_"
-    "JNTS\020\003*7\n\006FbType\022\020\n\014JOINT_STATES\020\000\022\020\n\014PO"
-    "WER_STATES\020\001\022\t\n\005N_FBS\020\002*.\n\tPowerFlag\022\016\n\n"
-    "VOLTAGE_OK\020\001\022\021\n\rVOLTAGE_ERROR\020\002", 911);
+    "(\0132\027.middleware.PowerStates*L\n\007CmdType\022\031"
+    "\n\014UNKNOWN_TASK\020\377\377\377\377\377\377\377\377\377\001\022\014\n\010JNT_TASK\020\000\022"
+    "\014\n\010EEF_TASK\020\001\022\n\n\006N_CMDS\020\002*V\n\nJntCmdType\022"
+    "\030\n\013UNKNOWN_CMD\020\377\377\377\377\377\377\377\377\377\001\022\007\n\003POS\020\000\022\007\n\003VE"
+    "L\020\001\022\007\n\003TOR\020\002\022\023\n\017N_JNT_CMD_TYPES\020\003*O\n\007Leg"
+    "Type\022\030\n\013UNKNOWN_LEG\020\377\377\377\377\377\377\377\377\377\001\022\006\n\002FL\020\000\022\006"
+    "\n\002FR\020\001\022\006\n\002HL\020\002\022\006\n\002HR\020\003\022\n\n\006N_LEGS\020\004*K\n\007Jn"
+    "tType\022\030\n\013UNKNOWN_JNT\020\377\377\377\377\377\377\377\377\377\001\022\007\n\003YAW\020\000"
+    "\022\007\n\003HIP\020\001\022\010\n\004KNEE\020\002\022\n\n\006N_JNTS\020\003*7\n\006FbTyp"
+    "e\022\020\n\014JOINT_STATES\020\000\022\020\n\014POWER_STATES\020\001\022\t\n"
+    "\005N_FBS\020\002*.\n\tPowerFlag\022\016\n\nVOLTAGE_OK\020\001\022\021\n"
+    "\rVOLTAGE_ERROR\020\002", 1016);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "dragon.proto", &protobuf_RegisterTypes);
   JntCmd::default_instance_ = new JntCmd();
@@ -238,6 +241,7 @@ const ::google::protobuf::EnumDescriptor* CmdType_descriptor() {
 }
 bool CmdType_IsValid(int value) {
   switch(value) {
+    case -1:
     case 0:
     case 1:
     case 2:
@@ -253,6 +257,7 @@ const ::google::protobuf::EnumDescriptor* JntCmdType_descriptor() {
 }
 bool JntCmdType_IsValid(int value) {
   switch(value) {
+    case -1:
     case 0:
     case 1:
     case 2:
@@ -269,6 +274,7 @@ const ::google::protobuf::EnumDescriptor* LegType_descriptor() {
 }
 bool LegType_IsValid(int value) {
   switch(value) {
+    case -1:
     case 0:
     case 1:
     case 2:
@@ -286,6 +292,7 @@ const ::google::protobuf::EnumDescriptor* JntType_descriptor() {
 }
 bool JntType_IsValid(int value) {
   switch(value) {
+    case -1:
     case 0:
     case 1:
     case 2:
@@ -353,8 +360,8 @@ JntCmd::JntCmd(const JntCmd& from)
 
 void JntCmd::SharedCtor() {
   _cached_size_ = 0;
-  leg_ = 0;
-  jnt_ = 0;
+  leg_ = -1;
+  jnt_ = -1;
   type_ = 0;
   cmd_ = 0;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
@@ -402,7 +409,11 @@ void JntCmd::Clear() {
     ::memset(&first, 0, n);                                \
   } while (0)
 
-  ZR_(leg_, cmd_);
+  if (_has_bits_[0 / 32] & 15) {
+    ZR_(type_, cmd_);
+    leg_ = -1;
+    jnt_ = -1;
+  }
 
 #undef OFFSET_OF_FIELD_
 #undef ZR_
@@ -719,7 +730,7 @@ Command::Command(const Command& from)
 
 void Command::SharedCtor() {
   _cached_size_ = 0;
-  idx_ = 0;
+  idx_ = -1;
   jnt_cmd_ = NULL;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
@@ -758,7 +769,7 @@ Command* Command::New() const {
 
 void Command::Clear() {
   if (_has_bits_[0 / 32] & 3) {
-    idx_ = 0;
+    idx_ = -1;
     if (has_jnt_cmd()) {
       if (jnt_cmd_ != NULL) jnt_cmd_->::middleware::JntCmd::Clear();
     }
@@ -996,7 +1007,7 @@ JointStates::JointStates(const JointStates& from)
 
 void JointStates::SharedCtor() {
   _cached_size_ = 0;
-  leg_ = 0;
+  leg_ = -1;
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
 }
 
@@ -1032,7 +1043,7 @@ JointStates* JointStates::New() const {
 }
 
 void JointStates::Clear() {
-  leg_ = 0;
+  leg_ = -1;
   pos_.Clear();
   ::memset(_has_bits_, 0, sizeof(_has_bits_));
   mutable_unknown_fields()->Clear();

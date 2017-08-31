@@ -17,18 +17,21 @@
 #include <boost/shared_ptr.hpp>
 
 #include "middleware/util/qr_protocol.h"
+#include "system/label/label.h"
 
 namespace middleware {
 
-struct HwUnit {
+/**
+ * @brief Each HwUnit associate to the real hardware in the robot,
+ *        Note that the real hardware means the node what communicates with
+ *        the master.
+ */
+struct HwUnit : public Label {
   friend class HwManager;
-  HwUnit();
+  HwUnit(MiiStringConstRef __l = Label::null);
   virtual ~HwUnit();
 
-  /**
-   * 初始化本类对象, 使用xml文件中内容
-   */
-  virtual bool init(TiXmlElement*);
+  virtual bool init() override;
   /**
    * 该类是否会产生命令下发给机器人
    * 若发回true, 则会每次询问是否有指令下发
@@ -48,7 +51,6 @@ struct HwUnit {
 
 protected:
   unsigned char node_id_;
-  std::string hw_name_;
 };
 
 } /* namespace quadruped_robot_driver */

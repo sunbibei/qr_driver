@@ -6,137 +6,122 @@
  */
 
 #include "middleware/propagate/pcan.h"
+#include "middleware/util/qr_protocol.h"
+
+#include <thread>
 
 namespace middleware {
 
-PcanChannel::PcanChannel(const std::string& name)
-  :Propagate(name)
-{ }
+#define INVALID_BYTE  (0x88)
+#define ONLY_ONE_PKT  (0x11)
 
-PcanChannel::~PcanChannel() { }
+TPCANStatus   g_status_      = PCAN_ERROR_OK;
+TPCANHandle   g_channel      = PCAN_USBBUS1;
+TPCANBaudrate g_baud_rate    = PCAN_BAUD_500K;
+TPCANType     g_type         = 0;
+DWORD         g_port         = 0;
+WORD          g_interrupt    = 0;
 
-// 完成PCAN的初始化
-// 以及act_state_map_, act_cmd_map_, enc_state_map_三个MAP的从cmd_map_和state_map_中初始化
-bool PcanChannel::init(TiXmlElement*) {
-  return true;
+const unsigned int MAX_TRY_TIMES = 10;
+unsigned int       g_times_count = 0;
+
+PcanChannel::PcanChannel(MiiStringConstRef l)
+  : Propagate(l), msg_4_send_(new TPCANMsg), msg_4_recv_(new TPCANMsg) {
+  msg_4_send_->MSGTYPE = PCAN_MESSAGE_STANDARD;
+}
+
+bool PcanChannel::init() {
+  return Propagate::init();
+}
+
+bool PcanChannel::start() {
+  // try to 10 times
+  for (g_times_count = 0; g_times_count < MAX_TRY_TIMES; ++g_times_count) {
+    g_status_ = CAN_Initialize(g_channel, g_baud_rate, g_type, g_port, g_interrupt);
+    if (PCAN_ERROR_OK != g_status_){
+      LOG_WARNING << "(" << g_times_count + 1 << "/10) Initialize CAN FAIL, "
+          "status code: " << g_status_ << ", Waiting 500ms... ...";
+      // Waiting 500ms
+      std::this_thread::sleep_for(std::chrono::milliseconds(500));
+    } else {
+      LOG_INFO << "Initialize CAN OK!";
+      return true;
+    }
+  }
+
+  LOG_ERROR << "Initialize CAN FAIL!!!";
+  return false;
 }
 
 void PcanChannel::stop() {
-  return;
-}
-
-// 完成数据的读写. (下面全是测试代码)
-bool PcanChannel::write(void*, size_t, uint32_t) {
- /* if (names.empty()) return true;
-
-  // LOG_INFO << "PCAN write: ";
-  for (const std::string& name : names) {
-    auto itr = cmd_composite_.find(name);
-    if (cmd_composite_.end() != itr) {
-      Motor::CmdTypeSp cmd = boost::dynamic_pointer_cast<Motor::CmdType>(itr->second);
-      LOG_INFO << "command: " << cmd->command_
-          << " mode: " << cmd->mode_;
-      if (0 == name.compare("hip")) {
-        // std::string enc_name = "hip_motor";
-        // auto itr_state = state_composite_.find(enc_name);
-        auto itr_state = state_composite_.find(name);
-        Encoder::StateTypeSp act_state
-          = boost::dynamic_pointer_cast<Encoder::StateType>(itr_state->second);
-
-        double current_pos = cmd->command_;
-        auto current_time = std::chrono::high_resolution_clock::now();
-        act_state->vel_ = (current_pos - act_state->pos_)
-            / std::chrono::duration_cast<std::chrono::duration<double>>(
-                current_time - act_state->previous_time_).count();
-        act_state->pos_ = current_pos;
-        act_state->previous_time_ = current_time;
-
-      } else if (0 == name.compare("knee")) {
-        // std::string enc_name = "knee_motor";
-        // auto itr_state = state_composite_.find(enc_name);
-        auto itr_state = state_composite_.find(name);
-        Encoder::StateTypeSp act_state
-          = boost::dynamic_pointer_cast<Encoder::StateType>(itr_state->second);
-
-        double current_pos = cmd->command_;
-        auto current_time = std::chrono::high_resolution_clock::now();
-        act_state->vel_ = (current_pos - act_state->pos_)
-            / std::chrono::duration_cast<std::chrono::duration<double>>(
-                current_time - act_state->previous_time_).count();
-        act_state->pos_ = current_pos;
-        act_state->previous_time_ = current_time;
-      } else {
-        ; // Nothing to de here
-      }
+  // try to 10 times
+  for (g_times_count = 0; g_times_count < MAX_TRY_TIMES; ++g_times_count) {
+    g_status_ = CAN_Uninitialize(g_channel);
+    if (PCAN_ERROR_OK != g_status_){
+      LOG_WARNING << "(" << g_times_count + 1 << "/10) Uninitialize CAN FAIL, "
+          "status code: " << g_status_ << ", Waiting 500ms... ...";
+      // Waiting 500ms
+      std::this_thread::sleep_for(std::chrono::milliseconds(500));
     } else {
-      LOG_WARNING << "Could not found the " << name << " command handle";
+      LOG_INFO << "Uninitialize CAN OK!";
+      return;
     }
-  }*/
+  }
+
+  LOG_ERROR << "Uninitialize CAN FAIL!!!";
+}
+
+bool PcanChannel::write(const Packet& pkt) {
+  // This code aims to compatible with the old protocol
+  // TODO It should be updated.
+  msg_4_send_->ID  = pkt.node_id;
+  msg_4_send_->LEN = pkt.size + 3;
+  msg_4_send_->DATA[0] = pkt.msg_id;
+  msg_4_send_->DATA[1] = ONLY_ONE_PKT;
+  msg_4_send_->DATA[2] = INVALID_BYTE;
+  memcpy(msg_4_send_->DATA + 3, pkt.data, pkt.size * sizeof(BYTE));
+
+  // try to 10 times
+  for (g_times_count = 0; g_times_count < MAX_TRY_TIMES; ++g_times_count) {
+    g_status_ = CAN_Write(g_channel, msg_4_send_);
+    if (PCAN_ERROR_OK != g_status_){
+      LOG_WARNING << "(" << g_times_count + 1 << "/10) Write CAN message FAIL, "
+          "status code: " << g_status_ << ", Waiting 50ms... ...";
+      // Waiting 50ms
+      std::this_thread::sleep_for(std::chrono::milliseconds(50));
+    } else
+      return true;
+  }
+
+  LOG_ERROR << "Write CAN FAIL!!!";
+  return false;
+}
+
+bool PcanChannel::read(Packet& pkt) {
+  g_times_count = 0;
+  while ((g_status_ = CAN_Read(g_channel, msg_4_recv_, nullptr)) == PCAN_ERROR_QRCVEMPTY){
+    std::this_thread::sleep_for(std::chrono::milliseconds(5));
+    if (g_times_count++ >= MAX_TRY_TIMES) return false;
+  }
+
+  // This code aims to compatible with the old protocol
+  // TODO It should be updated.
+  if (msg_4_recv_->LEN < 3) {
+    LOG_WARNING << "Error Message from can bus, this length of message data is "
+        << msg_4_recv_->LEN;
+    return false;
+  }
+  pkt.node_id = msg_4_recv_->ID;
+  pkt.msg_id  = msg_4_recv_->DATA[0];
+  pkt.size    = msg_4_recv_->LEN - 3;
+  memcpy(pkt.data, msg_4_recv_->DATA + 3, pkt.size * sizeof(BYTE));
   return true;
 }
 
-// (下面全是测试代码)
-int  PcanChannel::read(void*, size_t, uint32_t&) {
-  // 从PCAN中获取到的数据对应到具体的状态name
-  // 也可以从PCAN的数据中， 明确到底是什么类型的State
-  // 转化为对应类型的State, 在进行赋值
-  // LOG_INFO << "PCAN read: ";
-/*  std::string name = "knee";
-  auto itr = state_composite_.find(name);
-  if (state_composite_.end() == itr) {
-    LOG_WARNING << "Could not found the " << name << " state handle: ";
-  } else {
-    Encoder::StateTypeSp act_state
-      = boost::dynamic_pointer_cast<Encoder::StateType>(itr->second);
-    double current_pos = act_state->pos_ + 0.00001;
-    auto current_time = std::chrono::high_resolution_clock::now();
-    act_state->vel_ = (current_pos - act_state->pos_)
-        / std::chrono::duration_cast<std::chrono::duration<double>>(
-            current_time - act_state->previous_time_).count();
-    act_state->pos_ = current_pos;
-    act_state->previous_time_ = current_time;
-  }
-
-  name = "hip";
-  itr = state_composite_.find(name);
-  if (state_composite_.end() == itr) {
-    ;//LOG_WARNING << "Could not found the " << name << " state handle: ";
-  } else {
-    Encoder::StateTypeSp act_state
-      = boost::dynamic_pointer_cast<Encoder::StateType>(itr->second);
-    double current_pos = act_state->pos_ + 0.0000001;
-    auto current_time = std::chrono::high_resolution_clock::now();
-    act_state->vel_ = (current_pos - act_state->pos_)
-        / std::chrono::duration_cast<std::chrono::duration<double>>(
-            current_time - act_state->previous_time_).count();
-    act_state->pos_ = current_pos;
-    act_state->previous_time_ = current_time;
-  }*/
-
-  return true;
-}
-
-void PcanChannel::check() {
-  LOG_WARNING << "================check================";
-  LOG_INFO << "NAME: " << propa_name_;
-  LOG_WARNING << "-------------------------------------";
-  LOG_INFO << "STATE:";
-  LOG_INFO << "NAME\tADDR\tCOUNT";
-  for (auto& s : state_composite_) {
-    LOG_INFO << s.first << "\t" << s.second.get()
-        << "\t" << s.second.use_count();
-  }
-  LOG_WARNING << "-------------------------------------";
-  LOG_INFO << "COMMAND:";
-  LOG_INFO << "NAME\tADDR\tCOUNT";
-  for (auto& c : cmd_composite_) {
-    LOG_INFO << c.first << "\t" << c.second.get() << "\t" << c.second.use_count();
-  }
-  LOG_WARNING << "=====================================";
-}
 
 } /* namespace qr_driver */
 
 #include <class_loader/class_loader_register_macro.h>
-
+CLASS_LOADER_REGISTER_CLASS(middleware::PcanChannel, middleware::Label)
 CLASS_LOADER_REGISTER_CLASS(middleware::PcanChannel, middleware::Propagate)
+

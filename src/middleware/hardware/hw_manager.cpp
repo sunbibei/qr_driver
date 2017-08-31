@@ -50,12 +50,12 @@ bool HwManager::init() {
   LOG_INFO << "NAME\tADDR\tID\tPUB\tCMD";
   for (auto hw : res_list_) {
     memset(debug_info, '\0', 1024 * sizeof(char));
-    sprintf(debug_info, "%s\t%02X\t%d\t%d",hw->hw_name_, hw,
+    sprintf(debug_info, "%s\t%d\t%d\t%d",hw->getLabel().c_str(), hw,
         hw->node_id_, hw->requireCmdDeliver());
     LOG_INFO << debug_info;
 
     hw_list_by_id_[hw->node_id_] = hw;
-    hw_list_by_name_.insert(std::make_pair(hw->hw_name_, hw));
+    hw_list_by_name_.insert(std::make_pair(hw->getLabel().c_str(), hw));
     if (hw->requireCmdDeliver()) {
       hw_list_by_cmd_.push_back(hw);
     }
@@ -79,9 +79,8 @@ void HwManager::tick() {
   // Collecting all of the new command to control the robot
   packets_.clear();
   for (auto hw : hw_list_by_cmd_) {
-    Packet pkt;
-    if (hw->generateCmd(pkt))
-      packets_.push_back(pkt);
+    hw->generateCmd(packets_);
+      // packets_.push_back(pkt);
     // TODO write the Packet to robot
   }
 

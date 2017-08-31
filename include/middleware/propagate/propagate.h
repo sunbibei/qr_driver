@@ -9,6 +9,8 @@
 #define INCLUDE_MIDDLEWARE_PROPAGATE_PROPAGATE_H_
 
 #include "system/label/label.h"
+#include "middleware/util/qr_protocol.h"
+
 #include <vector>
 
 namespace middleware {
@@ -16,22 +18,40 @@ namespace middleware {
 class Propagate : public Label {
   friend class PropagateManager;
 public:
-  Propagate(const MiiString& name);
-  virtual ~Propagate();
-
-  // 本通信方式的名称， 该名称作为Hw_Unit的Channel参数
-  std::string propa_name_;
+  Propagate(MiiStringConstRef);
+  // 妥协方案
+  virtual bool init() override;
 
   /**
-   * 等待子类实现的函数s
+   * @brief This method initialize the communication device and get ready for
+   *        @write and @read
+   * @return Return true if initialization successful, or return false
    */
-  virtual bool init();
   virtual bool start();
+  /**
+   * @brief This method stop the communication device.
+   */
   virtual void stop();
 
-  virtual bool write(class Packet*);
-  virtual bool read(class Packet*);
+  /**
+   * @brief This method completes the function that convert the Packet
+   *        to the form of message which be needed by the specific communication
+   *        type, and writing the converted message to robot.
+   * @param pkt[in] The Packet object need to convert and write
+   * @return Return true if successful, or return false
+   */
+  virtual bool write(const Packet& pkt);
+  /**
+   * @brief This method must be implemented by subclass, and convert the message
+   *        which received from the specific communication type to the form of Packet,
+   * @param pkt[out] The Packet object converted from the message
+   * @return Return true if read successful, or return false
+   */
+  virtual bool read(Packet& pkt);
 
+protected:
+  // 本通信方式的名称， 该名称作为Hw_Unit的Channel参数
+  MiiString propa_name_;
 };
 
 } /* namespace middleware */

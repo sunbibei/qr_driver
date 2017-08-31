@@ -16,12 +16,13 @@ template<class _Resource>
 class ResourceManager {
 public:
   virtual ~ResourceManager() {
-    for (auto res : res_list_) {
+    // Should not to dealloc
+    /*for (auto res : res_list_) {
       if (nullptr != res) {
         delete res;
         res = nullptr;
       }
-    }
+    }*/
   }
 
   virtual void add(_Resource* _res) {
@@ -29,8 +30,12 @@ public:
   }
 
   virtual void remove(_Resource* _res) {
-    for (auto res : res_list_) {
+    /*for (auto res : res_list_) {
       if (res == _res) res_list_.erase(res);
+    }*/
+    for (auto iter = res_list_.begin(); iter != res_list_.end();) {
+      if (_res == *iter) iter = res_list_.erase(iter);
+      else  ++iter;
     }
   }
 

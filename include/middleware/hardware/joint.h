@@ -16,7 +16,12 @@ namespace middleware {
 class Joint : public Label {
   friend class LegNode;
 public:
-  Joint(class TiXmlElement*);
+  Joint(MiiStringConstRef l = Label::null);
+  // 妥协方案
+  virtual bool init() override;
+
+  const JntType& joint_type() const;
+  const LegType& leg_type()   const;
   /**
    * Interface for user layer.
    */
@@ -44,6 +49,10 @@ protected:
   bool new_command_; // the flag indicate whether has new command
   bool new_command(class Packet*);
   // position = count * scale + offset
+
+protected:
+  JntType             jnt_type_;
+  LegType             leg_type_;
   double              scale_;
   double              offset_;
 

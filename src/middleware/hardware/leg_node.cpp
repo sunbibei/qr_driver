@@ -84,12 +84,12 @@ void LegNode::handleMsg(const Packet& pkt) {
 }
 
 bool LegNode::generateCmd(std::vector<Packet>& pkts) {
-  for (auto& j : joints_) {
-    Packet cmd;
-    cmd.node_id = node_id_;
+
+  Packet cmd;
+  cmd.node_id = node_id_;
+  for (auto& j : joints_)
     if (j->new_command(&cmd))
       pkts.push_back(cmd);
-  }
 
   return true;
 }

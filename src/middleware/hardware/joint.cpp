@@ -7,6 +7,7 @@
 
 #include "middleware/hardware/joint.h"
 #include "middleware/util/qr_protocol.h"
+#include "system/utils/cfg_reader.h"
 
 #include <chrono>
 #include <tinyxml.h>
@@ -35,44 +36,56 @@ struct JointCommand {
     : /*id_(0), */command_(cmd), mode_(mode) { };
 };
 
-Joint::Joint(TiXmlElement* root)
-  : Label(root->Attribute("name")),
-    new_command_(false), scale_(0), offset_(0), msg_id_(INVALID_ID),
+Joint::Joint(MiiStringConstRef l)
+  : Label(l), new_command_(false), jnt_type_(JntType::UNKNOWN_JNT),
+    leg_type_(LegType::UNKNOWN_LEG), scale_(0), offset_(0), msg_id_(INVALID_ID),
     joint_state_(new JointState), joint_command_(new JointCommand) {
-  LOG_INFO << "[Joint: '" << root->Attribute("name") << "'] initialize start...";
-  if ((!root->Attribute("leg")) || (!root->Attribute("jnt")) || (!root->Attribute("msg_id"))) {
-    LOG_ERROR << "The format of 'joint' tag is wrong! An example:";
-    LOG_ERROR << "<joint name=\"joint_name\"  leg=\"fl\" jnt=\"yaw\"  id=\"0x01\"  />";
-    return;
-  }
+}
 
-  /*std::string tmp_str = root->Attribute("jnt");
+bool Joint::init() {
+  auto cfg = MiiCfgReader::instance();
+
+  bool ret = true;
+  std::string tmp_str;
+  cfg->get_value_fatal(getLabel(), "jnt", tmp_str);
   boost::to_lower(tmp_str);
   if (0 == tmp_str.compare("yaw")) {
-    jnt_ = JntType::YAW;
+    jnt_type_ = JntType::YAW;
   } else if (0 == tmp_str.compare("knee")) {
-    jnt_ = JntType::KNEE;
+    jnt_type_ = JntType::KNEE;
   } else if (0 == tmp_str.compare("hip")) {
-    jnt_ = JntType::HIP;
+    jnt_type_ = JntType::HIP;
   } else {
-    LOG_ERROR << "Error the 'jnt' TAG(" << tmp_str << ") in the 'joint' TAG, "
+    LOG_WARNING << "Error the 'jnt' TAG(" << tmp_str << ") in the 'joint' TAG, "
         << "require 'yaw', 'knee' or 'hip'";
-  }*/
-  std::string tmp_str = root->Attribute("msg_id");
-  std::string template_str;
-  if (('0' == tmp_str[0]) && ('x' == tmp_str[1])) {
-    // Hex to id
-    template_str = "0x%x";
-  } else {
-    template_str = "%d";
+    ret = false;
   }
-  unsigned int id;
-  sscanf(tmp_str.c_str(), template_str.c_str(), &id);
-  msg_id_ = id;
 
-  root->Attribute("scale",  &scale_);
-  root->Attribute("offset", &offset_);
+  cfg->get_value_fatal(getLabel(), "leg", tmp_str);
+  boost::to_lower(tmp_str);
+  if (0 == tmp_str.compare("fl")) {
+    leg_type_ = LegType::FL;
+  } else if (0 == tmp_str.compare("fr")) {
+    leg_type_ = LegType::FR;
+  } else if (0 == tmp_str.compare("hl")) {
+    leg_type_ = LegType::HL;
+  } else if (0 == tmp_str.compare("hr")) {
+    leg_type_ = LegType::HR;
+  } else {
+    LOG_WARNING << "Error the 'leg' TAG(" << tmp_str << ") in the 'joint' TAG, "
+        << "require 'hl', 'fr', 'hl' or 'hr'";
+    ret = false;
+  }
+
+  cfg->get_value_fatal(getLabel(), "msg_id", msg_id_);
+  cfg->get_value_fatal(getLabel(), "scale",  scale_);
+  cfg->get_value_fatal(getLabel(), "offset", offset_);
+
+  return true;
 }
+
+inline const JntType& Joint::joint_type() const { return jnt_type_; }
+inline const LegType& Joint::leg_type()   const { return leg_type_; }
 
 inline void Joint::updateJointPosition(short _count) {
   double pos = _count * scale_ + offset_;
@@ -132,3 +145,6 @@ inline bool Joint::new_command(Packet* pkt) {
 }
 
 } /* namespace middleware */
+
+#include <class_loader/class_loader_register_macro.h>
+CLASS_LOADER_REGISTER_CLASS(middleware::Joint, middleware::Label)

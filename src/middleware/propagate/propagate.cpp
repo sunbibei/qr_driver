@@ -11,40 +11,39 @@
 
 
 #include "middleware/propagate/propagate.h"
-#include "propagate_manager.h"
+#include "middleware/propagate/propagate_manager.h"
 
 namespace middleware {
 
 #define PROPA_TAG_NAME  ("propagates")
 
-Propagate::Propagate(const MiiString& name)
-  : Label(name), propa_name_(name) {
+Propagate::Propagate(MiiStringConstRef l)
+  : Label(l), propa_name_("") {
   PropagateManager::instance()->add(this);
 }
-
-Propagate::~Propagate() {
-
-}
-
 bool Propagate::init() {
-  auto item = MiiCfgReader::instance()->find_first_item(PROPA_TAG_NAME);
-  if (!item.is_valid()) {
-    LOG_ERROR << "There is no hyper-parameter about " << PROPA_TAG_NAME;
-    return false;
-  }
-  std::string name = item.get_value("name");
-  propa_name_ = name;
+  MiiString __p;
+  Label::split_label(label_, __p, propa_name_);
   return true;
 }
 
-bool Propagate::write(class Packet*) {
+bool Propagate::write(const Packet&) {
   LOG_ERROR << "Call the base method 'write'";
   return false;
 }
 
-bool Propagate::read(class Packet*) {
+bool Propagate::read(Packet&) {
   LOG_ERROR << "Call the base method 'write'";
   return false;
+}
+
+bool Propagate::start() {
+  LOG_WARNING << "This method (Propagate::start()) should not be called.";
+  return false;
+}
+
+void Propagate::stop() {
+  LOG_WARNING << "This method (Propagate::stop()) should not be called.";
 }
 
 } /* namespace middleware */
