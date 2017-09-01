@@ -74,7 +74,7 @@ bool MiiRobot::init() {
       joint_list_.push_back(j);
       joint_list_by_name_.insert(std::make_pair(n, j));
       if (is_init_list_by_type)
-        joint_list_by_type_[j->leg_type()][j->joint_type()] = j;
+        joint_list_by_type_[j->owner_type()][j->joint_type()] = j;
     }
 
     ss << n << " ";
@@ -138,6 +138,15 @@ void MiiRobot::addCommand(const std::vector<std::string>& names, const std::vect
   }
   for (size_t i = 0; i < names.size(); ++i)
     addCommand(names[i], commands[i]);
+}
+
+void MiiRobot::addCommand(LegType _owner, JntType _jnt, double _command) {
+  joint_manager_;
+}
+
+void MiiRobot::addCommand(const std::vector<LegType>&, const std::vector<JntType>&,
+    const std::vector<double>&) {
+  ;
 }
 
 void MiiRobot::getJointNames(std::vector<std::string>& ret) {

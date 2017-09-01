@@ -20,8 +20,9 @@ public:
   // 妥协方案
   virtual bool init() override;
 
-  const JntType& joint_type() const;
-  const LegType& leg_type()   const;
+  const std::string& joint_name() const;
+  const JntType&     joint_type() const;
+  const LegType&     owner_type() const;
   /**
    * Interface for user layer.
    */
@@ -53,6 +54,7 @@ protected:
 protected:
   JntType             jnt_type_;
   LegType             leg_type_;
+  std::string         jnt_name_;
   double              scale_;
   double              offset_;
 

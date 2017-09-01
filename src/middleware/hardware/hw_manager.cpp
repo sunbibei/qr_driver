@@ -31,7 +31,7 @@ HwManager* HwManager::instance_ = nullptr;
 
 HwManager* HwManager::create_instance() {
   if (nullptr != instance_)
-    LOG_WARNING << "This method is called twice.";
+    LOG_WARNING << "This method 'HwManager::create_instance()' is called twice.";
   else
     instance_ = new HwManager();
 

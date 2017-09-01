@@ -6,6 +6,7 @@
  */
 
 #include "middleware/hardware/joint.h"
+#include "middleware/hardware/joint_manager.h"
 #include "middleware/util/qr_protocol.h"
 #include "system/utils/cfg_reader.h"
 
@@ -40,6 +41,8 @@ Joint::Joint(MiiStringConstRef l)
   : Label(l), new_command_(false), jnt_type_(JntType::UNKNOWN_JNT),
     leg_type_(LegType::UNKNOWN_LEG), scale_(0), offset_(0), msg_id_(INVALID_ID),
     joint_state_(new JointState), joint_command_(new JointCommand) {
+  // The code as follow should be here.
+  // JointManager::instance()->add(this);
 }
 
 bool Joint::init() {
@@ -77,15 +80,17 @@ bool Joint::init() {
     ret = false;
   }
 
+  cfg->get_value_fatal(getLabel(), "name",   jnt_name_);
   cfg->get_value_fatal(getLabel(), "msg_id", msg_id_);
   cfg->get_value_fatal(getLabel(), "scale",  scale_);
   cfg->get_value_fatal(getLabel(), "offset", offset_);
 
+  JointManager::instance()->add(this);
   return ret;
 }
 
 inline const JntType& Joint::joint_type() const { return jnt_type_; }
-inline const LegType& Joint::leg_type()   const { return leg_type_; }
+inline const LegType& Joint::owner_type()   const { return leg_type_; }
 
 inline void Joint::updateJointPosition(short _count) {
   // double pos = _count * scale_ + offset_;

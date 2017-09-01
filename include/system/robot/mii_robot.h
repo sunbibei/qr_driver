@@ -32,12 +32,22 @@ public:
 
 public:
   /**
-   * 设定关节命令, 并发送给机器人
-   * 参数1: 指定关节名称
-   * 参数2: 指定命令数据
+   * @brief This methods add the joint command to Joint object.
+   * @param _name    The name of controlled joint
+   * @param _command The read data of command
    */
-  void addCommand(const std::string&, double command);
+  void addCommand(const std::string& _name, double _command);
   void addCommand(const std::vector<std::string>&, const std::vector<double>&);
+
+  /**
+   * @brief This methods add the joint command to Joint object.
+   * @param _owner  The owner who owns the specific _jnt want to control
+   * @param _jnt    The controlled Joint type
+   * @param command The real data of command
+   */
+  void addCommand(LegType _owner, JntType _jnt, double _command);
+  void addCommand(const std::vector<LegType>&, const std::vector<JntType>&,
+      const std::vector<double>&);
   /**
    * 获取Joint的名称, 位置, 速度, 力矩及JointState等数据
    * 推荐直接使用获取JointState, 可以一次获取全部数据
@@ -64,12 +74,9 @@ protected:
    */
   MiiString                     prefix_tag_;
   class HwManager*              hw_manager_;
-  std::vector<class Joint*>     joint_list_;
-  std::vector<class TouchDown*> td_list_;
+  class JointManager*           jnt_manager_;
 
-  // type: leg * jnt
-  std::vector<std::vector<class Joint*>> joint_list_by_type_;
-  std::map<MiiString, class Joint*>      joint_list_by_name_;
+  std::vector<class TouchDown*>          td_list_;
   // type: leg
   std::vector<class TouchDown*>          td_list_by_type_;
   std::map<MiiString, class TouchDown*>  td_list_by_name_;
