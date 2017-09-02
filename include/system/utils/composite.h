@@ -11,7 +11,7 @@
 #include <map>
 #include <string>
 #include <boost/shared_ptr.hpp>
-#include <system/utils/log.h>
+#include <system/utils/utf.h>
 
 namespace middleware {
 /**

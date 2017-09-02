@@ -5,15 +5,15 @@
  *      Author: bibei
  */
 
+#include <system/utils/utf.h>
 #include "system/utils/auto_instanceor.h"
-#include "system/utils/log.h"
 
 namespace middleware {
 
 std::map<MiiString, Label::LabelPtr> AutoInstanceor::s_inst_table_;
 AutoInstanceor* AutoInstanceor::instance_ = nullptr;
 
-bool AutoInstanceor::create_instance(MiiStringConstRef lib) {
+bool AutoInstanceor::create_instance(ConstRef<MiiString> lib) {
   if (nullptr != instance_) {
     // LOG_WARNING << "Create the AutoInstanceor instance twice!";
     std::cout << "Create the AutoInstanceor instance twice!" << std::endl;
@@ -36,7 +36,7 @@ AutoInstanceor* AutoInstanceor::instance() {
 }
 
 
-AutoInstanceor::AutoInstanceor(MiiStringConstRef lib_path)
+AutoInstanceor::AutoInstanceor(ConstRef<MiiString> lib_path)
   : class_loader_(nullptr) {
   class_loader_ = new class_loader::ClassLoader(lib_path);
 }
@@ -49,7 +49,7 @@ AutoInstanceor::~AutoInstanceor() {
   }
 }
 
-bool AutoInstanceor::make_instance(MiiStringConstRef __type, MiiStringConstRef __l) {
+bool AutoInstanceor::make_instance(ConstRef<MiiString> __type, ConstRef<MiiString> __l) {
   auto class_list = class_loader_->getAvailableClasses<Label>();
   bool found = false;
   std::cout << "Available Classes: ";

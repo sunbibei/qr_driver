@@ -16,7 +16,7 @@ namespace middleware {
 class TouchDown : public Label {
   friend class LegNode;
 public:
-  TouchDown(MiiStringConstRef __l = Label::null);
+  TouchDown(ConstRef<MiiString> __l = Label::null);
 
   // 妥协方案
   virtual bool init() override;

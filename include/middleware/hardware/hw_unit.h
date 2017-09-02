@@ -28,7 +28,7 @@ namespace middleware {
  */
 struct HwUnit : public Label {
   friend class HwManager;
-  HwUnit(MiiStringConstRef __l = Label::null);
+  HwUnit(ConstRef<MiiString> __l = Label::null);
   virtual ~HwUnit();
 
   virtual bool init() override;
@@ -41,13 +41,13 @@ struct HwUnit : public Label {
    * Propagate接收到的所有Message，通过handleMsg职责链完成解析
    * 因此，将所有数据解析工作延迟到每个具体的硬件子类中进行实现
    */
-  virtual void handleMsg(const Packet&);
+  virtual void handleMsg(ConstRef<Packet>);
   /**
    * 某些硬件类型或许会有命令需要下发
    * The new command packet will be pushed back into queue;
    * if generate the Command packet, return true. Or return false.
    */
-  virtual bool generateCmd(std::vector<Packet>&);
+  virtual bool generateCmd(MiiVector<Packet>&);
 
 protected:
   unsigned char node_id_;

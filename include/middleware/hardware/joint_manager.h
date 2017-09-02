@@ -24,7 +24,6 @@ public:
   static void          destroy_instance();
 
   typedef struct {
-
     JntCmdType mode;
     double     val;
   } JointCommand;
@@ -33,7 +32,10 @@ public:
   virtual void add(Joint* _res) override;
 
   void   addJointCommand(LegType, JntType, double);
-  void   addJointCommand(LegType, JntType, double);
+  void   addJointCommand(const MiiVector<LegType>&, const MiiVector<JntType>&, const MiiVector<double>&);
+  void   addJointCommand(const MiiString&, double);
+  void   addJointCommand(const MiiString&, const MiiVector<double>&);
+
   Joint* getJointByType(LegType, JntType);
 
 

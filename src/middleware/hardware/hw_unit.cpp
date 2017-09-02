@@ -6,7 +6,7 @@
  */
 
 #include <middleware/util/proto/dragon.pb.h>
-#include <system/utils/log.h>
+#include <system/utils/utf.h>
 #include "system/utils/cfg_reader.h"
 #include "middleware/hardware/hw_unit.h"
 #include "middleware/hardware/hw_manager.h"
@@ -14,7 +14,7 @@
 
 namespace middleware {
 
-HwUnit::HwUnit(MiiStringConstRef l)
+HwUnit::HwUnit(ConstRef<MiiString> l)
 : Label(l), node_id_(INVALID_ID) {
   HwManager::instance()->add(this);
 }
@@ -26,12 +26,12 @@ bool HwUnit::init() {
   return true;
 }
 
-void HwUnit::handleMsg(const Packet&) {
+void HwUnit::handleMsg(ConstRef<Packet>) {
   ;
 }
 
 HwUnit::~HwUnit()                 { }
-bool HwUnit::generateCmd(std::vector<Packet>&) { return false;  }
+bool HwUnit::generateCmd(MiiVector<Packet>&) { return false;  }
 bool HwUnit::requireCmdDeliver()  { return true;   }
 
 } /* namespace quadruped_robot_driver */

@@ -9,9 +9,8 @@
 #include "middleware/hardware/leg_node.h"
 #include "middleware/hardware/joint.h"
 #include "system/utils/cfg_reader.h"
-#include "system/utils/log.h"
-
 #include <boost/algorithm/string.hpp>
+#include <system/utils/utf.h>
 
 namespace middleware {
 

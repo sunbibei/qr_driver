@@ -18,7 +18,7 @@ namespace middleware {
 
 class AutoInstanceor {
 public:
-  static bool            create_instance(MiiStringConstRef);
+  static bool            create_instance(ConstRef<MiiString>);
   static void            destroy_instance();
   static AutoInstanceor* instance();
 
@@ -31,17 +31,17 @@ public:
    * @param __type The type of object to create
    * @param __l    The label for object
    */
-  bool make_instance(MiiStringConstRef __type, MiiStringConstRef __l);
+  bool make_instance(ConstRef<MiiString> __type, ConstRef<MiiString> __l);
 
 protected:
-  AutoInstanceor(MiiStringConstRef);
+  AutoInstanceor(ConstRef<MiiString>);
   virtual ~AutoInstanceor();
 
   static AutoInstanceor* instance_;
 
 protected:
-  static std::map<MiiString, Label::LabelPtr> s_inst_table_;
-  class_loader::ClassLoader*           class_loader_;
+  static MiiMap<MiiString, Label::LabelPtr> s_inst_table_;
+  class_loader::ClassLoader*                class_loader_;
 };
 
 } /* namespace middleware */

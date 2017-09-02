@@ -6,10 +6,10 @@
  */
 
 #include <middleware/hardware/hw_manager.h>
-#include <system/utils/log.h>
 #include "middleware/propagate/propagate_manager.h"
 
 #include <boost/bind.hpp>
+#include <system/utils/utf.h>
 
 namespace middleware {
 

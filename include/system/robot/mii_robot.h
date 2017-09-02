@@ -12,6 +12,7 @@
 #include <vector>
 
 #include "system/label/label.h"
+#include "middleware/util/proto/dragon.pb.h"
 
 namespace middleware {
 
@@ -44,26 +45,26 @@ public:
    * @param command The real data of command
    */
   void addCommand(LegType _owner, JntType _jnt, double _command);
-  void addCommand(const std::vector<LegType>&, const std::vector<JntType>&,
-      const std::vector<double>&);
+  void addCommand(ConstRef<MiiVector<LegType>>, ConstRef<MiiVector<JntType>>,
+      ConstRef<MiiVector<double>>);
   /**
    * 获取Joint的名称, 位置, 速度, 力矩及JointState等数据
    * 推荐直接使用获取JointState, 可以一次获取全部数据
    */
-  void getJointNames(std::vector<std::string>&);
-  void getJointPositions(std::vector<double>&);
-  void getJointVelocities(std::vector<double>&);
-  void getJointTorques(std::vector<double>&);
+  void getJointNames(MiiVector<MiiString>&);
+  void getJointPositions(MiiVector<double>&);
+  void getJointVelocities(MiiVector<double>&);
+  void getJointTorques(MiiVector<double>&);
 
 public:
-  static void auto_inst(MiiStringConstRef __p, MiiStringConstRef __type);
+  static void auto_inst(ConstRef<MiiString> __p, ConstRef<MiiString> __type);
 
 protected:
   /**
    * @brief Constructed function.
    * @param __tag Every necessary parameters will be found in this __tag
    */
-  MiiRobot(MiiStringConstRef __tag);
+  MiiRobot(ConstRef<MiiString> __tag);
   virtual ~MiiRobot();
 
   /**
@@ -74,10 +75,10 @@ protected:
   class HwManager*              hw_manager_;
   class JointManager*           jnt_manager_;
 
-  std::vector<class TouchDown*>          td_list_;
+  MiiVector<class TouchDown*>          td_list_;
   // type: leg
-  std::vector<class TouchDown*>          td_list_by_type_;
-  std::map<MiiString, class TouchDown*>  td_list_by_name_;
+  MiiVector<class TouchDown*>          td_list_by_type_;
+  MiiMap<MiiString, class TouchDown*>  td_list_by_name_;
 };
 
 } /* namespace middleware */

@@ -6,7 +6,7 @@
  */
 
 #include <middleware/util/proto/dragon.pb.h>
-#include "system/utils/log.h"
+#include <system/utils/utf.h>
 #include "system/utils/cfg_reader.h"
 
 

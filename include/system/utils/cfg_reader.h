@@ -8,7 +8,7 @@
 #ifndef INCLUDE_SYSTEM_UTILS_CFG_READER_H_
 #define INCLUDE_SYSTEM_UTILS_CFG_READER_H_
 
-#include "system/utils/log.h"
+#include <system/utils/utf.h>
 #include "system/label/label.h"
 
 #include <vector>
@@ -22,7 +22,7 @@ public:
   /**
    * Given the configure file name and create the instance.
    */
-  static bool create_instance(const std::string& file);
+  static bool create_instance(ConstRef<MiiString> file);
   static bool destroy_instance();
 
 public:
@@ -31,8 +31,8 @@ public:
    * @param __p        The parent of tag which contains the specific attribute.
    * @param __attr_val The value of __attr under the __p tag.
    */
-  typedef void (*Callback)(MiiStringConstRef __p, MiiStringConstRef __attr_val);
-  void registerCallbackAndExcute(const MiiString& __attr, Callback);
+  typedef void (*Callback)(ConstRef<MiiString> __p, ConstRef<MiiString> __attr_val);
+  void registerCallbackAndExcute(ConstRef<MiiString> __attr, Callback);
 
 public:
   /**
@@ -44,15 +44,15 @@ public:
    *  @return  Return true if this attribute has found, or return false.
   */
   template<class _Type>
-  bool get_value(const MiiString& p, const MiiString& attr, _Type& val, const _Type& def);
+  bool get_value(ConstRef<MiiString> p, ConstRef<MiiString> attr, _Type& val, const _Type& def);
   template<class _Type>
-  bool get_value(const MiiString& p, const MiiString& attr, _Type& val);
+  bool get_value(ConstRef<MiiString> p, ConstRef<MiiString> attr, _Type& val);
   template<class _Type>
-  bool get_value(const MiiString& p, const MiiString& attr, std::vector<_Type>& vals);
+  bool get_value(ConstRef<MiiString> p, ConstRef<MiiString> attr, MiiVector<_Type>& vals);
   ////////////////// Template Specialization
-  bool get_value(const MiiString& p, const MiiString& attr, std::vector<bool>&);
-  bool get_value(const MiiString& p, const MiiString& attr, std::vector<char>&);
-  bool get_value(const MiiString& p, const MiiString& attr, std::vector<unsigned char>&);
+  bool get_value(ConstRef<MiiString> p, ConstRef<MiiString> attr, MiiVector<bool>&);
+  bool get_value(ConstRef<MiiString> p, ConstRef<MiiString> attr, MiiVector<char>&);
+  bool get_value(ConstRef<MiiString> p, ConstRef<MiiString> attr, MiiVector<unsigned char>&);
 
   /**
    *  @brief  Find the value of @p.@attr in the configure file.
@@ -63,12 +63,12 @@ public:
    *  @return  Return true if this attribute has found, or return false.
   */
   template<class _Type>
-  void get_value_fatal(const MiiString& p, const MiiString& attr, _Type& val);
+  void get_value_fatal(ConstRef<MiiString> p, ConstRef<MiiString> attr, _Type& val);
   template<class _Type>
-  void get_value_fatal(const MiiString& p, const MiiString& attr, std::vector<_Type>& vals);
+  void get_value_fatal(ConstRef<MiiString> p, ConstRef<MiiString> attr, MiiVector<_Type>& vals);
 
 private:
-  MiiCfgReader(const std::string& file);
+  MiiCfgReader(ConstRef<MiiString> file);
   virtual ~MiiCfgReader();
   static MiiCfgReader* instance_;
   TiXmlElement* root_;
@@ -83,18 +83,18 @@ private:
 ////////////        The implementation of template methods         ////////////
 ///////////////////////////////////////////////////////////////////////////////
 // The helper method's forward declaration
-bool __get_value_helper(TiXmlElement* __root, const MiiString& p,
-    const MiiString& __attr, bool fatal, const char** __pAttr);
+bool __get_value_helper(TiXmlElement* __root, ConstRef<MiiString> p,
+    ConstRef<MiiString> __attr, bool fatal, const char** __pAttr);
 
 template<class _Type>
-bool MiiCfgReader::get_value(const MiiString& p, const MiiString& attr, _Type& val, const _Type& def) {
+bool MiiCfgReader::get_value(ConstRef<MiiString> p, ConstRef<MiiString> attr, _Type& val, const _Type& def) {
   if (!get_value(p, attr, val))
     val = def;
 
   return true;
 }
 template<class _Type>
-bool MiiCfgReader::get_value(const MiiString& p, const MiiString& attr, _Type& val) {
+bool MiiCfgReader::get_value(ConstRef<MiiString> p, ConstRef<MiiString> attr, _Type& val) {
   std::vector<_Type> __vals;
   if ((!get_value(p, attr, __vals)) || (__vals.empty())) return false;
 
@@ -103,7 +103,7 @@ bool MiiCfgReader::get_value(const MiiString& p, const MiiString& attr, _Type& v
 }
 
 template<class _Type>
-bool MiiCfgReader::get_value(const MiiString& p, const MiiString& attr, std::vector<_Type>& vals) {
+bool MiiCfgReader::get_value(ConstRef<MiiString> p, ConstRef<MiiString> attr, std::vector<_Type>& vals) {
   const char* __pAttr = nullptr;
   if (!__get_value_helper(root_, p, attr, false, &__pAttr)) return false;
 
@@ -116,7 +116,7 @@ bool MiiCfgReader::get_value(const MiiString& p, const MiiString& attr, std::vec
 }
 
 template<class _Type>
-void MiiCfgReader::get_value_fatal(const MiiString& p, const MiiString& attr, _Type& val) {
+void MiiCfgReader::get_value_fatal(ConstRef<MiiString> p, ConstRef<MiiString> attr, _Type& val) {
   std::vector<_Type> __vals;
   if ((!get_value(p, attr, __vals)) || (__vals.empty()))
     LOG_FATAL << "CfgReader can't found the confiure '" << Label::make_label(p, attr) << "' in the configure file.";
@@ -125,7 +125,7 @@ void MiiCfgReader::get_value_fatal(const MiiString& p, const MiiString& attr, _T
 }
 
 template<class _Type>
-void MiiCfgReader::get_value_fatal(const MiiString& p, const MiiString& attr, std::vector<_Type>& vals) {
+void MiiCfgReader::get_value_fatal(ConstRef<MiiString> p, ConstRef<MiiString> attr, std::vector<_Type>& vals) {
   if (!get_value(p, attr, vals))
     LOG_FATAL << "CfgReader can't found the confiure '" << Label::make_label(p, attr) << "' in the configure file.";
 }

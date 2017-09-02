@@ -11,14 +11,11 @@
 #include <string>
 #include <map>
 
-#include "system/utils/log.h"
 #include <boost/shared_ptr.hpp>
+#include <system/utils/utf.h>
 
 
 namespace middleware {
-
-typedef std::string         MiiString;
-typedef const std::string&  MiiStringConstRef;
 
 class Label {
   friend class AutoInstanceor;
@@ -26,18 +23,18 @@ public:
   typedef boost::shared_ptr<Label> LabelPtr;
   const static MiiString null;
 
-  Label(MiiStringConstRef l, MiiStringConstRef p = Label::null);
-  Label(MiiStringConstRef l, const Label& p);
-  Label(MiiStringConstRef l, LabelPtr p);
-  Label(MiiStringConstRef l, Label* p);
+  Label(ConstRef<MiiString> l, ConstRef<MiiString> p = Label::null);
+  Label(ConstRef<MiiString> l, const Label& p);
+  Label(ConstRef<MiiString> l, LabelPtr p);
+  Label(ConstRef<MiiString> l, Label* p);
 
   virtual ~Label();
 
-  MiiStringConstRef getLabel() { return label_; }
-  MiiStringConstRef getLabel() const { return label_; }
+  ConstRef<MiiString> getLabel() { return label_; }
+  ConstRef<MiiString> getLabel() const { return label_; }
 
-  static MiiString make_label  (MiiStringConstRef, MiiStringConstRef);
-  static MiiString parent_label(MiiStringConstRef);
+  static MiiString make_label  (ConstRef<MiiString>, ConstRef<MiiString>);
+  static MiiString parent_label(ConstRef<MiiString>);
   static void      split_label (MiiString, MiiString&, MiiString&);
 
   template<class _Hardware>
@@ -67,19 +64,19 @@ protected:
    */
   virtual bool init();
 
-  static std::map<MiiString, LabelPtr>& label_table() { return s_label_table_; }
+  static MiiMap<MiiString, LabelPtr>& label_table() { return s_label_table_; }
 
   /**
    * TODO
    * 不应该出现的函数，并且还使用了友元类的方式才解决了注册问题。
    * 妥协方案，下一步应该处理这个问题
    */
-  static void registerClass(LabelPtr& l_sp, MiiStringConstRef __l) {
+  static void registerClass(LabelPtr& l_sp, ConstRef<MiiString> __l) {
     label_table().insert(std::make_pair(l_sp->getLabel(), l_sp));
   }
 
 private:
-  static std::map<MiiString, LabelPtr> s_label_table_;
+  static MiiMap<MiiString, LabelPtr> s_label_table_;
 };
 
 
@@ -88,7 +85,7 @@ private:
 ////////////        The implementation of template methods         ////////////
 ///////////////////////////////////////////////////////////////////////////////
 template<class _Hardware>
-_Hardware* Label::getHardwareByName(MiiStringConstRef l) {
+_Hardware* Label::getHardwareByName(ConstRef<MiiString> l) {
   auto hw = label_table().find(l);
   if ((label_table().end() == hw)
       || (nullptr == boost::dynamic_pointer_cast<_Hardware>(hw->second))) {

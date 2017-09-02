@@ -13,7 +13,7 @@
 #include <chrono>
 #include <tinyxml.h>
 #include <boost/algorithm/string.hpp>
-#include <system/utils/log.h>
+#include <system/utils/utf.h>
 
 namespace middleware {
 struct JointState {
