@@ -23,6 +23,12 @@ public:
   static JointManager* instance();
   static void          destroy_instance();
 
+  typedef struct {
+
+    JntCmdType mode;
+    double     val;
+  } JointCommand;
+
 public:
   virtual void add(Joint* _res) override;
 

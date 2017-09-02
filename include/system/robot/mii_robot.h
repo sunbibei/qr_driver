@@ -24,9 +24,7 @@ public:
    *        MiiCfgReader etc. Throw a fatal exception if something is wrong.
    */
   virtual void create_system_instance() = 0;
-  /**
-   * 子类在实现本函数时，必须完成初始化MiiCfgReader对象
-   */
+
   virtual bool init();
   virtual bool start();
 
