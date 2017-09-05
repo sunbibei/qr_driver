@@ -16,7 +16,7 @@ namespace middleware {
 class Joint : public Label {
   friend class LegNode;
 public:
-  Joint(ConstRef<MiiString> l = Label::null);
+  Joint(const MiiString& l = Label::null);
   // 妥协方案
   virtual bool init() override;
 

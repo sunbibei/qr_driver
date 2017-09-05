@@ -25,7 +25,7 @@ WORD          g_interrupt    = 0;
 const unsigned int MAX_TRY_TIMES = 10;
 unsigned int       g_times_count = 0;
 
-PcanChannel::PcanChannel(MiiStringConstRef l)
+PcanChannel::PcanChannel(const MiiString& l)
   : Propagate(l), msg_4_send_(new TPCANMsg), msg_4_recv_(new TPCANMsg) {
   msg_4_send_->MSGTYPE = PCAN_MESSAGE_STANDARD;
 }

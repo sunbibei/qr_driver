@@ -17,7 +17,7 @@ namespace middleware {
 
 #define PROPA_TAG_NAME  ("propagates")
 
-Propagate::Propagate(MiiStringConstRef l)
+Propagate::Propagate(const MiiString& l)
   : Label(l), propa_name_("") {
   PropagateManager::instance()->add(this);
 }

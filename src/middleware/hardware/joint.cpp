@@ -37,7 +37,7 @@ struct JointCommand {
     : /*id_(0), */command_(cmd), mode_(mode) { };
 };
 
-Joint::Joint(MiiStringConstRef l)
+Joint::Joint(const MiiString& l)
   : Label(l), new_command_(false), jnt_type_(JntType::UNKNOWN_JNT),
     leg_type_(LegType::UNKNOWN_LEG), scale_(0), offset_(0), msg_id_(INVALID_ID),
     joint_state_(new JointState), joint_command_(new JointCommand) {

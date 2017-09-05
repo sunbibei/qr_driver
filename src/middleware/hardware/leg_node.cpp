@@ -14,7 +14,7 @@
 
 namespace middleware {
 
-LegNode::LegNode(MiiStringConstRef __l)
+LegNode::LegNode(const MiiString& __l)
   : HwUnit(__l), leg_(LegType::UNKNOWN_LEG), td_(nullptr) {
 }
 

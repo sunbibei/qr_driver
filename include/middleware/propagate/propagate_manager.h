@@ -43,7 +43,6 @@ protected:
   // The interval time between twice RW.(in ms)
   std::chrono::milliseconds  propa_interval_;
   bool                       thread_alive_;
-  std::thread*               propa_thread_;
   // size_t                     pkts_queue_size;
   std::mutex          lock_4_send_;
   std::mutex          lock_4_recv_;

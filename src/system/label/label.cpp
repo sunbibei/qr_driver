@@ -14,7 +14,7 @@ namespace middleware {
 const MiiString                      Label::null = "";
 std::map<MiiString, Label::LabelPtr> Label::s_label_table_;
 
-Label::Label(ConstRef<MiiString> __l, ConstRef<MiiString> __p)
+Label::Label(const MiiString& __l, const MiiString& __p)
 : label_(make_label(__p, __l)) {
   /*std::cout << "table's address: " << &s_label_table_ << std::endl;
   std::cout << "Insert? address: " << this << std::endl;
@@ -22,17 +22,17 @@ Label::Label(ConstRef<MiiString> __l, ConstRef<MiiString> __p)
   std::cout << "After insert, size: " << s_label_table_.size() << std::endl;*/
 }
 
-Label::Label(ConstRef<MiiString> _l, const Label& _obj)
+Label::Label(const MiiString& _l, const Label& _obj)
 : Label(_l, _obj.getLabel()) {
   ;
 }
 
-Label::Label(ConstRef<MiiString> _l, LabelPtr _obj)
+Label::Label(const MiiString& _l, LabelPtr _obj)
 : Label(_l, _obj->getLabel()) {
   ;
 }
 
-Label::Label(ConstRef<MiiString> _l, Label* _obj)
+Label::Label(const MiiString& _l, Label* _obj)
 : Label(_l, _obj->getLabel()) {
   ;
 }
@@ -41,11 +41,11 @@ Label::~Label() {
   // label_table().erase(label_);
 }
 
-MiiString Label::make_label(ConstRef<MiiString> p, ConstRef<MiiString> l) {
+MiiString Label::make_label(const MiiString& p, const MiiString& l) {
   return MiiString(p + COMMA + l);
 }
 
-MiiString Label::parent_label(ConstRef<MiiString> l) {
+MiiString Label::parent_label(const MiiString& l) {
   size_t p = l.rfind(COMMA);
   if (MiiString::npos == p)
     return null;

@@ -78,7 +78,7 @@ MiiCfgReader* MiiCfgReader::instance() {
   return instance_;
 }
 
-bool MiiCfgReader::create_instance(const std::string& file) {
+bool MiiCfgReader::create_instance(const MiiString& file) {
   if (nullptr != instance_) {
     std::cout << "Create the CfgReader twice!" << std::endl;
     return false;
@@ -103,7 +103,7 @@ bool MiiCfgReader::destroy_instance() {
   return true;
 }
 
-MiiCfgReader::MiiCfgReader(const std::string& file)
+MiiCfgReader::MiiCfgReader(const MiiString& file)
 : root_(xml_doc->RootElement()) {
   ;
 }
@@ -158,7 +158,7 @@ bool MiiCfgReader::get_value(const MiiString& p, const MiiString& attr,
 }
 
 bool MiiCfgReader::get_value(const MiiString& p, const MiiString& attr,
-    std::vector<char>& vals) {
+    MiiVector<char>& vals) {
 
   std::vector<std::string> vals_str;
   if (!get_value(p, attr, vals_str)) return false;
@@ -179,7 +179,7 @@ bool MiiCfgReader::get_value(const MiiString& p, const MiiString& attr,
   return true;
 }
 
-bool MiiCfgReader::get_value(const MiiString& p, const MiiString& attr, std::vector<unsigned char>& vals) {
+bool MiiCfgReader::get_value(const MiiString& p, const MiiString& attr, MiiVector<unsigned char>& vals) {
   std::vector<char> vals_char;
   if (!get_value(p, attr, vals_char) || vals_char.empty()) return false;
 

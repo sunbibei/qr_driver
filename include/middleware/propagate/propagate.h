@@ -18,7 +18,7 @@ namespace middleware {
 class Propagate : public Label {
   friend class PropagateManager;
 public:
-  Propagate(MiiStringConstRef);
+  Propagate(const MiiString&);
   // 妥协方案
   virtual bool init() override;
 

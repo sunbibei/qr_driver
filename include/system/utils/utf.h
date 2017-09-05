@@ -1,6 +1,6 @@
 /*
  * utf.h
- * Uniform Type Define file defines all of the typedef or macro.
+ * Uniform Type define File defines all of the typedef or macro.
  *
  *  Created on: Jan 16, 2017
  *      Author: silence

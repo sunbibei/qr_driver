@@ -53,9 +53,9 @@ void JointManager::add(Joint* _res) {
     return;
   }
 
-  if (jnt_list_by_type_.size() <= _res->owner_type())
+  if (jnt_list_by_type_.size() <= (size_t)_res->owner_type())
     jnt_list_by_type_.resize(_res->owner_type() + 1);
-  if (jnt_list_by_type_[_res->owner_type()].size() <= _res->joint_type())
+  if (jnt_list_by_type_[_res->owner_type()].size() <= (size_t)_res->joint_type())
     jnt_list_by_type_.resize(_res->joint_type() + 1);
 
   jnt_list_by_type_[_res->owner_type()][_res->joint_type()] = _res;

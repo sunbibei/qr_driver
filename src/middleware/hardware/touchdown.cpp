@@ -18,7 +18,7 @@ struct TDState {
   double data;
 };
 
-TouchDown::TouchDown(MiiStringConstRef l)
+TouchDown::TouchDown(const MiiString& l)
   : Label(l),leg_type_(LegType::UNKNOWN_LEG),
     msg_id_(0), td_state_(new TDState),
     scale_(0), offset_(0) {

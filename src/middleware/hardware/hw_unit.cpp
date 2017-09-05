@@ -14,7 +14,7 @@
 
 namespace middleware {
 
-HwUnit::HwUnit(ConstRef<MiiString> l)
+HwUnit::HwUnit(const MiiString& l)
 : Label(l), node_id_(INVALID_ID) {
   HwManager::instance()->add(this);
 }
@@ -26,7 +26,7 @@ bool HwUnit::init() {
   return true;
 }
 
-void HwUnit::handleMsg(ConstRef<Packet>) {
+void HwUnit::handleMsg(const Packet&) {
   ;
 }
 

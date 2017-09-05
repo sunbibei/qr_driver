@@ -6,6 +6,8 @@
  */
 
 #include "middleware/propagate/propagate_manager.h"
+#include "system/thread/threadpool.h"
+
 #include <boost/bind.hpp>
 
 namespace middleware {
@@ -40,6 +42,7 @@ namespace middleware {
     } \
     t0 = std::chrono::high_resolution_clock::now();
 
+const MiiString THREAD_NAME = "propagate";
 const size_t MAX_QUEUE_SIZE = 1024;
 PropagateManager* PropagateManager::instance_ = nullptr;
 
@@ -52,18 +55,14 @@ PropagateManager* PropagateManager::instance() {
 }
 
 PropagateManager::PropagateManager()
-  : propa_interval_(20), thread_alive_(true), propa_thread_(nullptr) {
+  : propa_interval_(20), thread_alive_(true) {
   pkts_queue_4_send_.reserve(MAX_QUEUE_SIZE);
   pkts_queue_4_recv_.reserve(MAX_QUEUE_SIZE);
 }
 
 PropagateManager::~PropagateManager() {
   thread_alive_ = false;
-  if (nullptr != propa_thread_) {
-    propa_thread_->join();
-    delete propa_thread_;
-    propa_thread_ = nullptr;
-  }
+  ThreadPool::instance()->stop(THREAD_NAME);
 
   /*if (!pkts_queue_4_send_.empty()) {
     for (auto& pkt : pkts_queue_4_send_) {
@@ -81,7 +80,7 @@ PropagateManager::~PropagateManager() {
 }
 
 bool PropagateManager::run() {
-  if (nullptr != propa_thread_) {
+  if (ThreadPool::instance()->is_running(THREAD_NAME)) {
     LOG_WARNING << "Call PropagateManager::run() twice!";
     return false;
   }
@@ -92,10 +91,13 @@ bool PropagateManager::run() {
     else
       LOG_INFO << "The propagate '" << c->propa_name_ << "' has started.";
   }
-  propa_thread_ = new std::thread(
+
+  ThreadPool::instance()->add(THREAD_NAME, &PropagateManager::updatePktsQueues, this);
+
+  /*propa_thread_ = new std::thread(
             boost::bind(&PropagateManager::updatePktsQueues, this));
   LOG_INFO << "The propagate thread which for the real-time message communication "
-      << "has started.";
+      << "has started.";*/
   return true;
 }
 

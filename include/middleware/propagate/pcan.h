@@ -17,7 +17,7 @@ namespace middleware {
 
 class PcanChannel: public Propagate {
 public:
-  PcanChannel(MiiStringConstRef l = "pcan");
+  PcanChannel(const MiiString& l = "pcan");
   virtual bool init() override;
 
   virtual bool start() override;

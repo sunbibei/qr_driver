@@ -256,7 +256,7 @@ void RosWrapper::cancelCB(
 }
 
 void RosWrapper::publishRTMsg() {
-  // ros::Publisher joint_pub = nh_.advertise<sensor_msgs::JointState>("joint_states", 1);
+  ros::Publisher joint_pub = nh_.advertise<sensor_msgs::JointState>("joint_states", 1);
   std::chrono::high_resolution_clock::time_point t0;
   std::chrono::milliseconds sleep_time;
 

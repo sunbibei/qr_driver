@@ -15,7 +15,7 @@ namespace middleware {
 
 class LegNode: public HwUnit {
 public:
-  LegNode(MiiStringConstRef __l = Label::null);
+  LegNode(const MiiString& __l = Label::null);
   virtual bool init() override;
 
   virtual ~LegNode();
