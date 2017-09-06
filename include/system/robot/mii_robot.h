@@ -11,8 +11,7 @@
 #include <map>
 #include <vector>
 
-#include "system/label/label.h"
-#include "middleware/util/proto/dragon.pb.h"
+#include "system/foundation/utf.h"
 
 namespace middleware {
 
@@ -21,10 +20,10 @@ public:
   /**
    * @brief The pure virtual function is asked to implemented by subclass.
    *        These task should be completed in the function what include but not
-   *        limited to: instantiate JointManger, PropagateManager, HwManager,
-   *        MiiCfgReader etc. Throwing a fatal exception if something is wrong.
+   *        limited to: instantiate JointManger, PropagateManager, HwManager, and
+   *        especially MiiCfgReader. Throwing a fatal exception if something is wrong.
    */
-  virtual void create_system_instance() = 0;
+  virtual void create_system_instance();
 
   virtual bool init();
   virtual bool start();
@@ -55,6 +54,11 @@ public:
   void getJointPositions(MiiVector<double>&);
   void getJointVelocities(MiiVector<double>&);
   void getJointTorques(MiiVector<double>&);
+  /**
+   * @brief Instead of the upper methods, you also use the JointManager directly.
+   */
+  class JointManager* joint_manager()           { return jnt_manager_; }
+  const class JointManager& joint_manager_ref() {return *jnt_manager_; }
 
 public:
   static void auto_inst(const MiiString& __p, const MiiString& __type);

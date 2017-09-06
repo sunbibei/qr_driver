@@ -5,12 +5,7 @@
  *      Author: silence
  */
 
-#include <system/utils/parser.h>
-#include "middleware/propagate/propagate.h"
-#include "middleware/middleware.h"
-#include "middleware/hardware/hw_unit.h"
-#include "middleware/ros_wrapper.h"
-
+#include <apps/ros_wrapper.h>
 #include <iostream>
 
 int main(int argc, char* argv[]) {
@@ -22,7 +17,7 @@ int main(int argc, char* argv[]) {
     LOG_INFO << ("use_sim_time is set!!");
   }
 
-  middleware::RosWrapper* interface = middleware::RosWrapper::getInstance();
+  middleware::RosWrapper* interface = middleware::RosWrapper::instance();
   if (nullptr == interface) {
     LOG_FATAL << "Can't get the instance of QrRosWrapper!";
     return -1;

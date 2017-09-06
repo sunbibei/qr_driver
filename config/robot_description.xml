@@ -90,7 +90,7 @@
 	<!-- power_node auto_inst="middleware::Power" node_id="0x08"  /-->
 
 	<!-- User Layer -->
-	<middleware>
+	<wrapper>
 		<!-- The necessary parameters are asked by MiiRobot -->
 		<robot>
 			<joints     names="qr.fl.yaw qr.fl.hip qr.fl.knee
@@ -104,6 +104,6 @@
 		<!-- The necessary parameters are asked by RosWrapper -->
 		<roswrapper>
 		</roswrapper>
-	</middleware>
+	</wrapper>
 
 </qr>

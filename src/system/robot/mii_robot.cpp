@@ -5,16 +5,16 @@
  *      Author: silence
  */
 
-#include <system/robot/mii_robot.h>
-#include <system/utils/cfg_reader.h>
-#include <system/utils/utf.h>
-#include "middleware/hardware/hw_manager.h"
-#include "middleware/hardware/joint.h"
-#include "middleware/hardware/joint_manager.h"
-#include "middleware/hardware/touchdown.h"
-
-#include "system/utils/auto_instanceor.h"
-#include "system/label/label.h"
+#include <system/resources/joint.h>
+#include <system/foundation/label.h>
+#include <system/resources/touchdown.h>
+#include <system/platform/hw_manager.h>
+#include <system/resources/joint_manager.h>
+#include <system/platform/propagate_manager.h>
+#include "system/robot/mii_robot.h"
+#include "system/foundation/cfg_reader.h"
+#include "system/platform/thread/threadpool.h"
+#include "system/foundation/auto_instanceor.h"
 
 namespace middleware {
 
@@ -40,6 +40,24 @@ MiiRobot::~MiiRobot() {
   ;
 }
 
+/**
+ * This method creates the part of singleton.
+ */
+void MiiRobot::create_system_instance() {
+  if (nullptr == ThreadPool::create_instance())
+    LOG_WARNING << "Create the singleton 'ThreadPool' has failed.";
+
+  if (nullptr == JointManager::create_instance())
+    LOG_WARNING << "Create the singleton 'JointManager' has failed.";
+
+  if (nullptr == HwManager::create_instance())
+    LOG_WARNING << "Create the singleton 'HwManager' has failed.";
+
+  // The PropagateManager does not instance.
+  // if (nullptr == PropagateManager::create_instance())
+  //   LOG_WARNING << "Create the singleton 'HwManager' has failed.";
+}
+
 bool MiiRobot::init() {
   create_system_instance();
 
@@ -52,6 +70,7 @@ bool MiiRobot::init() {
   // will be instanced here.
   cfg->registerCallbackAndExcute("auto_inst", MiiRobot::auto_inst);
   // Just for debug
+  LOG_WARNING << "Auto instance has finished. The results list as follow:";
   Label::printfEveryInstance();
 
   hw_manager_  = HwManager::instance();
@@ -94,19 +113,31 @@ void MiiRobot::addCommand(const MiiVector<LegType>&, const MiiVector<JntType>&,
 }
 
 void MiiRobot::getJointNames(MiiVector<MiiString>& ret) {
-
+  ret.clear();
+  for (const auto& jnt : *jnt_manager_) {
+    ret.push_back(jnt->joint_name());
+  }
 }
 
 void MiiRobot::getJointPositions(MiiVector<double>& ret) {
-
+  ret.clear();
+  for (const auto& jnt : *jnt_manager_) {
+    ret.push_back(jnt->joint_position());
+  }
 }
 
 void MiiRobot::getJointVelocities(MiiVector<double>& ret) {
-
+  ret.clear();
+  for (const auto& jnt : *jnt_manager_) {
+    ret.push_back(jnt->joint_velocity());
+  }
 }
 
 void MiiRobot::getJointTorques(MiiVector<double>& ret) {
-
+  ret.clear();
+  for (const auto& jnt : *jnt_manager_) {
+    ret.push_back(jnt->joint_torque());
+  }
 }
 
 } /* namespace middleware */
