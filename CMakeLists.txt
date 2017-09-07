@@ -59,6 +59,7 @@ set(SYS_FLATFORM_FILES  ${SRC_SYS_FOUNDATION}/label.cpp
                         ${SRC_SYS_PLATFORM}/hw_unit/leg_node.cpp
                         ${SRC_SYS_PLATFORM}/propagate/propagate.cpp
                         ${SRC_SYS_PLATFORM}/propagate/pcan.cpp
+                        ${SRC_SYS_PLATFORM}/propagate/pcan_fake.cpp
                         ${SRC_SYS_PLATFORM}/propagate/propagate_manager.cpp
                         ${SRC_SYS_PLATFORM}/thread/threadpool.cpp
 

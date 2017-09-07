@@ -18,6 +18,7 @@ namespace middleware {
 class PcanChannel: public Propagate {
 public:
   PcanChannel(const MiiString& l = "pcan");
+  ~PcanChannel();
   virtual bool init() override;
 
   virtual bool start() override;
@@ -26,7 +27,7 @@ public:
   virtual bool write(const class Packet&) override;
   virtual bool read (class Packet&)       override;
 
-private:
+protected:
   TPCANMsg*     msg_4_send_;
   TPCANMsg*     msg_4_recv_;
   bool          connected_;

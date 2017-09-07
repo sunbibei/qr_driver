@@ -53,7 +53,7 @@ bool LegNode::init() {
   int count = 0;
   unsigned char max_id = 0x00;
   MiiString tag = Label::make_label(getLabel(), "joint_0");
-  while(cfg->get_value(tag, "name", tmp_str)) {
+  while(cfg->get_value(tag, "label", tmp_str)) {
     tag = Label::make_label(getLabel(), "joint_" + std::to_string(++count));
     Joint* jnt = Label::getHardwareByName<Joint>(tmp_str);
     LOG_DEBUG << getLabel() << "'s joint_" << count
@@ -76,7 +76,7 @@ bool LegNode::init() {
     joints_by_id_[j->msg_id_] = j;
 
   tag = Label::make_label(getLabel(), "touchdown");
-  if ((cfg->get_value(tag, "name", tmp_str))
+  if ((cfg->get_value(tag, "label", tmp_str))
       && (td_ = Label::getHardwareByName<TouchDown>(tmp_str))) {
     LOG_DEBUG << getLabel() << "'s TD: " << td_->getLabel() << "\t" << td_;
     return true;

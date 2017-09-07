@@ -10,9 +10,11 @@
 #include <system/foundation/utf.h>
 #include "system/platform/thread/threadpool.h"
 
+#include <iomanip>
+
 namespace middleware {
 
-#define HW_MANAGER_THREAD ("hw_manager_thread")
+#define HW_MANAGER_THREAD ("hw_manager")
 const size_t MAX_PKTS_SIZE = 512;
 
 SINGLETON_IMPL(HwManager)
@@ -42,11 +44,15 @@ bool HwManager::init() {
   char* debug_info = new char[1024];
   LOG_INFO << "========================================";
   LOG_INFO << "NAME\t\tADDR\t\tNODE_ID\tCMD";
+  // unsigned char max_node_id = 0x00;
   for (auto hw : res_list_) {
-    memset(debug_info, '\0', 1024 * sizeof(char));
-    sprintf(debug_info, "%s\t0x%02X\t0x%02X\t%d",hw->getLabel().c_str(), hw,
-        hw->node_id_, hw->requireCmdDeliver());
-    LOG_INFO << debug_info;
+    //memset(debug_info, '\0', 1024 * sizeof(char));
+    //sprintf(debug_info, "%s\t0x%02X\t0x%02X\t%d",hw->getLabel().c_str(), hw,
+    //    hw->node_id_, hw->requireCmdDeliver());
+    //LOG_INFO << debug_info;
+    LOG_INFO << hw->getLabel() << "\t" << hw << "\t0x"
+        << std::setw(2) << std::setfill('0') << std::hex << (int)hw->node_id_
+        << "\t" << hw->requireCmdDeliver();
 
     hw_list_by_id_[hw->node_id_] = hw;
     hw_list_by_name_.insert(std::make_pair(hw->getLabel().c_str(), hw));
@@ -74,23 +80,29 @@ bool HwManager::run() {
   }
   LOG_INFO << "Starting PropagateManager";
 
+  thread_alive_ = true;
   ThreadPool::instance()->add(HW_MANAGER_THREAD, &HwManager::tick, this);
   LOG_DEBUG << "==========HwManager::run==========";
   return true;
 }
 
 void HwManager::tick() {
-  for (auto& hw : res_list_) {
+  /*for (auto& hw : res_list_) {
     hw->init();
-  }
-
+  }*/
 
   TIMER_INIT
   while (thread_alive_) {
     packets_.clear();
     propagate_manager_->readPackets(packets_);
     // The manager delivers each packet which read from Propagate for hardware update.
-    for (const auto& pkt : packets_) {
+    for (const Packet& pkt : packets_) {
+      if (false)
+        printf("NODE_ID: 0x%02X, MSG_ID: 0x%02X, LEN: %d, \
+          DATA: 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X\n",
+          pkt.node_id, pkt.msg_id, pkt.size, pkt.data[0],
+          pkt.data[1], pkt.data[2], pkt.data[3], pkt.data[4],
+          pkt.data[5], pkt.data[6], pkt.data[7]);
       hw_list_by_id_[pkt.node_id]->handleMsg(pkt);
     }
 

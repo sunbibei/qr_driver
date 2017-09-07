@@ -30,6 +30,17 @@ PcanChannel::PcanChannel(const MiiString& l)
   msg_4_send_->MSGTYPE = PCAN_MESSAGE_STANDARD;
 }
 
+PcanChannel::~PcanChannel() {
+  if (nullptr == msg_4_send_) {
+    delete msg_4_send_;
+    msg_4_send_ = nullptr;
+  }
+  if (nullptr == msg_4_recv_) {
+    delete msg_4_recv_;
+    msg_4_recv_ = nullptr;
+  }
+}
+
 bool PcanChannel::init() {
   return Propagate::init();
 }

@@ -41,7 +41,8 @@ namespace middleware {
     public: \
     static TYPE* create_instance(__VA_ARGS__); \
     static TYPE* instance(); \
-    static void  destroy_instance();
+    static void  destroy_instance(); \
+    private:
 
 #define SINGLETON_IMPL(TYPE) \
     TYPE* TYPE::instance_ = nullptr; \

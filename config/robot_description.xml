@@ -45,45 +45,48 @@
 	<!-- About propagates, it will be automatic instance and addtion to PropagatesManager -->
 	<!-- These objects as follow communication between the real robot directly -->
 	<propagates name="propagates" >
-		<pcan auto_inst="middleware::PcanChannel"
+		<pcan_fake auto_inst="middleware::PcanChannelFake"
+			output="/home/bibei/output" input="/home/bibei/input"
 			channel="0x51" baud="500" type="0" port="0" interrupt="0" />
+		<!--pcan auto_inst="middleware::PcanChannel"
+			channel="0x51" baud="500" type="0" port="0" interrupt="0" /-->
 	</propagates>
 	
 	<!-- Got the packet message from PropagateManager and update the information of hardware -->
 	<!-- All of the nodes will be managed by HwManager which contains propagates-->
 	<lf name="hardwares" >
 		<node auto_inst="middleware::LegNode" leg="fl" node_id="0x02" >
-			<joint_0     jnt="yaw"  name="qr.fl.yaw"       />
-			<joint_1     jnt="hip"  name="qr.fl.hip"       />
-			<joint_2     jnt="knee" name="qr.fl.knee"      />
-			<touchdown              name="qr.fl.touchdown" />
+			<joint_0     jnt="yaw"  label="qr.fl.yaw"       />
+			<joint_1     jnt="hip"  label="qr.fl.hip"       />
+			<joint_2     jnt="knee" label="qr.fl.knee"      />
+			<touchdown              label="qr.fl.touchdown" />
 		</node>
 	</lf>
 
 	<hl>
 		<node auto_inst="middleware::LegNode" leg="hl" node_id="0x03" >
-			<joint_0     jnt="yaw"  name="qr.hl.yaw"       />
-			<joint_1     jnt="hip"  name="qr.hl.hip"       />
-			<joint_2     jnt="knee" name="qr.hl.knee"      />
-			<touchdown              name="qr.hl.touchdown" />
+			<joint_0     jnt="yaw"  label="qr.hl.yaw"       />
+			<joint_1     jnt="hip"  label="qr.hl.hip"       />
+			<joint_2     jnt="knee" label="qr.hl.knee"      />
+			<touchdown              label="qr.hl.touchdown" />
 		</node>
 	</hl>
 
 	<fr>
 		<node auto_inst="middleware::LegNode" leg="fr" node_id="0x04" >
-			<joint_0     jnt="yaw"  name="qr.fr.yaw"       />
-			<joint_1     jnt="hip"  name="qr.fr.hip"       />
-			<joint_2     jnt="knee" name="qr.fr.knee"      />
-			<touchdown              name="qr.fr.touchdown" />
+			<joint_0     jnt="yaw"  label="qr.fr.yaw"       />
+			<joint_1     jnt="hip"  label="qr.fr.hip"       />
+			<joint_2     jnt="knee" label="qr.fr.knee"      />
+			<touchdown              label="qr.fr.touchdown" />
 		</node>
 	</fr>
 
 	<hr>
 		<node auto_inst="middleware::LegNode" leg="hr" node_id="0x05" >
-			<joint_0     jnt="yaw"  name="qr.hr.yaw"       />
-			<joint_1     jnt="hip"  name="qr.hr.hip"       />
-			<joint_2     jnt="knee" name="qr.hr.knee"      />
-			<touchdown              name="qr.hr.touchdown" />
+			<joint_0     jnt="yaw"  label="qr.hr.yaw"       />
+			<joint_1     jnt="hip"  label="qr.hr.hip"       />
+			<joint_2     jnt="knee" label="qr.hr.knee"      />
+			<touchdown              label="qr.hr.touchdown" />
 		</node>
 	</hr>
 
@@ -93,13 +96,13 @@
 	<wrapper>
 		<!-- The necessary parameters are asked by MiiRobot -->
 		<robot>
-			<joints     names="qr.fl.yaw qr.fl.hip qr.fl.knee
-												 qr.hl.yaw qr.hl.hip qr.hl.knee
-												 qr.fr.yaw qr.fr.hip qr.fr.knee
-												 qr.hr.yaw qr.hr.hip qr.hr.knee" />
+			<joints     labels="qr.fl.yaw qr.fl.hip qr.fl.knee
+												  qr.hl.yaw qr.hl.hip qr.hl.knee
+												  qr.fr.yaw qr.fr.hip qr.fr.knee
+												  qr.hr.yaw qr.hr.hip qr.hr.knee" />
 
-			<touchdowns names="qr.fl.touchdown qr.hl.touchdown
-												 qr.fr.touchdown qr.hr.touchdown" />
+			<touchdowns labels="qr.fl.touchdown qr.hl.touchdown
+												  qr.fr.touchdown qr.hr.touchdown" />
 		</robot>
 		<!-- The necessary parameters are asked by RosWrapper -->
 		<roswrapper>

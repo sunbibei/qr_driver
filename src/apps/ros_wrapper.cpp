@@ -10,6 +10,7 @@
 #include "system/foundation/auto_instanceor.h"
 #include "system/foundation/cfg_reader.h"
 #include "system/platform/thread/threadpool.h"
+#include "system/resources/joint_manager.h"
 
 namespace middleware {
 
@@ -180,6 +181,9 @@ RosWrapper::~RosWrapper() {
 
 #ifdef DEBUG_TOPIC
 void RosWrapper::cbForDebug(const std_msgs::Int32ConstPtr& msg) {
+  for (auto& jnt : *jnt_manager_) {
+    jnt->updateJointCommand(msg->data);
+  }
   // 实现方式0
   /*LOG_INFO << "test write style 0";
   for (auto& jnt : robot_->jnt_names_) {

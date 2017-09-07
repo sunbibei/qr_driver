@@ -9,7 +9,6 @@
 #include <system/foundation/utf.h>
 #include "system/foundation/cfg_reader.h"
 
-
 #include "system/platform/propagate/propagate.h"
 
 namespace middleware {

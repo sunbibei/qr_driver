@@ -65,7 +65,6 @@ bool AutoInstanceor::make_instance(const MiiString& __p, const MiiString& __type
     if (0 == c.compare(__type))
       found = true;
   }
-
   if (!found) {
     LOG_WARNING << "The type " << __type
         << " has not found in the available class list.";
@@ -87,7 +86,7 @@ bool AutoInstanceor::make_instance(const MiiString& __p, const MiiString& __type
     LOG_DEBUG << "Finished to call this instance '" << __inst->getLabel()
         << "'s init()";
     s_inst_table_.insert(std::make_pair(__inst->getLabel(), __inst));
-    Label::registerClass(__inst, __p);
+    Label::registerClass(__inst);
     LOG_INFO << "Instance " << __inst->getLabel() << ", Address: "
         << __inst.get() << ", Count: " << __inst.use_count();
     return true;

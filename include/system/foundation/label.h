@@ -72,7 +72,7 @@ protected:
    * 不应该出现的函数，并且还使用了友元类的方式才解决了注册问题。
    * 妥协方案，下一步应该处理这个问题
    */
-  static void registerClass(LabelPtr& l_sp, const MiiString& __l) {
+  static void registerClass(LabelPtr& l_sp) {
     label_table().insert(std::make_pair(l_sp->getLabel(), l_sp));
   }
 
