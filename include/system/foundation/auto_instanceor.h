@@ -16,10 +16,7 @@
 namespace middleware {
 
 class AutoInstanceor {
-public:
-  static bool            create_instance(const MiiString&);
-  static void            destroy_instance();
-  static AutoInstanceor* instance();
+  SINGLETON_DECLARE(AutoInstanceor, const MiiString&)
 
 public:
   /*template<class _Base>
@@ -27,16 +24,10 @@ public:
 
   /**
    * @brief Create an object about specific __type
+   * @param __p    The tag which contains the type
    * @param __type The type of object to create
-   * @param __l    The label for object
    */
-  bool make_instance(const MiiString& __type, const MiiString& __l);
-
-protected:
-  AutoInstanceor(const MiiString&);
-  virtual ~AutoInstanceor();
-
-  static AutoInstanceor* instance_;
+  bool make_instance(const MiiString& __p, const MiiString& __type);
 
 protected:
   static MiiMap<MiiString, Label::LabelPtr> s_inst_table_;

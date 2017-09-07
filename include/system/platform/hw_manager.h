@@ -10,16 +10,13 @@
 
 #include <system/platform/resource_manager.h>
 #include "system/platform/hw_unit/hw_unit.h"
-
-#include <thread>
+#include <chrono>
 
 namespace middleware {
 
 class HwManager : public ResourceManager<HwUnit> {
+  SINGLETON_DECLARE(HwManager)
 public:
-  static HwManager* create_instance();
-  static HwManager* instance();
-  static void destroy_instance();
   // After all of the hw_unit instance, call it.
   bool init();
   /**
@@ -28,14 +25,11 @@ public:
    */
   bool run();
 protected:
-  HwManager();
-  virtual ~HwManager();
   // tick method
   void tick();
   // The interval time between twice RW.(in ms)
   std::chrono::milliseconds  tick_interval_;
   bool                       thread_alive_;
-  std::thread*               tick_thread_;
 
   class PropagateManager*                propagate_manager_;
   // store all of the hw_unit which order by id
@@ -47,8 +41,6 @@ protected:
 
 private:
   std::vector<Packet> packets_;
-
-  static HwManager* instance_;
 };
 
 } /* namespace middleware */

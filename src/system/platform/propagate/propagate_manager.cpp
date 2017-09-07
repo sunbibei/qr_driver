@@ -5,10 +5,9 @@
  *      Author: bibei
  */
 
-#include "system/platform/thread/threadpool.h"
-
-#include <boost/bind.hpp>
 #include <system/platform/propagate/propagate_manager.h>
+
+#include "system/platform/thread/threadpool.h"
 
 namespace middleware {
 
@@ -29,33 +28,13 @@ namespace middleware {
       if (c->read(pkt)) pkts_queue_4_recv_.push_back(pkt); \
     }
 
-#define TIME_INIT \
-    std::chrono::high_resolution_clock::time_point t0; \
-    std::chrono::milliseconds sleep_time; \
-    t0 = std::chrono::high_resolution_clock::now();
-
-#define TIME_CONTROL(duration) \
-    sleep_time = duration - std::chrono::duration_cast<std::chrono::milliseconds>( \
-        std::chrono::high_resolution_clock::now() - t0); \
-    if (sleep_time.count() > 0) { \
-      std::this_thread::sleep_for(sleep_time); \
-    } \
-    t0 = std::chrono::high_resolution_clock::now();
-
 const MiiString THREAD_NAME = "propagate";
 const size_t MAX_QUEUE_SIZE = 1024;
-PropagateManager* PropagateManager::instance_ = nullptr;
 
-PropagateManager* PropagateManager::instance() {
-  if (nullptr == instance_) {
-    instance_ = new PropagateManager();
-  }
-
-  return instance_;
-}
+SINGLETON_IMPL(PropagateManager)
 
 PropagateManager::PropagateManager()
-  : propa_interval_(20), thread_alive_(true) {
+  : ResourceManager<Propagate>(), propa_interval_(20), thread_alive_(true) {
   pkts_queue_4_send_.reserve(MAX_QUEUE_SIZE);
   pkts_queue_4_recv_.reserve(MAX_QUEUE_SIZE);
 }
@@ -63,20 +42,6 @@ PropagateManager::PropagateManager()
 PropagateManager::~PropagateManager() {
   thread_alive_ = false;
   ThreadPool::instance()->stop(THREAD_NAME);
-
-  /*if (!pkts_queue_4_send_.empty()) {
-    for (auto& pkt : pkts_queue_4_send_) {
-      delete pkt;
-      pkt = nullptr;
-    }
-  }
-
-  if (!pkts_queue_4_recv_.empty()) {
-    for (auto& pkt : pkts_queue_4_recv_) {
-      delete pkt;
-      pkt = nullptr;
-    }
-  }*/
 }
 
 bool PropagateManager::run() {
@@ -84,25 +49,25 @@ bool PropagateManager::run() {
     LOG_WARNING << "Call PropagateManager::run() twice!";
     return false;
   }
-
-  for (auto& c : res_list_) {
+  LOG_DEBUG << "==========PropagateManager::run==========";
+  LOG_DEBUG << "resource list: ";
+  LOG_DEBUG << "size: " << ResourceManager<Propagate>::size();
+  for (auto c : res_list_) {
+    // for (auto c = begin(); c != end(); ++c) {
+    LOG_INFO << c->getLabel() << " is starting.";
     if (!c->start())
       LOG_WARNING << "The propagate '" << c->propa_name_ << "' starting fail.";
     else
       LOG_INFO << "The propagate '" << c->propa_name_ << "' has started.";
   }
 
+  LOG_INFO << "Started the all of propagate!";
   ThreadPool::instance()->add(THREAD_NAME, &PropagateManager::updatePktsQueues, this);
-
-  /*propa_thread_ = new std::thread(
-            boost::bind(&PropagateManager::updatePktsQueues, this));
-  LOG_INFO << "The propagate thread which for the real-time message communication "
-      << "has started.";*/
   return true;
 }
 
 void PropagateManager::updatePktsQueues() {
-  TIME_INIT
+  TIMER_INIT
   while (thread_alive_) {
     MUTEX_TRY_LOCK(lock_4_send_)
     SEND_EVERY_PTKS
@@ -112,7 +77,7 @@ void PropagateManager::updatePktsQueues() {
     RECV_EVERY_PTKS
     MUTEX_UNLOCK(lock_4_recv_)
 
-    TIME_CONTROL(propa_interval_)
+    TIMER_CONTROL(propa_interval_)
   }
 }
 

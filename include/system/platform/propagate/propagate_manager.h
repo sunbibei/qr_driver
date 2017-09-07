@@ -12,16 +12,12 @@
 #include <system/platform/resource_manager.h>
 #include "system/platform/propagate/propagate.h"
 
-#include <thread>
 #include <mutex>
 
 namespace middleware {
 
 class PropagateManager: public ResourceManager<Propagate> {
-public:
-  virtual ~PropagateManager();
-  static PropagateManager* instance();
-
+  SINGLETON_DECLARE(PropagateManager)
 public:
   /**
    * @brief This method will starts a propagate thread for reading and writing Packets
@@ -37,9 +33,6 @@ public:
   bool writePackets(const std::vector<Packet>&);
 
 protected:
-  PropagateManager();
-  static PropagateManager* instance_;
-
   // The interval time between twice RW.(in ms)
   std::chrono::milliseconds  propa_interval_;
   bool                       thread_alive_;

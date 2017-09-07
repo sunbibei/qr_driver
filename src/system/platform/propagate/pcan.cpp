@@ -25,7 +25,8 @@ const unsigned int MAX_TRY_TIMES = 10;
 unsigned int       g_times_count = 0;
 
 PcanChannel::PcanChannel(const MiiString& l)
-  : Propagate(l), msg_4_send_(new TPCANMsg), msg_4_recv_(new TPCANMsg) {
+  : Propagate(l), msg_4_send_(new TPCANMsg), msg_4_recv_(new TPCANMsg),
+    connected_(false) {
   msg_4_send_->MSGTYPE = PCAN_MESSAGE_STANDARD;
 }
 
@@ -34,22 +35,24 @@ bool PcanChannel::init() {
 }
 
 bool PcanChannel::start() {
+  connected_ = false;
   // try to 10 times
   for (g_times_count = 0; g_times_count < MAX_TRY_TIMES; ++g_times_count) {
     g_status_ = CAN_Initialize(g_channel, g_baud_rate, g_type, g_port, g_interrupt);
-    if (PCAN_ERROR_OK != g_status_){
+    connected_ = (PCAN_ERROR_OK == g_status_);
+    if (!connected_) {
       LOG_WARNING << "(" << g_times_count + 1 << "/10) Initialize CAN FAIL, "
           "status code: " << g_status_ << ", Waiting 500ms... ...";
       // Waiting 500ms
       std::this_thread::sleep_for(std::chrono::milliseconds(500));
     } else {
       LOG_INFO << "Initialize CAN OK!";
-      return true;
+      return connected_;
     }
   }
 
   LOG_ERROR << "Initialize CAN FAIL!!!";
-  return false;
+  return connected_;
 }
 
 void PcanChannel::stop() {
@@ -68,9 +71,12 @@ void PcanChannel::stop() {
   }
 
   LOG_ERROR << "Uninitialize CAN FAIL!!!";
+  connected_ = false;
 }
 
 bool PcanChannel::write(const Packet& pkt) {
+  // static int g_w_err_count = 0;
+  // if (!connected_) { return connected_; }
   // This code aims to compatible with the old protocol
   // TODO It should be updated.
   msg_4_send_->ID  = pkt.node_id;
@@ -89,10 +95,11 @@ bool PcanChannel::write(const Packet& pkt) {
       // Waiting 50ms
       std::this_thread::sleep_for(std::chrono::milliseconds(50));
     } else
+      // g_w_err_count = 0;
       return true;
   }
 
-  LOG_ERROR << "Write CAN FAIL!!!";
+  LOG_EVERY_N(ERROR, 10) << "Write CAN FAIL!!!";
   return false;
 }
 
@@ -100,13 +107,14 @@ bool PcanChannel::read(Packet& pkt) {
   g_times_count = 0;
   while ((g_status_ = CAN_Read(g_channel, msg_4_recv_, nullptr)) == PCAN_ERROR_QRCVEMPTY){
     std::this_thread::sleep_for(std::chrono::milliseconds(5));
-    if (g_times_count++ >= MAX_TRY_TIMES) return false;
+    if (g_times_count++ >= MAX_TRY_TIMES) break;
   }
+  if (PCAN_ERROR_OK != g_status_) return false;
 
   // This code aims to compatible with the old protocol
   // TODO It should be updated.
   if (msg_4_recv_->LEN < 3) {
-    LOG_WARNING << "Error Message from can bus, this length of message data is "
+    LOG_EVERY_N(ERROR, 10) << "Error Message from can bus, this length of message data is "
         << msg_4_recv_->LEN;
     return false;
   }

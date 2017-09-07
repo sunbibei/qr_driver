@@ -18,32 +18,7 @@ struct __PrivateThreadVar {
   __PrivateThreadVar() : thread_started_(false), thread_handle_(nullptr) { }
 };
 
-ThreadPool* ThreadPool::instance_ = nullptr;
-ThreadPool* ThreadPool::create_instance() {
-  if (nullptr != instance_) {
-    LOG_WARNING << "This method 'ThreadManager::create_instance()' is called twice.";
-  } else {
-    instance_ = new ThreadPool;
-  }
-
-  return instance_;
-}
-
-ThreadPool* ThreadPool::instance() {
-  if (nullptr == instance_)
-    LOG_WARNING << "This method ThreadManager::instance() should be called after "
-        << "ThreadManager::create_instance()";
-
-  return instance_;
-}
-
-void ThreadPool::destroy_instance() {
-  if (nullptr != instance_) {
-    delete instance_;
-    instance_ = nullptr;
-  }
-}
-
+SINGLETON_IMPL(ThreadPool)
 
 ThreadPool::ThreadPool() {
 }
@@ -65,6 +40,7 @@ bool ThreadPool::start() {
 }
 
 bool ThreadPool::start(const MiiString& __n) {
+  LOG_INFO << "This thread is starting -- " << __n;
   // start the specific named threads
   auto t = thread_funcs_.find(__n);
   if (thread_funcs_.end() == t) {
@@ -78,20 +54,12 @@ bool ThreadPool::start(const MiiString& __n) {
     thread_vars_.insert(std::make_pair(__n, new __PrivateThreadVar));
     thread_vars_[__n]->thread_handle_  = new std::thread(t->second);
     thread_vars_[__n]->thread_started_ = true;
-    LOG_INFO << "This thread(" << __n << ") has started.";
+    LOG_INFO << "This thread has started -- " << __n;
   } else {
     LOG_WARNING << "This thread(" << __n << ") has started ago.";
   }
 
   return true;
-}
-
-bool ThreadPool::start(const MiiVector<MiiString>& __ns) {
-  bool ret = true;
-  for (const auto& __n : __ns)
-    ret = ret && start(__n);
-
-  return ret;
 }
 
 void ThreadPool::stop() {
@@ -105,7 +73,7 @@ void ThreadPool::stop(const MiiString& __n) {
   auto var = thread_vars_.find(__n);
   if (thread_vars_.end() == var) {
     LOG_WARNING << "These is not exist the named thread(" << __n
-        << ") in the thread pool.";
+        << "') in the thread pool.";
     return;
   }
 
@@ -120,22 +88,11 @@ void ThreadPool::stop(const MiiString& __n) {
   }
 
   thread_vars_.erase(var);
-}
-
-void ThreadPool::stop(const MiiVector<MiiString>& __ns) {
-  for (const auto& __n : __ns)
-    stop(__n);
+  LOG_INFO << "The named '" << __n << " thread has stopped.";
 }
 
 bool ThreadPool::is_running(const MiiString& __n) {
-  auto var = thread_vars_.find(__n);
-  if (thread_vars_.end() == var) {
-    LOG_WARNING << "These is not exist the named thread(" << __n
-        << ") in the thread pool.";
-    return false;
-  }
-
-  return true;
+  return (thread_vars_.end() != thread_vars_.find(__n));
 }
 
 } /* namespace middleware */

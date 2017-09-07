@@ -16,13 +16,7 @@
 namespace middleware {
 
 class MiiCfgReader final {
-public:
-  static MiiCfgReader* instance();
-  /**
-   * Given the configure file name and create the instance.
-   */
-  static bool create_instance(const MiiString& file);
-  static bool destroy_instance();
+  SINGLETON_DECLARE(MiiCfgReader, const MiiString&)
 
 public:
   /**
@@ -67,9 +61,6 @@ public:
   void get_value_fatal(const MiiString& p, const MiiString& attr, MiiVector<_Type>& vals);
 
 private:
-  MiiCfgReader(const MiiString& file);
-  virtual ~MiiCfgReader();
-  static MiiCfgReader* instance_;
   TiXmlElement* root_;
 };
 

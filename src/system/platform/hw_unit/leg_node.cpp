@@ -52,14 +52,17 @@ bool LegNode::init() {
 
   int count = 0;
   unsigned char max_id = 0x00;
-  while(cfg->get_value(getLabel(), "joint_" + std::to_string(count++), tmp_str)) {
+  MiiString tag = Label::make_label(getLabel(), "joint_0");
+  while(cfg->get_value(tag, "name", tmp_str)) {
+    tag = Label::make_label(getLabel(), "joint_" + std::to_string(++count));
     Joint* jnt = Label::getHardwareByName<Joint>(tmp_str);
+    LOG_DEBUG << getLabel() << "'s joint_" << count
+        << ": " << tmp_str << ",\t" << jnt;
     if (nullptr == jnt) {
       LOG_WARNING << "Can't get joint '" << tmp_str
           << "' pointer from LabelSystem.";
       continue;
     }
-
     joints_.push_back(jnt);
     if (max_id < jnt->msg_id_) max_id = jnt->msg_id_;
   }
@@ -68,15 +71,19 @@ bool LegNode::init() {
     return false;
   }
 
-  joints_by_id_.resize(max_id);
+  joints_by_id_.resize(++max_id);
   for (auto j : joints_)
     joints_by_id_[j->msg_id_] = j;
 
-  if ((cfg->get_value(getLabel(), "touchdown", tmp_str))
-      && (td_ = Label::getHardwareByName<TouchDown>(tmp_str)))
+  tag = Label::make_label(getLabel(), "touchdown");
+  if ((cfg->get_value(tag, "name", tmp_str))
+      && (td_ = Label::getHardwareByName<TouchDown>(tmp_str))) {
+    LOG_DEBUG << getLabel() << "'s TD: " << td_->getLabel() << "\t" << td_;
     return true;
-  else
+  } else {
+    LOG_WARNING << "The touchdown parameter is not found.";
     return false;
+  }
 }
 
 void LegNode::handleMsg(const Packet& pkt) {
@@ -105,3 +112,6 @@ bool LegNode::generateCmd(std::vector<Packet>& pkts) {
 }
 
 } /* namespace middleware */
+
+#include <class_loader/class_loader_register_macro.h>
+CLASS_LOADER_REGISTER_CLASS(middleware::LegNode, middleware::Label)

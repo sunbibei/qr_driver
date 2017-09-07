@@ -20,6 +20,7 @@ Propagate::Propagate(const MiiString& l)
   : Label(l), propa_name_("") {
   PropagateManager::instance()->add(this);
 }
+
 bool Propagate::init() {
   MiiString __p;
   Label::split_label(label_, __p, propa_name_);

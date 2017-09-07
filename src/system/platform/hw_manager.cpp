@@ -5,66 +5,27 @@
  *      Author: silence
  */
 
-#include <boost/bind.hpp>
 #include <system/platform/hw_manager.h>
 #include <system/platform/propagate/propagate_manager.h>
 #include <system/foundation/utf.h>
+#include "system/platform/thread/threadpool.h"
 
 namespace middleware {
 
-#define TIME_INIT \
-    std::chrono::high_resolution_clock::time_point t0; \
-    std::chrono::milliseconds sleep_time; \
-    t0 = std::chrono::high_resolution_clock::now();
-
-#define TIME_CONTROL(duration) \
-    sleep_time = duration - std::chrono::duration_cast<std::chrono::milliseconds>( \
-        std::chrono::high_resolution_clock::now() - t0); \
-    if (sleep_time.count() > 0) { \
-      std::this_thread::sleep_for(sleep_time); \
-    } \
-    t0 = std::chrono::high_resolution_clock::now();
-
+#define HW_MANAGER_THREAD ("hw_manager_thread")
 const size_t MAX_PKTS_SIZE = 512;
-HwManager* HwManager::instance_ = nullptr;
 
-HwManager* HwManager::create_instance() {
-  if (nullptr != instance_)
-    LOG_WARNING << "This method 'HwManager::create_instance()' is called twice.";
-  else
-    instance_ = new HwManager();
-
-  return instance_;
-}
-
-void HwManager::destroy_instance() {
-  if (nullptr != instance_) {
-    delete instance_;
-    instance_ = nullptr;
-  }
-}
-
-HwManager* HwManager::instance() {
-  if (nullptr == instance_)
-    LOG_WARNING << "This method HwManager::instance() should be called after "
-        << "HwManager::create_instance()";
-
-  return instance_;
-}
+SINGLETON_IMPL(HwManager)
 
 HwManager::HwManager()
-: tick_interval_(10), thread_alive_(true), tick_thread_(nullptr),
-  propagate_manager_(nullptr) {
+: ResourceManager<HwUnit>(), tick_interval_(10), thread_alive_(false),
+  propagate_manager_(PropagateManager::create_instance()) {
   packets_.reserve(MAX_PKTS_SIZE);
 }
 
 HwManager::~HwManager() {
   thread_alive_ = false;
-  if (nullptr != tick_thread_) {
-    tick_thread_->join();
-    delete tick_thread_;
-    tick_thread_ = nullptr;
-  }
+  ThreadPool::instance()->stop(HW_MANAGER_THREAD);
 }
 
 bool HwManager::init() {
@@ -80,10 +41,10 @@ bool HwManager::init() {
 
   char* debug_info = new char[1024];
   LOG_INFO << "========================================";
-  LOG_INFO << "NAME\tADDR\tID\tPUB\tCMD";
+  LOG_INFO << "NAME\t\tADDR\t\tNODE_ID\tCMD";
   for (auto hw : res_list_) {
     memset(debug_info, '\0', 1024 * sizeof(char));
-    sprintf(debug_info, "%s\t%d\t%d\t%d",hw->getLabel().c_str(), hw,
+    sprintf(debug_info, "%s\t0x%02X\t0x%02X\t%d",hw->getLabel().c_str(), hw,
         hw->node_id_, hw->requireCmdDeliver());
     LOG_INFO << debug_info;
 
@@ -102,21 +63,29 @@ bool HwManager::init() {
 }
 
 bool HwManager::run() {
-  if (nullptr != tick_thread_) {
+  if (ThreadPool::instance()->is_running(HW_MANAGER_THREAD)) {
     LOG_WARNING << "Call HwManager::run() twice!";
     return false;
   }
 
-  tick_thread_ = new std::thread(
-            boost::bind(&HwManager::tick, this));
-  LOG_INFO << "The propagate thread which for the real-time message communication "
-      << "has started.";
+  LOG_DEBUG << "==========HwManager::run==========";
+  if (!propagate_manager_->run()) {
+    LOG_WARNING << "PropagateManager::run fail!";
+  }
+  LOG_INFO << "Starting PropagateManager";
+
+  ThreadPool::instance()->add(HW_MANAGER_THREAD, &HwManager::tick, this);
+  LOG_DEBUG << "==========HwManager::run==========";
   return true;
 }
 
 void HwManager::tick() {
+  for (auto& hw : res_list_) {
+    hw->init();
+  }
 
-  TIME_INIT
+
+  TIMER_INIT
   while (thread_alive_) {
     packets_.clear();
     propagate_manager_->readPackets(packets_);
@@ -133,7 +102,7 @@ void HwManager::tick() {
     }
     propagate_manager_->writePackets(packets_);
 
-    TIME_CONTROL(tick_interval_)
+    TIMER_CONTROL(tick_interval_)
   }
 }
 

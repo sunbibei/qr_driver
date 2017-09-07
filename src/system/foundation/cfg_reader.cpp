@@ -67,40 +67,24 @@ bool __get_value_helper(TiXmlElement* __root, const MiiString& p,
 
 
 TiXmlDocument* xml_doc = nullptr;
-MiiCfgReader* MiiCfgReader::instance_ = nullptr;
+SINGLETON_IMPL_NO_CREATE(MiiCfgReader)
 
-MiiCfgReader* MiiCfgReader::instance() {
+MiiCfgReader* MiiCfgReader::create_instance(const MiiString& file) {
   if (nullptr == instance_) {
-    std::cout << "This should be called after create_instance()" << std::endl;
-    return nullptr;
+    xml_doc = new TiXmlDocument();
+    /* if (!xml_doc->LoadFile(file)) {
+      LOG_FATAL << "Could not found the " << file
+          << ", did you forget define the file?";
+      return false;
+    }*/
+
+    xml_doc->Parse(file.c_str());
+    instance_ = new MiiCfgReader(file);
+  } else {
+    LOG_WARNING << "This method 'MiiCfgReader::create_instance' is called twice!";
   }
 
   return instance_;
-}
-
-bool MiiCfgReader::create_instance(const MiiString& file) {
-  if (nullptr != instance_) {
-    std::cout << "Create the CfgReader twice!" << std::endl;
-    return false;
-  }
-  xml_doc = new TiXmlDocument();
-  if (!xml_doc->LoadFile(file)) {
-    std::cout << "Could not found the " << file
-        << ", did you forget define the file?" << std::endl;
-    return false;
-  }
-
-  instance_ = new MiiCfgReader(file);
-  return true;
-}
-
-bool MiiCfgReader::destroy_instance() {
-  if (nullptr != instance_) {
-    delete instance_;
-    instance_ = nullptr;
-  }
-
-  return true;
 }
 
 MiiCfgReader::MiiCfgReader(const MiiString& file)
@@ -120,7 +104,6 @@ MiiCfgReader::~MiiCfgReader() {
 
 void findAttr(TiXmlElement* __curr, const MiiString& __p,
     const MiiString& attr, MiiCfgReader::Callback cb) {
-
   for (auto __next = __curr->FirstChildElement();
       nullptr != __next; __next = __next->NextSiblingElement()) {
     MiiString __next_p = Label::make_label(__p, __next->Value());

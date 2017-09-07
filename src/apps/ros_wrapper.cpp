@@ -7,6 +7,7 @@
 
 #include <apps/ros_robothw.h>
 #include <apps/ros_wrapper.h>
+#include "system/foundation/auto_instanceor.h"
 #include "system/foundation/cfg_reader.h"
 #include "system/platform/thread/threadpool.h"
 
@@ -19,11 +20,11 @@ RosWrapper* RosWrapper::instance_ = nullptr;
 
 RosWrapper* RosWrapper::instance() {
   if (nullptr == instance_) {
-    instance_ = new RosWrapper;
     LOG_INFO << "Create the singleton instance: RosWrapper";
+    instance_ = new RosWrapper;
   }
 
-  LOG_INFO << "Return the singleton instance: RosWrapper";
+  LOG_DEBUG << "Return the singleton instance: RosWrapper";
   return instance_;
 }
 
@@ -32,37 +33,54 @@ RosWrapper::RosWrapper()
     alive_(false),
     rt_duration_(1000/50),
     ros_ctrl_duration_(1000/100),
-    use_ros_control_(true) {
-  google::InitGoogleLogging("dragon_ros_wrapper");
+    use_ros_control_(false) {
+  LOG_DEBUG << "Enter the roswrapper construction";
+  // google::InitGoogleLogging("RosWrapper");
   // google::SetLogDestination(google::GLOG_INFO, "/path/to/log/INFO_");
   // google::LogMessage::Init();
   FLAGS_colorlogtostderr = true;
-  google::FlushLogFiles(google::GLOG_INFO);
+  // google::FlushLogFiles(google::GLOG_INFO);
+  LOG_DEBUG << "Leave the roswrapper construction";
   ; // Nothing to do here, all of variables initialize in the method @start()
 }
 
 void RosWrapper::create_system_instance() {
-  MiiString cfg;
-  if (ros::param::get("~configure", cfg)) {
+  LOG_DEBUG << "==========RosWrapper::create_system_instance==========";
+  MiiString str;
+  // if (nh_.getParam("configure", cfg)) {
+  if (!ros::param::get("~configure", str)) {
     LOG_FATAL << "RosWapper can't find the 'configure' parameter "
         << "in the parameter server. Did you forget define this parameter.";
   }
-  if (MiiCfgReader::create_instance(cfg))
+  if (nullptr == MiiCfgReader::create_instance(str))
     LOG_FATAL << "Create the singleton 'MiiCfgReader' has failed.";
 
-  return MiiRobot::create_system_instance();
+  if (!ros::param::get("~library", str)) {
+    LOG_FATAL << "RosWapper can't find the 'configure' parameter "
+        << "in the parameter server. Did you forget define this parameter.";
+  }
+  LOG_DEBUG << str;
+  if (nullptr == AutoInstanceor::create_instance(str))
+    LOG_WARNING << "Create the singleton 'AutoInstanceor' has failed.";
+
+  LOG_DEBUG << "==========RosWrapper::create_system_instance==========";
+  MiiRobot::create_system_instance();
 }
 
 bool RosWrapper::start() {
-  bool debug = false;
+  LOG_DEBUG << "==========RosWrapper::start==========";
+  if (!init()) LOG_FATAL << "Robot initializes fail!";
+  else LOG_INFO << "Robot initialization has completed.";
+  /*bool debug = false;
   ros::param::get("~debug", debug);
   if (debug) google::SetStderrLogging(google::GLOG_INFO);
-  else google::SetStderrLogging(google::GLOG_WARNING);
+  else google::SetStderrLogging(google::GLOG_WARNING);*/
 
+  // ros::param::get("~use_ros_control", use_ros_control_);
   ros::param::get("~use_ros_control", use_ros_control_);
   if (use_ros_control_) {
-    // hardware_interface_.reset(
-    //           new middleware::RosRobotHW(nh_, robot_));
+    hardware_interface_.reset(
+              new middleware::RosRobotHW(nh_));
     controller_manager_.reset(
         new controller_manager::ControllerManager(
             hardware_interface_.get(), nh_));
@@ -90,7 +108,9 @@ bool RosWrapper::start() {
   cmd_sub_ = nh_.subscribe<std_msgs::Int32>("debug", 100,
       &RosWrapper::cbForDebug, this);
 #endif
-  return true;
+  bool ret = MiiRobot::start();
+  LOG_DEBUG << "==========RosWrapper::start==========";
+  return ret;
 }
 
 void RosWrapper::publishRTMsg() {
@@ -141,8 +161,6 @@ void RosWrapper::rosControlLoop() {
 
 void RosWrapper::halt() {
   alive_ = false;
-  ThreadPool::instance()->stop(RT_PUB_THREAD);
-  ThreadPool::instance()->stop(ROS_CTRL_THREAD);
 
   controller_manager_.reset();
   hardware_interface_.reset();
@@ -150,6 +168,8 @@ void RosWrapper::halt() {
 
 RosWrapper::~RosWrapper() {
   halt();
+  AutoInstanceor::destroy_instance();
+  MiiCfgReader::destroy_instance();
   if (nullptr != instance_) {
     delete instance_;
     instance_ = nullptr;

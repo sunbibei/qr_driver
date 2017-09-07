@@ -19,7 +19,7 @@ public:
   // 妥协方案
   virtual bool init() override;
 
-  const MiiString& joint_name() const;
+  const MiiString&   joint_name() const;
   const JntType&     joint_type() const;
   const LegType&     owner_type() const;
   /**
@@ -29,6 +29,9 @@ public:
   double joint_position();
   double joint_velocity();
   double joint_torque();
+  const double* joint_position_const_pointer();
+  const double* joint_velocity_const_pointer();
+  const double* joint_torque_const_pointer();
 
   // About joint command
   void updateJointCommand(double);

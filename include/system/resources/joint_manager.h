@@ -17,12 +17,9 @@
 namespace middleware {
 
 class JointManager: public ResourceManager<Joint> {
-  friend class Joint;
-public:
-  static JointManager* create_instance();
-  static JointManager* instance();
-  static void          destroy_instance();
+  SINGLETON_DECLARE(JointManager)
 
+  friend class Joint;
 public:
 ///////////////////////////////////////////////////////////////////////////////
 //////////////////////        The Common Methods         //////////////////////
@@ -93,10 +90,6 @@ protected:
 
 protected:
   virtual void add(Joint* _res) override;
-
-  static JointManager* instance_;
-  JointManager();
-  virtual ~JointManager();
 };
 
 } /* namespace middleware */

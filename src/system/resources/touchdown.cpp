@@ -61,15 +61,15 @@ bool TouchDown::init() {
   return true;
 }
 
-inline void TouchDown::updateTouchdownState(short _count) {
+void TouchDown::updateTouchdownState(short _count) {
   td_state_->data = _count * scale_ + offset_;
 }
 
-inline double TouchDown::touchdown_data() {
+double TouchDown::touchdown_data() {
   return td_state_->data;
 }
 
-inline const LegType& TouchDown::leg_type() const
+const LegType& TouchDown::leg_type() const
 { return leg_type_; }
 
 } /* namespace middleware */

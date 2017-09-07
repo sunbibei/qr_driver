@@ -59,7 +59,7 @@ set(SYS_FLATFORM_FILES  ${SRC_SYS_FOUNDATION}/label.cpp
                         ${SRC_SYS_PLATFORM}/hw_unit/leg_node.cpp
                         ${SRC_SYS_PLATFORM}/propagate/propagate.cpp
                         ${SRC_SYS_PLATFORM}/propagate/pcan.cpp
-                        ${SRC_SYS_PLATFORM}/propafate/propagate_manager.cpp
+                        ${SRC_SYS_PLATFORM}/propagate/propagate_manager.cpp
                         ${SRC_SYS_PLATFORM}/thread/threadpool.cpp
 
                         ${SRC_SYS_PLATFORM}/hw_manager.cpp
@@ -108,7 +108,7 @@ target_link_libraries(${PROJECT_NAME}_exe
 ## Install ##
 #############
 
-install(DIRECTORY include/middleware/
+#[[install(DIRECTORY include/middleware/
   DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION})
 
 install(TARGETS ${PROJECT_NAME}_hw_unit
@@ -122,7 +122,7 @@ install(TARGETS ${PROJECT_NAME}_hw_unit
 foreach(dir images launch config)
   install(DIRECTORY ${dir}/
     DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/${dir})
-endforeach(dir)
+endforeach(dir)]]
 
 #############
 ## Testing ##

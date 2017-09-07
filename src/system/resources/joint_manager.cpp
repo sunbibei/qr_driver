@@ -9,33 +9,16 @@
 
 namespace middleware {
 
-JointManager* JointManager::instance_ = nullptr;
+SINGLETON_IMPL(JointManager)
 
-JointManager* JointManager::create_instance() {
-  if (nullptr != instance_)
-    LOG_WARNING << "This method 'JointManager::create_instance()' is called twice.";
-  else
-    instance_ = new JointManager;
-
-  return instance_;
-}
-
-JointManager* JointManager::instance() {
-  if (nullptr == instance_)
-    LOG_WARNING << "This method JointManager::instance() should be called after "
-        << "JointManager::create_instance()";
-
-  return instance_;
-}
-
-void JointManager::destroy_instance() {
-  if (nullptr != instance_) {
-    delete instance_;
-    instance_ = nullptr;
+JointManager::JointManager()
+  : ResourceManager<Joint>() {
+  jnt_list_by_type_.resize(LegType::N_LEGS);
+  for (auto& leg : jnt_list_by_type_) {
+    leg.resize(JntType::N_JNTS);
+    for (auto& jnt : leg)
+      jnt = nullptr;
   }
-}
-
-JointManager::JointManager() {
 }
 
 JointManager::~JointManager() {
@@ -44,6 +27,7 @@ JointManager::~JointManager() {
 
 void JointManager::add(Joint* _res) {
   ResourceManager<Joint>::add(_res);
+
   jnt_list_by_name_.insert(std::make_pair(_res->joint_name(), _res));
 
   if ((_res->owner_type() < 0) || (_res->joint_type() < 0)) {
@@ -52,13 +36,8 @@ void JointManager::add(Joint* _res) {
         << _res->owner_type() << ", JntType: " << _res->joint_type();
     return;
   }
-
-  if (jnt_list_by_type_.size() <= (size_t)_res->owner_type())
-    jnt_list_by_type_.resize(_res->owner_type() + 1);
-  if (jnt_list_by_type_[_res->owner_type()].size() <= (size_t)_res->joint_type())
-    jnt_list_by_type_.resize(_res->joint_type() + 1);
-
   jnt_list_by_type_[_res->owner_type()][_res->joint_type()] = _res;
+  LOG_DEBUG << "The joint " << _res->getLabel() << " is received by JointManager";
 }
 
 void JointManager::addJointCommand(LegType owner, JntType type, double val) {
@@ -76,33 +55,42 @@ Joint* JointManager::getJointByType(LegType owner, JntType type) {
 }
 
 void JointManager::joint_position_const_pointer(LegType _owner, JntType _type, const double* & _c_p) {
-  ;
+  _c_p = jnt_list_by_type_[_owner][_type]->joint_position_const_pointer();
 }
 void JointManager::joint_velocity_const_pointer(LegType _owner, JntType _type, const double* & _c_p) {
-  ;
+  _c_p = jnt_list_by_type_[_owner][_type]->joint_velocity_const_pointer();
 }
 void JointManager::joint_torque_const_pointer  (LegType _owner, JntType _type, const double* & _c_p) {
-  ;
+  _c_p = jnt_list_by_type_[_owner][_type]->joint_torque_const_pointer();
 }
 // override
 void JointManager::joint_position_const_pointer(const MiiString& _n, const double* & _c_p) {
-  ;
+  _c_p = jnt_list_by_name_[_n]->joint_position_const_pointer();
 }
 void JointManager::joint_velocity_const_pointer(const MiiString& _n, const double* & _c_p) {
-  ;
+  _c_p = jnt_list_by_name_[_n]->joint_velocity_const_pointer();
 }
 void JointManager::joint_torque_const_pointer(const MiiString& _n, const double* & _c_p) {
-  ;
+  _c_p = jnt_list_by_name_[_n]->joint_torque_const_pointer();
 }
 // override
-void JointManager::joint_position_const_pointer(MiiVector<const double*>&) {
-  ;
+void JointManager::joint_position_const_pointer(MiiVector<const double*>& _c_ps) {
+  _c_ps.clear();
+  for (auto jnt : res_list_) {
+    _c_ps.push_back(jnt->joint_position_const_pointer());
+  }
 }
-void JointManager::joint_velocity_const_pointer(MiiVector<const double*>&) {
-  ;
+void JointManager::joint_velocity_const_pointer(MiiVector<const double*>& _c_ps) {
+  _c_ps.clear();
+  for (auto jnt : res_list_) {
+    _c_ps.push_back(jnt->joint_velocity_const_pointer());
+  }
 }
-void JointManager::joint_torque_const_pointer(MiiVector<const double*>&) {
-  ;
+void JointManager::joint_torque_const_pointer(MiiVector<const double*>& _c_ps) {
+  _c_ps.clear();
+  for (auto jnt : res_list_) {
+    _c_ps.push_back(jnt->joint_torque_const_pointer());
+  }
 }
 
 /*JointManager::iterator JointManager::find(const MiiString& _n) {

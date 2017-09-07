@@ -23,6 +23,8 @@ namespace middleware {
 
 
 void MiiRobot::auto_inst(const MiiString& __p, const MiiString& __type) {
+  LOG_DEBUG << "MiiRobot::auto_inst(" << __p << ", " << __type << ")";
+
   if (AutoInstanceor::instance()->make_instance(__p, __type)) {
     LOG_INFO << "Create instance(" << __type << " " << __p << ")";
   } else {
@@ -37,13 +39,16 @@ MiiRobot::MiiRobot(const MiiString& __tag)
 }
 
 MiiRobot::~MiiRobot() {
-  ;
+  HwManager::destroy_instance();
+  JointManager::destroy_instance();
+  ThreadPool::destroy_instance();
 }
 
 /**
  * This method creates the part of singleton.
  */
 void MiiRobot::create_system_instance() {
+  LOG_DEBUG << "==========MiiRobot::create_system_instance==========";
   if (nullptr == ThreadPool::create_instance())
     LOG_WARNING << "Create the singleton 'ThreadPool' has failed.";
 
@@ -52,7 +57,7 @@ void MiiRobot::create_system_instance() {
 
   if (nullptr == HwManager::create_instance())
     LOG_WARNING << "Create the singleton 'HwManager' has failed.";
-
+  LOG_DEBUG << "==========MiiRobot::create_system_instance==========";
   // The PropagateManager does not instance.
   // if (nullptr == PropagateManager::create_instance())
   //   LOG_WARNING << "Create the singleton 'HwManager' has failed.";
@@ -60,6 +65,7 @@ void MiiRobot::create_system_instance() {
 
 bool MiiRobot::init() {
   create_system_instance();
+  LOG_INFO << "The all of the instances have created successful.";
 
   auto cfg = MiiCfgReader::instance();
   if (nullptr == cfg) {
@@ -68,6 +74,7 @@ bool MiiRobot::init() {
   }
   // All of the objects mark with "auto_inst" in the configure file
   // will be instanced here.
+  LOG_INFO << "Now, We are ready to auto_inst object in the configure file.";
   cfg->registerCallbackAndExcute("auto_inst", MiiRobot::auto_inst);
   // Just for debug
   LOG_WARNING << "Auto instance has finished. The results list as follow:";
@@ -82,8 +89,10 @@ bool MiiRobot::init() {
 
 
 bool MiiRobot::start() {
-  hw_manager_->run();
-  return false;
+  LOG_DEBUG << "==========MiiRobot::start==========";
+  bool ret = (hw_manager_->run() && ThreadPool::instance()->start());
+  LOG_DEBUG << "==========MiiRobot::start==========";
+  return true;
 }
 
 

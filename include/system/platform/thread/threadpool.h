@@ -15,28 +15,8 @@
 
 namespace middleware {
 
-#define TIMER_INIT \
-    std::chrono::high_resolution_clock::time_point t0; \
-    std::chrono::milliseconds sleep_time; \
-    t0 = std::chrono::high_resolution_clock::now();
-
-#define TIMER_CONTROL(duration) \
-    sleep_time = duration - std::chrono::duration_cast<std::chrono::milliseconds>( \
-        std::chrono::high_resolution_clock::now() - t0); \
-    if (sleep_time.count() > 0) { \
-      std::this_thread::sleep_for(sleep_time); \
-    } \
-    t0 = std::chrono::high_resolution_clock::now();
-
 class ThreadPool {
-public:
-  static ThreadPool* create_instance();
-  static ThreadPool* instance();
-  static void        destroy_instance();
-
-protected:
-  ThreadPool();
-  ~ThreadPool();
+  SINGLETON_DECLARE(ThreadPool)
 
 public:
   /**
@@ -69,15 +49,13 @@ public:
   bool init();
   bool start();
   bool start(const MiiString& __n);
-  bool start(const MiiVector<MiiString>& __n);
   void stop();
   void stop(const MiiString& __n);
-  void stop(const MiiVector<MiiString>& __n);
 
   bool is_running(const MiiString& __n);
 
 protected:
-  static ThreadPool*             instance_;
+  // static ThreadPool*             instance_;
   /**
    * The list of thread function and variate.
    */
@@ -96,6 +74,8 @@ void ThreadPool::add(const MiiString& __n, _Func&& __f, _BoundArgs&&... __args) 
   if (thread_funcs_.end() != thread_funcs_.find(__n))
     LOG_WARNING << "The named thread(" << __n << ") task function "
       << "has inserted into the function list. It will be replaced.";
+
+  LOG_INFO << "ThreadPool has received a thread task, named '" << __n << "'.";
   thread_funcs_.insert(std::make_pair(__n, std::bind(__f, __args...)));
 }
 

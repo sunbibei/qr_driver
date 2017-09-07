@@ -89,11 +89,11 @@ bool Joint::init() {
   return ret;
 }
 
-inline const MiiString& Joint::joint_name() const { return jnt_name_; }
-inline const JntType& Joint::joint_type() const { return jnt_type_; }
-inline const LegType& Joint::owner_type()   const { return leg_type_; }
+const MiiString& Joint::joint_name() const { return jnt_name_; }
+const JntType& Joint::joint_type() const { return jnt_type_; }
+const LegType& Joint::owner_type()   const { return leg_type_; }
 
-inline void Joint::updateJointPosition(short _count) {
+void Joint::updateJointPosition(short _count) {
   // double pos = _count * scale_ + offset_;
   joint_state_->pos_ = _count * scale_ + offset_;
   /*auto t = std::chrono::high_resolution_clock::now();
@@ -102,43 +102,53 @@ inline void Joint::updateJointPosition(short _count) {
   joint_state_->vel_ = (pos - joint_state_->pos_) / count;*/
 }
 
-inline double Joint::joint_position() {
+double Joint::joint_position() {
   return joint_state_->pos_;
 }
 
-inline double Joint::joint_velocity() {
+double Joint::joint_velocity() {
   return joint_state_->vel_;
 }
 
-inline double Joint::joint_torque() {
+double Joint::joint_torque() {
   return joint_state_->tor_;
 }
 
+const double* Joint::joint_position_const_pointer() {
+  return &(joint_state_->pos_);
+}
+const double* Joint::joint_velocity_const_pointer() {
+  return &(joint_state_->vel_);
+}
+const double* Joint::joint_torque_const_pointer() {
+  return &(joint_state_->tor_);
+}
+
 // About joint command
-inline void Joint::updateJointCommand(double v) {
+void Joint::updateJointCommand(double v) {
   joint_command_->command_ = v;
   new_command_ = true;
 }
 
-inline void Joint::updateJointCommand(double v, JntCmdType t) {
+void Joint::updateJointCommand(double v, JntCmdType t) {
   joint_command_->mode_    = t;
   joint_command_->command_ = v;
   new_command_ = true;
 }
 
-inline double Joint::joint_command() {
+double Joint::joint_command() {
   return joint_command_->command_;
 }
 
-inline void Joint::changeJointCommandMode(JntCmdType mode) {
+void Joint::changeJointCommandMode(JntCmdType mode) {
   joint_command_->mode_ = mode;
 }
 
-inline JntCmdType Joint::joint_command_mode() {
+JntCmdType Joint::joint_command_mode() {
   return joint_command_->mode_;
 }
 
-inline bool Joint::new_command(Packet* pkt) {
+bool Joint::new_command(Packet* pkt) {
   if (!new_command_) return false;
   new_command_ = false;
 
