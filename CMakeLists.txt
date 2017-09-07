@@ -37,41 +37,49 @@ catkin_package(
 # Build
 include_directories(include ${catkin_INCLUDE_DIRS} ${TinyXML_INCLUDE_DIRS})
 
-set(SRC_ROOT        src/middleware)
-set(SRC_HW_PATH     ${SRC_ROOT}/hardware)
-set(SRC_PROPA_PATH  ${SRC_ROOT}/propagate)
-set(SRC_UTIL_PATH   ${SRC_ROOT}/util)
+set(SRC_ROOT            src)
+set(SRC_SYS             ${SRC_ROOT}/system)
+set(SRC_SYS_FOUNDATION  ${SRC_SYS}/foundation)
+set(SRC_SYS_PLATFORM    ${SRC_SYS}/platform)
+set(SRC_SYS_RESOURCE    ${SRC_SYS}/resources)
+set(SRC_SYS_ROBOT       ${SRC_SYS}/robot)
+set(SRC_SYS_UTILS       ${SRC_SYS}/utils)
+set(SRC_APP             ${SRC_ROOT}/apps)
 
-set(INC_ROOT        include/middleware)
-set(INC_HW_PATH     ${INC_ROOT}/hardware)
-set(INC_PROPA_PATH  ${INC_ROOT}/propagate)
-set(INC_UTIL_PATH   ${INC_ROOT}/util)
 
-set(HW_FILES  ${SRC_HW_PATH}/hw_unit.cpp
-              ${SRC_HW_PATH}/joint.cpp
+set(SYS_FLATFORM_FILES  ${SRC_SYS_FOUNDATION}/label.cpp
+                        ${SRC_SYS_FOUNDATION}/auto_instanceor.cpp
+                        ${SRC_SYS_FOUNDATION}/cfg_reader.cpp
+
+                        ${SRC_SYS_RESOURCE}/joint.cpp
+                        ${SRC_SYS_RESOURCE}/touchdown.cpp
+                        ${SRC_SYS_RESOURCE}/joint_manager.cpp
+                        
+                        ${SRC_SYS_PLATFORM}/hw_unit/hw_unit.cpp
+                        ${SRC_SYS_PLATFORM}/hw_unit/leg_node.cpp
+                        ${SRC_SYS_PLATFORM}/propagate/propagate.cpp
+                        ${SRC_SYS_PLATFORM}/propagate/pcan.cpp
+                        ${SRC_SYS_PLATFORM}/propafate/propagate_manager.cpp
+                        ${SRC_SYS_PLATFORM}/thread/threadpool.cpp
+
+                        ${SRC_SYS_PLATFORM}/hw_manager.cpp
 )
 
-set(PROPA_FILES   ${SRC_PROPA_PATH}/propagate.cpp
-                  ${SRC_PROPA_PATH}/pcan.cpp
-                  # ${SRC_PROPA_PATH}/com.cpp
+set(SYS_ROBOT_FILES     ${SRC_SYS_ROBOT}/mii_robot.cpp
 )
 
-set(BIN_FILES src/main.cpp
-              ${SRC_ROOT}/middleware.cpp
-              ${SRC_ROOT}/ros_robothw.cpp
-              ${SRC_ROOT}/ros_wrapper.cpp
-              ${SRC_UTIL_PATH}/parser.cpp
+set(BIN_FILES           ${SRC_ROOT}/main.cpp
+                        ${SRC_APP}/ros_robothw.cpp
+                        ${SRC_APP}/ros_wrapper.cpp
 )
 
 ## Declare a C++ library
-add_library(${PROJECT_NAME}_hw_unit
-  ${HW_FILES}
-  ${INC_UTIL_PATH}/proto/dragon.pb.cc
+add_library(${PROJECT_NAME}_sys_platform
+  ${SYS_FLATFORM_FILES}
 )
 
-add_library(${PROJECT_NAME}_propagate
-  ${PROPA_FILES}
-  ${INC_UTIL_PATH}/proto/dragon.pb.cc
+add_library(${PROJECT_NAME}_sys_robot
+  ${SYS_ROBOT_FILES}
 )
 
 ## Declare a C++ executable
@@ -80,25 +88,20 @@ add_executable(${PROJECT_NAME}_exe
 )
 
 ## Specify libraries to link a library or executable target against
-target_link_libraries(${PROJECT_NAME}_hw_unit
+target_link_libraries(${PROJECT_NAME}_sys_platform
   ${catkin_LIBRARIES}
   glog
-  protobuf
+  pcanbasic
 )
 
-target_link_libraries(${PROJECT_NAME}_propagate
+target_link_libraries(${PROJECT_NAME}_sys_robot
   ${catkin_LIBRARIES}
-  glog
-  protobuf
-#  pcanbasic
+  ${PROJECT_NAME}_sys_platform
 )
 
 target_link_libraries(${PROJECT_NAME}_exe
   ${catkin_LIBRARIES}
-  glog
-#  pcanbasic
-  ${PROJECT_NAME}_hw_unit
-  ${PROJECT_NAME}_propagate
+  ${PROJECT_NAME}_sys_robot
 )
 
 #############

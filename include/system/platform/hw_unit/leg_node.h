@@ -8,8 +8,8 @@
 #ifndef INCLUDE_APPS_HW_UNIT_LEG_NODE_H_
 #define INCLUDE_APPS_HW_UNIT_LEG_NODE_H_
 
-#include <system/platform/protocol/proto/dragon.pb.h>
 #include "system/platform/hw_unit/hw_unit.h"
+#include "system/foundation/utf.h"
 
 namespace middleware {
 

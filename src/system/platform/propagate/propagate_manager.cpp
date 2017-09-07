@@ -8,7 +8,7 @@
 #include "system/platform/thread/threadpool.h"
 
 #include <boost/bind.hpp>
-#include <system/platform/propagate_manager.h>
+#include <system/platform/propagate/propagate_manager.h>
 
 namespace middleware {
 

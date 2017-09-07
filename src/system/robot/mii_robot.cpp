@@ -10,7 +10,7 @@
 #include <system/resources/touchdown.h>
 #include <system/platform/hw_manager.h>
 #include <system/resources/joint_manager.h>
-#include <system/platform/propagate_manager.h>
+#include <system/platform/propagate/propagate_manager.h>
 #include "system/robot/mii_robot.h"
 #include "system/foundation/cfg_reader.h"
 #include "system/platform/thread/threadpool.h"

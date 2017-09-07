@@ -5,7 +5,7 @@
  *      Author: silence
  */
 
-#include <apps/hw_unit/leg_node.h>
+#include <system/platform/hw_unit/leg_node.h>
 
 #include "system/foundation/cfg_reader.h"
 #include <boost/algorithm/string.hpp>

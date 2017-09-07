@@ -7,7 +7,7 @@
 
 #include <boost/bind.hpp>
 #include <system/platform/hw_manager.h>
-#include <system/platform/propagate_manager.h>
+#include <system/platform/propagate/propagate_manager.h>
 #include <system/foundation/utf.h>
 
 namespace middleware {

@@ -8,7 +8,6 @@
 #ifndef INCLUDE_SYSTEM_RESOURCES_TOUCHDOWN_H_
 #define INCLUDE_SYSTEM_RESOURCES_TOUCHDOWN_H_
 
-#include <system/platform/protocol/proto/dragon.pb.h>
 #include <system/foundation/label.h>
 
 namespace middleware {

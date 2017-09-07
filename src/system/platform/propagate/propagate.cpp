@@ -5,8 +5,7 @@
  *      Author: silence
  */
 
-#include <system/platform/protocol/proto/dragon.pb.h>
-#include <system/platform/propagate_manager.h>
+#include <system/platform/propagate/propagate_manager.h>
 #include <system/foundation/utf.h>
 #include "system/foundation/cfg_reader.h"
 

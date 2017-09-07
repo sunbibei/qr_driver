@@ -17,7 +17,6 @@
 #include <vector>
 #include <string>
 #include <map>
-#include <system/platform/protocol/proto/dragon.pb.h>
 // #include <iostream>
 
 namespace middleware {
@@ -28,6 +27,31 @@ template<class _Key, class _Value>
 using MiiMap    =  std::map<_Key, _Value>;
 
 using MiiString = std::string;
+
+enum JntCmdType {
+  UNKNOWN_CMD = -1,
+  POS = 0,
+  VEL = 1,
+  TOR = 2,
+  N_JNT_CMD_TYPES = 3
+};
+
+enum LegType {
+  UNKNOWN_LEG = -1,
+  FL = 0,
+  FR = 1,
+  HL = 2,
+  HR = 3,
+  N_LEGS = 4
+};
+
+enum JntType {
+  UNKNOWN_JNT = -1,
+  YAW = 0,
+  HIP = 1,
+  KNEE = 2,
+  N_JNTS = 3
+};
 
 #ifndef USING_STD_IO
 #define LOG_INFO      LOG(INFO)     << "\t"
