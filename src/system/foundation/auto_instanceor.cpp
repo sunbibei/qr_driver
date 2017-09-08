@@ -11,7 +11,7 @@
 namespace middleware {
 
 std::map<MiiString, Label::LabelPtr> AutoInstanceor::s_inst_table_;
-AutoInstanceor* AutoInstanceor::instance_ = nullptr;
+SINGLETON_IMPL_NO_CREATE(AutoInstanceor)
 
 AutoInstanceor* AutoInstanceor::create_instance(const MiiString& lib) {
   if (nullptr != instance_) {
@@ -19,19 +19,6 @@ AutoInstanceor* AutoInstanceor::create_instance(const MiiString& lib) {
     // std::cout << "Create the AutoInstanceor instance twice!" << std::endl;
   } else
     instance_ = new AutoInstanceor(lib);
-  return instance_;
-}
-
-void AutoInstanceor::destroy_instance() {
-  ;
-}
-
-AutoInstanceor* AutoInstanceor::instance() {
-  if (nullptr == instance_) {
-    LOG_WARNING << "Call instance() method after create_instance()";
-    // std::cout  << "Call instance() method after create_instance()" << std::endl;
-  }
-
   return instance_;
 }
 

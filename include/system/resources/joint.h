@@ -50,7 +50,7 @@ protected:
   void updateJointPosition(short count);
   // if has new command, return true and fill the Packet pointer
   bool new_command_; // the flag indicate whether has new command
-  bool new_command(class Packet*);
+  // bool new_command(class Packet*);
   // position = count * scale + offset
 
 protected:

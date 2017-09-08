@@ -13,20 +13,6 @@ namespace middleware {
 
 #define MUTEX_TRY_LOCK(locker)    while (!locker.try_lock()) { };
 #define MUTEX_UNLOCK(locker)  locker.unlock();
-#define SEND_EVERY_PTKS     \
-    while (!pkts_queue_4_send_.empty()) { \
-      const auto& pkt = pkts_queue_4_send_.back(); \
-      for (auto& c : res_list_) { \
-        if (c->write(pkt)) break;\
-      } \
-      pkts_queue_4_send_.pop_back(); \
-    }
-
-#define RECV_EVERY_PTKS \
-    Packet pkt; \
-    for (auto& c : res_list_) { \
-      if (c->read(pkt)) pkts_queue_4_recv_.push_back(pkt); \
-    }
 
 const MiiString THREAD_NAME = "propagate";
 const size_t MAX_QUEUE_SIZE = 1024;
@@ -41,7 +27,6 @@ PropagateManager::PropagateManager()
 
 PropagateManager::~PropagateManager() {
   thread_alive_ = false;
-  ThreadPool::instance()->stop(THREAD_NAME);
 }
 
 bool PropagateManager::run() {
@@ -70,11 +55,20 @@ void PropagateManager::updatePktsQueues() {
   TIMER_INIT
   while (thread_alive_) {
     MUTEX_TRY_LOCK(lock_4_send_)
-    SEND_EVERY_PTKS
+    while (!pkts_queue_4_send_.empty()) {
+      const auto& pkt = pkts_queue_4_send_.back();
+      for (auto& c : res_list_) {
+        if (c->write(pkt)) break;
+      }
+      pkts_queue_4_send_.pop_back();
+    }
     MUTEX_UNLOCK(lock_4_send_)
 
     MUTEX_TRY_LOCK(lock_4_recv_)
-    RECV_EVERY_PTKS
+    Packet pkt;
+    for (auto& c : res_list_) {
+      if (c->read(pkt)) pkts_queue_4_recv_.push_back(pkt);
+    }
     MUTEX_UNLOCK(lock_4_recv_)
 
     TIMER_CONTROL(propa_interval_)

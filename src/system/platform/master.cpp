@@ -13,47 +13,47 @@
 
 namespace middleware {
 
-#define HW_MANAGER_THREAD ("master")
+#define MASTER_THREAD ("master")
 const size_t MAX_PKTS_SIZE = 512;
 
 SINGLETON_IMPL(Master)
 
 Master::Master()
 : tick_interval_(10), thread_alive_(false),
-  propagate_manager_(nullptr),
-  sw_node_manager_(nullptr) {
+  propagate_manager_(PropagateManager::create_instance()),
+  sw_node_manager_(SWNodeManager::create_instance()) {
   packets_.reserve(MAX_PKTS_SIZE);
 }
 
 Master::~Master() {
   thread_alive_ = false;
-  ThreadPool::instance()->stop(HW_MANAGER_THREAD);
+  PropagateManager::destroy_instance();
+  SWNodeManager::destroy_instance();
+  propagate_manager_ = nullptr;
+  sw_node_manager_   = nullptr;
 }
 
 bool Master::init() {
-  propagate_manager_ = PropagateManager::create_instance();
-  sw_node_manager_   = SWNodeManager::create_instance();
-
   if (!propagate_manager_ || !sw_node_manager_) return false;
 
   return sw_node_manager_->init();
 }
 
 bool Master::run() {
-  if (ThreadPool::instance()->is_running(HW_MANAGER_THREAD)) {
+  if (ThreadPool::instance()->is_running(MASTER_THREAD)) {
     LOG_WARNING << "Call HwManager::run() twice!";
     return false;
   }
 
-  LOG_DEBUG << "==========HwManager::run==========";
+  LOG_DEBUG << "==========Master::run==========";
   if (!propagate_manager_->run()) {
     LOG_WARNING << "PropagateManager::run fail!";
   }
   LOG_INFO << "Starting PropagateManager";
 
   thread_alive_ = true;
-  ThreadPool::instance()->add(HW_MANAGER_THREAD, &Master::tick, this);
-  LOG_DEBUG << "==========HwManager::run==========";
+  ThreadPool::instance()->add(MASTER_THREAD, &Master::tick, this);
+  LOG_DEBUG << "==========Master::run==========";
   return true;
 }
 
@@ -81,6 +81,8 @@ void Master::tick() {
     // Collecting all of the new command to control the robot
     packets_.clear();
     sw_node_manager_->generateCmd(packets_);
+    if (!packets_.empty()) LOG_DEBUG << "Got Command from SWNode, size=" << packets_.size();
+    else LOG_DEBUG << "No Command from SWNode";
     propagate_manager_->writePackets(packets_);
 
     TIMER_CONTROL(tick_interval_)

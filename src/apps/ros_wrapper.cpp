@@ -15,32 +15,27 @@
 #define ROS_CTRL_THREAD ("ros_control")
 #define RT_PUB_THREAD   ("rt_publish")
 
-RosWrapper* RosWrapper::instance_ = nullptr;
-
-RosWrapper* RosWrapper::instance() {
-  if (nullptr == instance_) {
-    LOG_INFO << "Create the singleton instance: RosWrapper";
-    instance_ = new RosWrapper;
-  }
-
-  LOG_DEBUG << "Return the singleton instance: RosWrapper";
-  return instance_;
-}
+SINGLETON_IMPL(RosWrapper)
 
 RosWrapper::RosWrapper()
-  : MiiRobot("qr.wrapper"),
-    alive_(false),
-    rt_duration_(1000/50),
-    ros_ctrl_duration_(1000/100),
-    use_ros_control_(false) {
+  : MiiRobot("qr.wrapper"), alive_(false), rt_duration_(1000/50),
+    ros_ctrl_duration_(1000/100), use_ros_control_(false) {
   LOG_DEBUG << "Enter the roswrapper construction";
-  // google::InitGoogleLogging("RosWrapper");
+  // google::InitGoogleLogging("qr_driver");
   // google::SetLogDestination(google::GLOG_INFO, "/path/to/log/INFO_");
   // google::LogMessage::Init();
   FLAGS_colorlogtostderr = true;
   // google::FlushLogFiles(google::GLOG_INFO);
   LOG_DEBUG << "Leave the roswrapper construction";
   ; // Nothing to do here, all of variables initialize in the method @start()
+}
+
+RosWrapper::~RosWrapper() {
+  halt();
+  AutoInstanceor::destroy_instance();
+  MiiCfgReader::destroy_instance();
+
+  google::ShutdownGoogleLogging();
 }
 
 void RosWrapper::create_system_instance() {
@@ -70,12 +65,11 @@ bool RosWrapper::start() {
   LOG_DEBUG << "==========RosWrapper::start==========";
   if (!init()) LOG_FATAL << "Robot initializes fail!";
   else LOG_INFO << "Robot initialization has completed.";
-  /*bool debug = false;
+  bool debug = false;
   ros::param::get("~debug", debug);
-  if (debug) google::SetStderrLogging(google::GLOG_INFO);
-  else google::SetStderrLogging(google::GLOG_WARNING);*/
+  google::SetStderrLogging(debug ?
+      google::GLOG_INFO : google::GLOG_WARNING);
 
-  // ros::param::get("~use_ros_control", use_ros_control_);
   ros::param::get("~use_ros_control", use_ros_control_);
   if (use_ros_control_) {
     hardware_interface_.reset(
@@ -163,18 +157,6 @@ void RosWrapper::halt() {
 
   controller_manager_.reset();
   hardware_interface_.reset();
-}
-
-RosWrapper::~RosWrapper() {
-  halt();
-  AutoInstanceor::destroy_instance();
-  MiiCfgReader::destroy_instance();
-  if (nullptr != instance_) {
-    delete instance_;
-    instance_ = nullptr;
-  }
-
-  google::ShutdownGoogleLogging();
 }
 
 #ifdef DEBUG_TOPIC

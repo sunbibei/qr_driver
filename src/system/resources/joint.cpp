@@ -25,7 +25,6 @@ struct JointState {
   // 需要propagate实例中， 通过软件代码计算出速度填入数据
   double vel_;
   double tor_;
-private:
   // 计算速度的辅助变量, 保存前一次更新的时间
   std::chrono::high_resolution_clock::time_point previous_time_;
 };
@@ -94,12 +93,12 @@ const JntType& Joint::joint_type() const { return jnt_type_; }
 const LegType& Joint::owner_type()   const { return leg_type_; }
 
 void Joint::updateJointPosition(short _count) {
-  // double pos = _count * scale_ + offset_;
+  double pos = joint_state_->pos_;
   joint_state_->pos_ = _count * scale_ + offset_;
-  /*auto t = std::chrono::high_resolution_clock::now();
-  auto duration = t - joint_state_->previous_time_;
-  auto count = std::chrono::duration_cast<std::chrono::duration<double>>(duration.count());
-  joint_state_->vel_ = (pos - joint_state_->pos_) / count;*/
+  auto t0 = std::chrono::high_resolution_clock::now();
+  auto duration = t0 - joint_state_->previous_time_;
+  auto count = std::chrono::duration_cast<std::chrono::duration<double>>(duration).count();
+  joint_state_->vel_ = (joint_state_->pos_ - pos) / count;
 }
 
 double Joint::joint_position() {
@@ -148,18 +147,19 @@ JntCmdType Joint::joint_command_mode() {
   return joint_command_->mode_;
 }
 
-bool Joint::new_command(Packet* pkt) {
+/*bool Joint::new_command(Packet* pkt) {
   if (!new_command_) return false;
   new_command_ = false;
 
+  memset(pkt, '\0', sizeof(Packet));
   pkt->msg_id = msg_id_;
   pkt->size   = 2;
   short count = (joint_command_->command_ - offset_) / scale_;
   pkt->data[0] = count;
   pkt->data[1] = count >> 8;
   // memcpy(pkt->data, &count, sizeof(short));
-  return false;
-}
+  return true;
+}*/
 
 } /* namespace middleware */
 

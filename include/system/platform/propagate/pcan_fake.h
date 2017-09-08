@@ -18,6 +18,7 @@ public:
   ~PcanChannelFake();
   virtual bool init() override;
 
+  virtual bool start() override;
   virtual bool write(const class Packet&) override;
   virtual bool read (class Packet&)       override;
 };

@@ -12,7 +12,7 @@ int main(int argc, char* argv[]) {
   ros::init(argc, argv, "qr_driver");
   ros::NodeHandle nh("~");
 
-  if (nullptr == RosWrapper::instance())
+  if (nullptr == RosWrapper::create_instance())
     LOG_FATAL << "Can't get the instance of RosWrapper!";
   RosWrapper::instance()->start();
 
@@ -22,5 +22,6 @@ int main(int argc, char* argv[]) {
   ros::waitForShutdown();
 
   LOG_INFO << "qr_driver shutdown... ...";
+  RosWrapper::destroy_instance();
   return 0;
 }

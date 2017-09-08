@@ -28,10 +28,7 @@
 using namespace middleware;
 
 class RosWrapper : public MiiRobot {
-public:
-  ~RosWrapper();
-  // 获取QuadrupedRobotDriver对象实例
-  static RosWrapper* instance();
+SINGLETON_DECLARE(RosWrapper)
 
 public:
   virtual void create_system_instance() override;
@@ -39,8 +36,6 @@ public:
   void halt();
 
 private:
-  RosWrapper();
-
   // 发布实时消息， 例如"/joint_states"
   void publishRTMsg();
   void rosControlLoop();
@@ -51,11 +46,11 @@ private:
 #endif
 
 private:
-  static RosWrapper* instance_;
-  bool alive_;
-
+  // The ROS handle
   ros::NodeHandle nh_;
 
+  bool alive_;
+  // About ROS control
   std::chrono::milliseconds rt_duration_; // 实时消息发布频率， 默认是50Hz(使用周期表示, 即20ms）
   std::chrono::milliseconds ros_ctrl_duration_; // ros_control_thread_循环频率， 默认是100Hz(使用周期表示, 即10ms）
   bool use_ros_control_;

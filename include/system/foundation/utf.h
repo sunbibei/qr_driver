@@ -116,13 +116,13 @@ enum JntType {
 };
 
 #ifndef USING_STD_IO
-#define LOG_DEBUG     if (false) LOG(WARNING)  << "\t"
+#define LOG_DEBUG     if (true) LOG(WARNING)  << "\t"
 #define LOG_INFO      LOG(INFO)     << "\t"
 #define LOG_WARNING   LOG(WARNING)  << "\t"
 #define LOG_ERROR     LOG(ERROR)    << "\t"
 #define LOG_FATAL     LOG(FATAL)    << "\t"
 #else
-#define LOG_DEBUG     if (false) std::cout  << "\t"
+#define LOG_DEBUG     if (true) std::cout  << "\t"
 #define LOG_INFO      std::cout    << "\t"
 #define LOG_WARNING   std::cout    << "\t"
 #define LOG_ERROR     std::cout    << "\t"

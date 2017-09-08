@@ -39,9 +39,9 @@ MiiRobot::MiiRobot(const MiiString& __tag)
 }
 
 MiiRobot::~MiiRobot() {
-  Master::destroy_instance();
-  JointManager::destroy_instance();
   ThreadPool::destroy_instance();
+  JointManager::destroy_instance();
+  Master::destroy_instance();
 }
 
 /**

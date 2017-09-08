@@ -12,6 +12,8 @@
 #include <system/foundation/utf.h>
 #include <system/platform/sw_node/leg_node.h>
 
+#include <iomanip>
+
 namespace middleware {
 
 LegNode::LegNode(const MiiString& __l)
@@ -91,8 +93,8 @@ void LegNode::handleMsg(const Packet& pkt) {
     return;
   }
 
-  short count = 0;
-  memcpy(&count , pkt.data, sizeof(short));
+  short count = pkt.data[0] + (pkt.data[1] << 8);
+  // memcpy(&count , pkt.data, sizeof(short));
   if (pkt.msg_id == td_->msg_id_)
     td_->updateTouchdownState(count);
   else
@@ -100,12 +102,14 @@ void LegNode::handleMsg(const Packet& pkt) {
 }
 
 bool LegNode::generateCmd(std::vector<Packet>& pkts) {
-
   Packet cmd;
   cmd.node_id = node_id_;
-  for (auto& j : joints_)
-    if (j->new_command(&cmd))
-      pkts.push_back(cmd);
+  for (auto& j : joints_) {
+    // if (j->new_command(&cmd))
+      continue;
+
+    // double new_cmd = j->joint_command();
+  }
 
   return true;
 }
