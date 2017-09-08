@@ -8,8 +8,6 @@
 #include <apps/ros_wrapper.h>
 #include <iostream>
 
-using middleware::RosWrapper;
-
 int main(int argc, char* argv[]) {
   ros::init(argc, argv, "qr_driver");
   ros::NodeHandle nh("~");

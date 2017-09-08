@@ -8,14 +8,14 @@
 #ifndef INCLUDE_SYSTEM_ROBOT_HW_MANAGER_H_
 #define INCLUDE_SYSTEM_ROBOT_HW_MANAGER_H_
 
-#include <system/platform/resource_manager.h>
-#include "system/platform/hw_unit/hw_unit.h"
+#include <system/platform/internal/resource_manager.h>
+#include <system/platform/sw_node/sw_node.h>
 #include <chrono>
 
 namespace middleware {
 
-class HwManager : public ResourceManager<HwUnit> {
-  SINGLETON_DECLARE(HwManager)
+class Master : public internal::ResourceManager<SWNode> {
+  SINGLETON_DECLARE(Master)
 public:
   // After all of the hw_unit instance, call it.
   bool init();
@@ -31,16 +31,11 @@ protected:
   std::chrono::milliseconds  tick_interval_;
   bool                       thread_alive_;
 
-  class PropagateManager*                propagate_manager_;
-  // store all of the hw_unit which order by id
-  std::vector<class HwUnit*>             hw_list_by_id_;
-  // store all of the hw_unit which require to send some command
-  std::vector<class HwUnit*>             hw_list_by_cmd_;
-  // store all of the hw_unit which order by name
-  std::map<std::string, class HwUnit*>   hw_list_by_name_;
+  class PropagateManager*    propagate_manager_;
+  class SWNodeManager*       sw_node_manager_;
 
 private:
-  std::vector<Packet> packets_;
+  MiiVector<Packet> packets_;
 };
 
 } /* namespace middleware */

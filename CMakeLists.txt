@@ -55,15 +55,18 @@ set(SYS_FLATFORM_FILES  ${SRC_SYS_FOUNDATION}/label.cpp
                         ${SRC_SYS_RESOURCE}/touchdown.cpp
                         ${SRC_SYS_RESOURCE}/joint_manager.cpp
                         
-                        ${SRC_SYS_PLATFORM}/hw_unit/hw_unit.cpp
-                        ${SRC_SYS_PLATFORM}/hw_unit/leg_node.cpp
-                        ${SRC_SYS_PLATFORM}/propagate/propagate.cpp
-                        ${SRC_SYS_PLATFORM}/propagate/pcan.cpp
-                        ${SRC_SYS_PLATFORM}/propagate/pcan_fake.cpp
+                        ${SRC_SYS_PLATFORM}/sw_node/sw_node_manager.cpp
+                        ${SRC_SYS_PLATFORM}/sw_node/sw_node.cpp
+                        ${SRC_SYS_PLATFORM}/sw_node/leg_node.cpp
+
                         ${SRC_SYS_PLATFORM}/propagate/propagate_manager.cpp
+                        ${SRC_SYS_PLATFORM}/propagate/propagate.cpp
+                        ${SRC_SYS_PLATFORM}/propagate/pcan_fake.cpp
+                        ${SRC_SYS_PLATFORM}/propagate/pcan.cpp
+                        
                         ${SRC_SYS_PLATFORM}/thread/threadpool.cpp
 
-                        ${SRC_SYS_PLATFORM}/hw_manager.cpp
+                        ${SRC_SYS_PLATFORM}/master.cpp
 )
 
 set(SYS_ROBOT_FILES     ${SRC_SYS_ROBOT}/mii_robot.cpp
@@ -84,7 +87,7 @@ add_library(${PROJECT_NAME}_sys_robot
 )
 
 ## Declare a C++ executable
-add_executable(${PROJECT_NAME}_exe
+add_executable(${PROJECT_NAME}
   ${BIN_FILES}
 )
 
@@ -100,7 +103,7 @@ target_link_libraries(${PROJECT_NAME}_sys_robot
   ${PROJECT_NAME}_sys_platform
 )
 
-target_link_libraries(${PROJECT_NAME}_exe
+target_link_libraries(${PROJECT_NAME}
   ${catkin_LIBRARIES}
   ${PROJECT_NAME}_sys_robot
 )
@@ -109,12 +112,12 @@ target_link_libraries(${PROJECT_NAME}_exe
 ## Install ##
 #############
 
-#[[install(DIRECTORY include/middleware/
+install(DIRECTORY include/middleware/
   DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION})
 
-install(TARGETS ${PROJECT_NAME}_hw_unit
-                ${PROJECT_NAME}_propagate
-                ${PROJECT_NAME}_exe
+install(TARGETS ${PROJECT_NAME}_sys_platform
+                ${PROJECT_NAME}_sys_robot
+                ${PROJECT_NAME}
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
@@ -123,7 +126,7 @@ install(TARGETS ${PROJECT_NAME}_hw_unit
 foreach(dir images launch config)
   install(DIRECTORY ${dir}/
     DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/${dir})
-endforeach(dir)]]
+endforeach(dir)
 
 #############
 ## Testing ##

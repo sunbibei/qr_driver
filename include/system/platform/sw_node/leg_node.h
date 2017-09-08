@@ -8,12 +8,12 @@
 #ifndef INCLUDE_APPS_HW_UNIT_LEG_NODE_H_
 #define INCLUDE_APPS_HW_UNIT_LEG_NODE_H_
 
-#include "system/platform/hw_unit/hw_unit.h"
+#include <system/platform/sw_node/sw_node.h>
 #include "system/foundation/utf.h"
 
 namespace middleware {
 
-class LegNode: public HwUnit {
+class LegNode: public SWNode {
 public:
   LegNode(const MiiString& __l = Label::null);
   virtual bool init() override;

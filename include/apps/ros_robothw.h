@@ -18,8 +18,9 @@
 #include <hardware_interface/imu_sensor_interface.h>
 
 #include "system/foundation/utf.h"
+#include "system/resources/joint_manager.h"
 
-namespace middleware {
+using namespace middleware;
 
 class RosRobotHW: public hardware_interface::RobotHW {
 public:
@@ -49,7 +50,7 @@ protected:
   // Startup and shutdown of the internal node inside a roscpp program
   ros::NodeHandle nh_;
   // Joint API
-  class JointManager* jnt_manager_;
+  JointManager* jnt_manager_;
   // Interfaces
   hardware_interface::JointStateInterface        jnt_state_iface_;
   hardware_interface::PositionJointInterface     jnt_pos_iface_;
@@ -76,7 +77,5 @@ protected:
   MiiMap<MiiString, double*> jnt_tor_cmds_;
 
 };
-
-} /* namespace middleware */
 
 #endif /* INCLUDE_APPS_ROS_ROBOTHW_H_ */

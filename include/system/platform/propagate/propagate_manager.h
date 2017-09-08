@@ -9,14 +9,14 @@
 #define INCLUDE_SYSTEM_ROBOT_PROPAGATE_MANAGER_H_
 
 #include <system/platform/protocol/qr_protocol.h>
-#include <system/platform/resource_manager.h>
+#include <system/platform/internal/resource_manager.h>
 #include "system/platform/propagate/propagate.h"
 
 #include <mutex>
 
 namespace middleware {
 
-class PropagateManager: public ResourceManager<Propagate> {
+class PropagateManager: public internal::ResourceManager<Propagate> {
   SINGLETON_DECLARE(PropagateManager)
 public:
   /**
@@ -29,8 +29,8 @@ public:
    */
   void updatePktsQueues();
 
-  bool readPackets (std::vector<Packet>&);
-  bool writePackets(const std::vector<Packet>&);
+  bool readPackets (MiiVector<Packet>&);
+  bool writePackets(const MiiVector<Packet>&);
 
 protected:
   // The interval time between twice RW.(in ms)
@@ -39,8 +39,8 @@ protected:
   // size_t                     pkts_queue_size;
   std::mutex          lock_4_send_;
   std::mutex          lock_4_recv_;
-  std::vector<Packet> pkts_queue_4_send_;
-  std::vector<Packet> pkts_queue_4_recv_;
+  MiiVector<Packet>   pkts_queue_4_send_;
+  MiiVector<Packet>   pkts_queue_4_recv_;
 };
 
 } /* namespace middleware */

@@ -9,14 +9,14 @@
 #define INCLUDE_SYSTEM_ROBOT_JOINT_MANAGER_H_
 
 #include <system/resources/joint.h>
-#include <system/platform/resource_manager.h>
+#include <system/platform/internal/resource_manager.h>
 #include <vector>
 #include <string>
 #include <map>
 
 namespace middleware {
 
-class JointManager: public ResourceManager<Joint> {
+class JointManager: public internal::ResourceManager<Joint> {
   SINGLETON_DECLARE(JointManager)
 
   friend class Joint;

@@ -26,12 +26,12 @@ namespace middleware {
  *        Note that the real hardware means the node what communicates with
  *        the master.
  */
-struct HwUnit : public Label {
-  friend class HwManager;
-  HwUnit(const MiiString& __l = Label::null);
-  virtual ~HwUnit();
-
+struct SWNode : public Label {
+  friend class SWNodeManager;
+  SWNode(const MiiString& __l = Label::null);
   virtual bool init() override;
+  virtual ~SWNode();
+
   /**
    * 该类是否会产生命令下发给机器人
    * 若发回true, 则会每次询问是否有指令下发

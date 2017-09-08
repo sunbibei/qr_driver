@@ -25,7 +25,7 @@
 #include <system/resources/joint.h>
 #endif
 
-namespace middleware {
+using namespace middleware;
 
 class RosWrapper : public MiiRobot {
 public:
@@ -62,7 +62,5 @@ private:
   boost::shared_ptr<class RosRobotHW> hardware_interface_;
   boost::shared_ptr<controller_manager::ControllerManager> controller_manager_;
 };
-
-} /* namespace qr_driver */
 
 #endif /* INCLUDE_QR_ROS_WRAPPER_H_ */

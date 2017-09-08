@@ -7,8 +7,8 @@
 
 #include <system/resources/joint.h>
 #include <system/foundation/label.h>
+#include <system/platform/master.h>
 #include <system/resources/touchdown.h>
-#include <system/platform/hw_manager.h>
 #include <system/resources/joint_manager.h>
 #include <system/platform/propagate/propagate_manager.h>
 #include "system/robot/mii_robot.h"
@@ -34,12 +34,12 @@ void MiiRobot::auto_inst(const MiiString& __p, const MiiString& __type) {
 
 MiiRobot::MiiRobot(const MiiString& __tag)
 : prefix_tag_(Label::make_label(__tag, "robot")),
-  hw_manager_(nullptr), jnt_manager_(nullptr) {
+  master_(nullptr), jnt_manager_(nullptr) {
   ;
 }
 
 MiiRobot::~MiiRobot() {
-  HwManager::destroy_instance();
+  Master::destroy_instance();
   JointManager::destroy_instance();
   ThreadPool::destroy_instance();
 }
@@ -49,14 +49,16 @@ MiiRobot::~MiiRobot() {
  */
 void MiiRobot::create_system_instance() {
   LOG_DEBUG << "==========MiiRobot::create_system_instance==========";
+
   if (nullptr == ThreadPool::create_instance())
     LOG_WARNING << "Create the singleton 'ThreadPool' has failed.";
 
   if (nullptr == JointManager::create_instance())
     LOG_WARNING << "Create the singleton 'JointManager' has failed.";
 
-  if (nullptr == HwManager::create_instance())
+  if (nullptr == Master::create_instance())
     LOG_WARNING << "Create the singleton 'HwManager' has failed.";
+
   LOG_DEBUG << "==========MiiRobot::create_system_instance==========";
   // The PropagateManager does not instance.
   // if (nullptr == PropagateManager::create_instance())
@@ -80,8 +82,8 @@ bool MiiRobot::init() {
   LOG_WARNING << "Auto instance has finished. The results list as follow:";
   Label::printfEveryInstance();
 
-  hw_manager_  = HwManager::instance();
-  hw_manager_->init();
+  master_  = Master::instance();
+  master_->init();
 
   jnt_manager_ = JointManager::instance();
   return true;
@@ -90,35 +92,18 @@ bool MiiRobot::init() {
 
 bool MiiRobot::start() {
   LOG_DEBUG << "==========MiiRobot::start==========";
-  bool ret = (hw_manager_->run() && ThreadPool::instance()->start());
+  bool ret = (master_->run() && ThreadPool::instance()->start());
   LOG_DEBUG << "==========MiiRobot::start==========";
-  return true;
+  return ret;
 }
 
 
-inline void MiiRobot::addCommand(const MiiString& name, double command) {
+void MiiRobot::addJntCmd(const MiiString& name, double command) {
   jnt_manager_->addJointCommand(name, command);
 }
 
-inline void MiiRobot::addCommand(const MiiVector<MiiString>& names,
-    const MiiVector<double>& commands) {
-  // jnt_manager_->addJointCommand(names, commands);
-  /*if (names.size() != commands.size()) {
-    LOG_ERROR << "No match size between names and commands("
-        << names.size() << " v.s. " << commands.size() << ")";
-    return;
-  }
-  for (size_t i = 0; i < names.size(); ++i)
-    addCommand(names[i], commands[i]);*/
-}
-
-void MiiRobot::addCommand(LegType _owner, JntType _jnt, double _command) {
+void MiiRobot::addJntCmd(LegType _owner, JntType _jnt, double _command) {
   jnt_manager_->addJointCommand(_owner, _jnt, _command);
-}
-
-void MiiRobot::addCommand(const MiiVector<LegType>&, const MiiVector<JntType>&,
-    const MiiVector<double>&) {
-
 }
 
 void MiiRobot::getJointNames(MiiVector<MiiString>& ret) {

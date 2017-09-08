@@ -5,18 +5,17 @@
  *      Author: silence
  */
 
-#include <system/platform/hw_unit/leg_node.h>
-
 #include "system/foundation/cfg_reader.h"
 #include <boost/algorithm/string.hpp>
 #include <system/resources/joint.h>
 #include <system/resources/touchdown.h>
 #include <system/foundation/utf.h>
+#include <system/platform/sw_node/leg_node.h>
 
 namespace middleware {
 
 LegNode::LegNode(const MiiString& __l)
-  : HwUnit(__l), leg_(LegType::UNKNOWN_LEG), td_(nullptr) {
+  : SWNode(__l), leg_(LegType::UNKNOWN_LEG), td_(nullptr) {
 }
 
 LegNode::~LegNode() {
@@ -30,7 +29,7 @@ LegNode::~LegNode() {
 }
 
 bool LegNode::init() {
-  if (!HwUnit::init())     return false;
+  if (!SWNode::init())     return false;
   auto cfg = MiiCfgReader::instance();
 
   MiiString tmp_str;

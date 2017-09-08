@@ -6,10 +6,6 @@
  */
 
 #include <apps/ros_robothw.h>
-#include <system/resources/joint_manager.h>
-#include <system/foundation/utf.h>
-
-namespace middleware {
 
 RosRobotHW::~RosRobotHW() {
   for (auto& cmd : jnt_pos_cmds_) {
@@ -316,5 +312,3 @@ void RosRobotHW::doSwitch(const std::list<hardware_interface::ControllerInfo>&st
     }
   }
 }
-
-} /* namespace middleware */

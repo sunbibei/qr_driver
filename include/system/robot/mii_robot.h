@@ -25,7 +25,9 @@ public:
    */
   virtual void create_system_instance();
 
+
   virtual bool init();
+
   virtual bool start();
 
 public:
@@ -34,18 +36,14 @@ public:
    * @param _name    The name of controlled joint
    * @param _command The read data of command
    */
-  void addCommand(const MiiString& _name, double _command);
-  void addCommand(const MiiVector<MiiString>&, const MiiVector<double>&);
-
+  void addJntCmd(const MiiString& _name, double _command);
   /**
    * @brief This methods add the joint command to Joint object.
    * @param _owner  The owner who owns the specific _jnt want to control
    * @param _jnt    The controlled Joint type
    * @param command The real data of command
    */
-  void addCommand(LegType _owner, JntType _jnt, double _command);
-  void addCommand(const MiiVector<LegType>&, const MiiVector<JntType>&,
-      const MiiVector<double>&);
+  void addJntCmd(LegType _owner, JntType _jnt, double _command);
   /**
    * 获取Joint的名称, 位置, 速度, 力矩及JointState等数据
    * 推荐直接使用获取JointState, 可以一次获取全部数据
@@ -58,7 +56,7 @@ public:
    * @brief Instead of the upper methods, you also use the JointManager directly.
    */
   class JointManager* joint_manager()           { return jnt_manager_; }
-  const class JointManager& joint_manager_ref() {return *jnt_manager_; }
+  const class JointManager& joint_manager_ref() { return *jnt_manager_; }
 
 public:
   static void auto_inst(const MiiString& __p, const MiiString& __type);
@@ -76,7 +74,7 @@ protected:
    * Tell MiiRobot what necessary parameters are found in @prefix_tag_.
    */
   MiiString                     prefix_tag_;
-  class HwManager*              hw_manager_;
+  class Master*                 master_;
   class JointManager*           jnt_manager_;
 
   MiiVector<class TouchDown*>          td_list_;

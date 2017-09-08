@@ -8,22 +8,25 @@
 #ifndef INCLUDE_SYSTEM_ROBOT_RESOURCE_MANAGER_H_
 #define INCLUDE_SYSTEM_ROBOT_RESOURCE_MANAGER_H_
 
-#include <vector>
+#include "system/foundation/utf.h"
 
 namespace middleware {
+namespace internal {
+
+
+const unsigned int __RESERVE_SIZE = 16;
 
 template<class _Resource>
 class ResourceManager {
 public:
-  typedef typename std::vector<_Resource*>::iterator  iterator;
-  typedef typename std::vector<_Resource*>::reference reference;
-  // typedef typename MiiVector<_Resource*>::iterator iterator;
+  typedef typename MiiVector<_Resource*>::iterator  iterator;
+  typedef typename MiiVector<_Resource*>::reference reference;
   /**
    * @brief Return the number of the registered resource.
    */
   unsigned int   size()  { return res_list_.size(); };
-  bool empty() { return res_list_.empty(); };
   reference operator[](int i) { return res_list_[i]; };
+  bool empty() { return res_list_.empty(); };
   /**
    * @brief These methods offer the ability of the range-based loop for classes.
    */
@@ -35,9 +38,6 @@ public:
   }
 
   virtual void remove(_Resource* _res) {
-    /*for (auto res : res_list_) {
-      if (res == _res) res_list_.erase(res);
-    }*/
     for (auto iter = res_list_.begin(); iter != res_list_.end();) {
       if (_res == *iter) iter = res_list_.erase(iter);
       else  ++iter;
@@ -45,15 +45,16 @@ public:
   }
 
 protected:
-  ResourceManager() : res_list_(std::vector<_Resource*>()) {
-    res_list_.reserve(16);
+  ResourceManager() : res_list_(MiiVector<_Resource*>()) {
+    res_list_.reserve(__RESERVE_SIZE);
   };
   virtual ~ResourceManager() { }
 
   // store all of the resource
-  std::vector<_Resource*> res_list_;
+  MiiVector<_Resource*> res_list_;
 };
 
+} /* namespace internal */
 } /* namespace middleware */
 
 #endif /* INCLUDE_SYSTEM_ROBOT_RESOURCE_MANAGER_H_ */

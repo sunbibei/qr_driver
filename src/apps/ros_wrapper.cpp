@@ -12,8 +12,6 @@
 #include "system/platform/thread/threadpool.h"
 #include "system/resources/joint_manager.h"
 
-namespace middleware {
-
 #define ROS_CTRL_THREAD ("ros_control")
 #define RT_PUB_THREAD   ("rt_publish")
 
@@ -81,7 +79,7 @@ bool RosWrapper::start() {
   ros::param::get("~use_ros_control", use_ros_control_);
   if (use_ros_control_) {
     hardware_interface_.reset(
-              new middleware::RosRobotHW(nh_));
+              new RosRobotHW(nh_));
     controller_manager_.reset(
         new controller_manager::ControllerManager(
             hardware_interface_.get(), nh_));
@@ -213,5 +211,3 @@ void RosWrapper::cbForDebug(const std_msgs::Int32ConstPtr& msg) {
   LOG_INFO << "Add Command Successful";
 }
 #endif
-
-} /* namespace qr_driver */
