@@ -38,12 +38,17 @@ catkin_package(
 include_directories(include ${catkin_INCLUDE_DIRS} ${TinyXML_INCLUDE_DIRS})
 
 set(SRC_ROOT            src)
+
 set(SRC_SYS             ${SRC_ROOT}/system)
 set(SRC_SYS_FOUNDATION  ${SRC_SYS}/foundation)
 set(SRC_SYS_PLATFORM    ${SRC_SYS}/platform)
-set(SRC_SYS_RESOURCE    ${SRC_SYS}/resources)
 set(SRC_SYS_ROBOT       ${SRC_SYS}/robot)
 set(SRC_SYS_UTILS       ${SRC_SYS}/utils)
+
+set(SRC_REP             ${SRC_ROOT}/repository)
+set(SRC_REP_RES         ${SRC_REP}/resource)
+set(SRC_REP_EST         ${SRC_REP}/estimator)
+
 set(SRC_APP             ${SRC_ROOT}/apps)
 
 
@@ -51,14 +56,15 @@ set(SYS_FLATFORM_FILES  ${SRC_SYS_FOUNDATION}/label.cpp
                         ${SRC_SYS_FOUNDATION}/auto_instanceor.cpp
                         ${SRC_SYS_FOUNDATION}/cfg_reader.cpp
 
-                        ${SRC_SYS_RESOURCE}/joint.cpp
-                        ${SRC_SYS_RESOURCE}/touchdown.cpp
-                        ${SRC_SYS_RESOURCE}/joint_manager.cpp
+                        ${SRC_REP_RES}/joint.cpp
+                        ${SRC_REP_RES}/force_sensor.cpp
+                        ${SRC_REP_RES}/joint_manager.cpp
+
+                        ${SRC_REP_EST}/touchdown_estimator.cpp
                         
                         ${SRC_SYS_PLATFORM}/sw_node/sw_node_manager.cpp
                         ${SRC_SYS_PLATFORM}/sw_node/sw_node.cpp
                         ${SRC_SYS_PLATFORM}/sw_node/leg_node.cpp
-
                         ${SRC_SYS_PLATFORM}/propagate/propagate_manager.cpp
                         ${SRC_SYS_PLATFORM}/propagate/propagate.cpp
                         ${SRC_SYS_PLATFORM}/propagate/pcan_fake.cpp

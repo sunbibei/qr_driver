@@ -37,25 +37,9 @@ ForceSensor::~ForceSensor() {
 bool ForceSensor::init() {
   auto cfg = MiiCfgReader::instance();
 
-  cfg->get_value(getLabel(), "msg_id", scale_);
-  cfg->get_value(getLabel(), "msg_id", offset_);
-
-  std::string tmp_str;
-  cfg->get_value_fatal(getLabel(), "leg", tmp_str);
-  boost::to_lower(tmp_str);
-  if (0 == tmp_str.compare("fl")) {
-    leg_type_ = LegType::FL;
-  } else if (0 == tmp_str.compare("fr")) {
-    leg_type_ = LegType::FR;
-  } else if (0 == tmp_str.compare("hl")) {
-    leg_type_ = LegType::HL;
-  } else if (0 == tmp_str.compare("hr")) {
-    leg_type_ = LegType::HR;
-  } else {
-    LOG_WARNING << "Error the 'leg' TAG(" << tmp_str << ") in the 'joint' TAG, "
-        << "require 'hl', 'fr', 'hl' or 'hr'";
-    return false;
-  }
+  cfg->get_value(getLabel(), "scale",     scale_);
+  cfg->get_value(getLabel(), "offset",    offset_);
+  cfg->get_value_fatal(getLabel(), "leg", leg_type_);
 
   return true;
 }

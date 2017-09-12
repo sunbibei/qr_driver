@@ -6,7 +6,6 @@
  */
 
 #include "system/foundation/cfg_reader.h"
-
 #include <boost/algorithm/string.hpp>
 
 namespace middleware {
@@ -168,6 +167,56 @@ bool MiiCfgReader::get_value(const MiiString& p, const MiiString& attr, MiiVecto
 
   for (auto c : vals_char)
     vals.push_back(c);
+
+  return true;
+}
+
+bool MiiCfgReader::get_value(const MiiString& p, const MiiString& attr, MiiVector<JntType>& vals) {
+  std::vector<std::string> vals_str;
+  if (!get_value(p, attr, vals_str)) return false;
+
+  for (auto str : vals_str) {
+    boost::to_lower(str);
+    JntType type = JntType::UNKNOWN_JNT;
+    if (0 == str.compare("yaw")) {
+      type = JntType::YAW;
+    } else if (0 == str.compare("hip")) {
+      type = JntType::HIP;
+    } else if (0 == str.compare("knee")) {
+      type = JntType::KNEE;
+    } else {
+      LOG_WARNING << "Error the 'jnt' TAG(" << str << ") in the 'joint' TAG, "
+          << "require 'yaw', 'knee' or 'hip'";
+    }
+
+    vals.push_back(type);
+  }
+
+  return true;
+}
+
+bool MiiCfgReader::get_value(const MiiString& p, const MiiString& attr, MiiVector<LegType>& vals) {
+  std::vector<std::string> vals_str;
+  if (!get_value(p, attr, vals_str)) return false;
+
+  for (auto str : vals_str) {
+    boost::to_lower(str);
+    LegType type = LegType::UNKNOWN_LEG;
+    if (0 == str.compare("fl")) {
+      type = LegType::FL;
+    } else if (0 == str.compare("fr")) {
+      type = LegType::FR;
+    } else if (0 == str.compare("hl")) {
+      type = LegType::HL;
+    } else if (0 == str.compare("hr")) {
+      type = LegType::HR;
+    } else {
+      LOG_WARNING << "Error the 'leg' TAG(" << str << ") in the 'joint' TAG, "
+          << "require 'hl', 'fr', 'hl' or 'hr'";
+    }
+
+    vals.push_back(type);
+  }
 
   return true;
 }

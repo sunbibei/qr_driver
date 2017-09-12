@@ -46,6 +46,8 @@ public:
   bool get_value(const MiiString& p, const MiiString& attr, MiiVector<bool>&);
   bool get_value(const MiiString& p, const MiiString& attr, MiiVector<char>&);
   bool get_value(const MiiString& p, const MiiString& attr, MiiVector<unsigned char>&);
+  bool get_value(const MiiString& p, const MiiString& attr, MiiVector<JntType>&);
+  bool get_value(const MiiString& p, const MiiString& attr, MiiVector<LegType>&);
 
   /**
    *  @brief  Find the value of @p.@attr in the configure file.

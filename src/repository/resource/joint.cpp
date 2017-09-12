@@ -58,45 +58,15 @@ Joint::~Joint() {
 bool Joint::init() {
   auto cfg = MiiCfgReader::instance();
 
-  bool ret = true;
-  std::string tmp_str;
-  cfg->get_value_fatal(getLabel(), "jnt", tmp_str);
-  boost::to_lower(tmp_str);
-  if (0 == tmp_str.compare("yaw")) {
-    jnt_type_ = JntType::YAW;
-  } else if (0 == tmp_str.compare("knee")) {
-    jnt_type_ = JntType::KNEE;
-  } else if (0 == tmp_str.compare("hip")) {
-    jnt_type_ = JntType::HIP;
-  } else {
-    LOG_WARNING << "Error the 'jnt' TAG(" << tmp_str << ") in the 'joint' TAG, "
-        << "require 'yaw', 'knee' or 'hip'";
-    ret = false;
-  }
+  cfg->get_value_fatal(getLabel(), "jnt",  jnt_type_);
+  cfg->get_value_fatal(getLabel(), "leg",  leg_type_);
+  cfg->get_value_fatal(getLabel(), "name", jnt_name_);
 
-  cfg->get_value_fatal(getLabel(), "leg", tmp_str);
-  boost::to_lower(tmp_str);
-  if (0 == tmp_str.compare("fl")) {
-    leg_type_ = LegType::FL;
-  } else if (0 == tmp_str.compare("fr")) {
-    leg_type_ = LegType::FR;
-  } else if (0 == tmp_str.compare("hl")) {
-    leg_type_ = LegType::HL;
-  } else if (0 == tmp_str.compare("hr")) {
-    leg_type_ = LegType::HR;
-  } else {
-    LOG_WARNING << "Error the 'leg' TAG(" << tmp_str << ") in the 'joint' TAG, "
-        << "require 'hl', 'fr', 'hl' or 'hr'";
-    ret = false;
-  }
-
-  cfg->get_value_fatal(getLabel(), "name",   jnt_name_);
-  // cfg->get_value_fatal(getLabel(), "msg_id", msg_id_);
   cfg->get_value(getLabel(), "scale",  scale_);
   cfg->get_value(getLabel(), "offset", offset_);
 
   JointManager::instance()->add(this);
-  return ret;
+  return true;
 }
 
 const MiiString& Joint::joint_name() const { return jnt_name_; }

@@ -86,16 +86,21 @@ void PcanChannel::stop() {
 }
 
 bool PcanChannel::write(const Packet& pkt) {
+  msg_4_send_->MSGTYPE = PCAN_MESSAGE_STANDARD;
+  msg_4_send_->ID      = MII_MSG_FILL_TO_NODE_MSG(pkt.node_id, pkt.msg_id);
+  msg_4_send_->LEN     = pkt.size;
+  memset(msg_4_send_->DATA, '\0', 8 * sizeof(BYTE));
+  memcpy(msg_4_send_->DATA, pkt.data, msg_4_send_->LEN * sizeof(BYTE));
   // static int g_w_err_count = 0;
   // if (!connected_) { return connected_; }
   // This code aims to compatible with the old protocol
   // TODO It should be updated.
-  msg_4_send_->ID  = pkt.node_id;
+  /*msg_4_send_->ID  = pkt.node_id;
   msg_4_send_->LEN = pkt.size + 3;
   msg_4_send_->DATA[0] = pkt.msg_id;
   msg_4_send_->DATA[1] = ONLY_ONE_PKT;
   msg_4_send_->DATA[2] = INVALID_BYTE;
-  memcpy(msg_4_send_->DATA + 3, pkt.data, pkt.size * sizeof(BYTE));
+  memcpy(msg_4_send_->DATA + 3, pkt.data, pkt.size * sizeof(BYTE));*/
 
   // try to 10 times
   for (g_times_count = 0; g_times_count < MAX_TRY_TIMES; ++g_times_count) {
@@ -122,9 +127,15 @@ bool PcanChannel::read(Packet& pkt) {
   }
   if (PCAN_ERROR_OK != g_status_) return false;
 
+  pkt.node_id = MII_MSG_EXTRACT_NODE_ID(msg_4_send_->ID);
+  pkt.msg_id  = MII_MSG_EXTRACT_MSG_ID(msg_4_send_->ID);
+  pkt.size    = msg_4_send_->LEN;
+  memset(pkt.data, '\0', 8 * sizeof(char));
+  memcpy(pkt.data, msg_4_send_->DATA, pkt.size * sizeof(char));
+
   // This code aims to compatible with the old protocol
   // TODO It should be updated.
-  if (msg_4_recv_->LEN < 3) {
+  /*if (msg_4_recv_->LEN < 3) {
     LOG_EVERY_N(ERROR, 10) << "Error Message from can bus, this length of message data is "
         << msg_4_recv_->LEN;
     return false;
@@ -132,7 +143,7 @@ bool PcanChannel::read(Packet& pkt) {
   pkt.node_id = msg_4_recv_->ID;
   pkt.msg_id  = msg_4_recv_->DATA[0];
   pkt.size    = msg_4_recv_->LEN - 3;
-  memcpy(pkt.data, msg_4_recv_->DATA + 3, pkt.size * sizeof(BYTE));
+  memcpy(pkt.data, msg_4_recv_->DATA + 3, pkt.size * sizeof(BYTE));*/
   return true;
 }
 
