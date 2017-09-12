@@ -93,6 +93,11 @@ void LegNode::handleMsg(const Packet& pkt) {
     return;
   }
 
+  switch (pkt.msg_id) {
+  default:
+    SWNode::handleMsg(pkt);
+  }
+
   short count = pkt.data[0] + (pkt.data[1] << 8);
   // memcpy(&count , pkt.data, sizeof(short));
   if (pkt.msg_id == td_->msg_id_)

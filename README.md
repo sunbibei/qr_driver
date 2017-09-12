@@ -1,12 +1,29 @@
-# 恐龙软件平台
+# System for quadruped robot
 
-# 概述
+# General
 
-恐龙软件平台, 指介于恐龙硬件机构与上层算法及应用之间的中间层. 逻辑示意图如下所示:
+This system serves our robot as data transfer, offers the joint, touchdown and IMU data for control algorithm, and transfer the joint command to the real robot. The framework of our system as follow,
 
 <center>
-![](../dragon_robot/img/driver_1.png)
+![](images/framework.jpg)
 </center>
+
+As we can seen from the upper figure, our system, namely `SOFTWARE PLATFORM`, was locationed between the `ROS SUPPORT` and `HARDWARE`, was composed of the three mainly modules, `System Platform`, `Resource Repository`, and `Robot`. The mainly tasks of this system, we are listing as follow,
+ 1. The robot data from different communication styles should be collecting by the proper ways.
+ 2. The joint commands from someone were delivered to the real robot.
+ 3. The ROS environment should be supported.
+ 4. The control framework should be convenient, high-performance and simple.
+ 5. The control algorithm could test and debug in simulation environment, and doesn't need anyy other extra-work
+
+# Ideas
+
+Our design ideas include but not limited that,
+ 1. Wish to create the most instances through a plain file, such as `.txt`, `.xml`, etc. In this case, we choose the `xml` file format as our configure file.
+ 2. Wish to design a general framework that could hold the change in the real robot maybe occur in the future, such as, we maybe want to add a extra sensor, we maybe change the way of communication.
+ 3. Wish to our code could cross-platform. Perhaps, it's just a beautiful wish.
+
+
+
 
 如上图所示, 软件平台位于用户接口及算法等高级应用之间. 为用户提供硬件抽象以及低级别控制任务接口.主要功能如下所示:
 
