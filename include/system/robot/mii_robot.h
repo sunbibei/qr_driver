@@ -77,10 +77,10 @@ protected:
   class Master*                 master_;
   class JointManager*           jnt_manager_;
 
-  MiiVector<class TouchDown*>          td_list_;
+  MiiVector<class ForceSensor*>          td_list_;
   // type: leg
-  MiiVector<class TouchDown*>          td_list_by_type_;
-  MiiMap<MiiString, class TouchDown*>  td_list_by_name_;
+  MiiVector<class ForceSensor*>          td_list_by_type_;
+  MiiMap<MiiString, class ForceSensor*>  td_list_by_name_;
 };
 
 } /* namespace middleware */

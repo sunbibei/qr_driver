@@ -8,7 +8,7 @@
 #ifndef INCLUDE_SYSTEM_ROBOT_JOINT_MANAGER_H_
 #define INCLUDE_SYSTEM_ROBOT_JOINT_MANAGER_H_
 
-#include <system/resources/joint.h>
+#include <repository/resource/joint.h>
 #include <system/platform/internal/resource_manager.h>
 #include <vector>
 #include <string>
@@ -28,19 +28,7 @@ public:
    * @brief This method finds a specific named joint, return iteration if successful,
    *        return end() if it has not found.
    */
-  /*iterator find(const MiiString& _n) {
-    if (jnt_list_by_name_.end() == jnt_list_by_name_.find(_n))
-      return end();
-    Joint* tmp = jnt_list_by_name_.find(_n)->second;
-    for (size_t i = 0;i < res_list_.size(); ++i) {
-      if (tmp == res_list_[i]) break;
-    }
-    for (iterator itr = res_list_.begin(); itr != res_list_.end(); ++itr) {
-      const MiiString& jnt_n_ = typename itr->joint_name();
-      if (0 == _n.compare(jnt_n_)) return itr;
-    }
-    return end();
-  }*/
+  iterator find(const MiiString& _n);
 ///////////////////////////////////////////////////////////////////////////////
 ////////////////////        The Common Interfaces         /////////////////////
 ///////////////////////////////////////////////////////////////////////////////
@@ -77,11 +65,11 @@ public:
   // override
   void joint_position_const_pointer(const MiiString& _n, const double* & _c_p);
   void joint_velocity_const_pointer(const MiiString& _n, const double* & _c_p);
-  void joint_torque_const_pointer(const MiiString& _n, const double* & _c_p);
+  void joint_torque_const_pointer  (const MiiString& _n, const double* & _c_p);
   // override
   void joint_position_const_pointer(MiiVector<const double*>&);
   void joint_velocity_const_pointer(MiiVector<const double*>&);
-  void joint_torque_const_pointer(MiiVector<const double*>&);
+  void joint_torque_const_pointer  (MiiVector<const double*>&);
 
 protected:
   // Owner Size * Joint Size

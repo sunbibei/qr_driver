@@ -7,10 +7,10 @@
 
 #include <apps/ros_robothw.h>
 #include <apps/ros_wrapper.h>
+#include <repository/resource/joint_manager.h>
 #include "system/foundation/auto_instanceor.h"
 #include "system/foundation/cfg_reader.h"
 #include "system/platform/thread/threadpool.h"
-#include "system/resources/joint_manager.h"
 
 #define ROS_CTRL_THREAD ("ros_control")
 #define RT_PUB_THREAD   ("rt_publish")

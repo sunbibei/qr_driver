@@ -16,9 +16,9 @@
 #include <hardware_interface/joint_command_interface.h>
 #include <hardware_interface/force_torque_sensor_interface.h>
 #include <hardware_interface/imu_sensor_interface.h>
+#include <repository/resource/joint_manager.h>
 
 #include "system/foundation/utf.h"
-#include "system/resources/joint_manager.h"
 
 using namespace middleware;
 

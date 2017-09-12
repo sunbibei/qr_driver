@@ -5,7 +5,7 @@
  *      Author: silence
  */
 
-#include <system/resources/joint_manager.h>
+#include <repository/resource/joint_manager.h>
 
 namespace middleware {
 
@@ -38,6 +38,16 @@ void JointManager::add(Joint* _res) {
   }
   jnt_list_by_type_[_res->owner_type()][_res->joint_type()] = _res;
   LOG_DEBUG << "The joint " << _res->getLabel() << " is received by JointManager";
+}
+
+JointManager::iterator JointManager::find(const MiiString& _n) {
+  for (JointManager::iterator itr = JointManager::res_list_.begin();
+      itr != JointManager::res_list_.end(); ++itr) {
+
+    if (0 == _n.compare((*itr)->joint_name())) return itr;
+  }
+
+  return end();
 }
 
 void JointManager::addJointCommand(LegType owner, JntType type, double val) {

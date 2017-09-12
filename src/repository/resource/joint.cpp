@@ -10,9 +10,9 @@
 #include <chrono>
 #include <tinyxml.h>
 #include <boost/algorithm/string.hpp>
+#include <repository/resource/joint.h>
+#include <repository/resource/joint_manager.h>
 #include <system/platform/protocol/qr_protocol.h>
-#include <system/resources/joint.h>
-#include <system/resources/joint_manager.h>
 #include <system/foundation/utf.h>
 
 namespace middleware {
@@ -38,10 +38,21 @@ struct JointCommand {
 
 Joint::Joint(const MiiString& l)
   : Label(l), new_command_(false), jnt_type_(JntType::UNKNOWN_JNT),
-    leg_type_(LegType::UNKNOWN_LEG), scale_(0), offset_(0), msg_id_(INVALID_ID),
+    leg_type_(LegType::UNKNOWN_LEG), scale_(0), offset_(0), /*msg_id_(INVALID_BYTE),*/
     joint_state_(new JointState), joint_command_(new JointCommand) {
   // The code as follow should be here.
   // JointManager::instance()->add(this);
+}
+
+Joint::~Joint() {
+  if (nullptr != joint_state_) {
+    delete joint_state_;
+    joint_state_ = nullptr;
+  }
+  if (nullptr != joint_command_) {
+    delete joint_command_;
+    joint_command_ = nullptr;
+  }
 }
 
 bool Joint::init() {
@@ -80,9 +91,9 @@ bool Joint::init() {
   }
 
   cfg->get_value_fatal(getLabel(), "name",   jnt_name_);
-  cfg->get_value_fatal(getLabel(), "msg_id", msg_id_);
-  cfg->get_value_fatal(getLabel(), "scale",  scale_);
-  cfg->get_value_fatal(getLabel(), "offset", offset_);
+  // cfg->get_value_fatal(getLabel(), "msg_id", msg_id_);
+  cfg->get_value(getLabel(), "scale",  scale_);
+  cfg->get_value(getLabel(), "offset", offset_);
 
   JointManager::instance()->add(this);
   return ret;
@@ -92,7 +103,7 @@ const MiiString& Joint::joint_name() const { return jnt_name_; }
 const JntType& Joint::joint_type() const { return jnt_type_; }
 const LegType& Joint::owner_type()   const { return leg_type_; }
 
-void Joint::updateJointPosition(short _count) {
+void Joint::updateJointCount(short _count) {
   double pos = joint_state_->pos_;
   joint_state_->pos_ = _count * scale_ + offset_;
   auto t0 = std::chrono::high_resolution_clock::now();
@@ -105,20 +116,34 @@ double Joint::joint_position() {
   return joint_state_->pos_;
 }
 
+const double& Joint::joint_position_const_ref() {
+  return joint_state_->pos_;
+}
+
+const double* Joint::joint_position_const_pointer() {
+  return &(joint_state_->pos_);
+}
+
 double Joint::joint_velocity() {
   return joint_state_->vel_;
+}
+
+const double& Joint::joint_velocity_const_ref() {
+  return joint_state_->vel_;
+}
+
+const double* Joint::joint_velocity_const_pointer() {
+  return &(joint_state_->vel_);
 }
 
 double Joint::joint_torque() {
   return joint_state_->tor_;
 }
 
-const double* Joint::joint_position_const_pointer() {
-  return &(joint_state_->pos_);
+const double& Joint::joint_torque_const_ref() {
+  return joint_state_->tor_;
 }
-const double* Joint::joint_velocity_const_pointer() {
-  return &(joint_state_->vel_);
-}
+
 const double* Joint::joint_torque_const_pointer() {
   return &(joint_state_->tor_);
 }
@@ -127,6 +152,10 @@ const double* Joint::joint_torque_const_pointer() {
 void Joint::updateJointCommand(double v) {
   joint_command_->command_ = v;
   new_command_ = true;
+}
+
+void Joint::updateJointCommand(JntCmdType mode) {
+  joint_command_->mode_ = mode;
 }
 
 void Joint::updateJointCommand(double v, JntCmdType t) {
@@ -139,27 +168,24 @@ double Joint::joint_command() {
   return joint_command_->command_;
 }
 
-void Joint::changeJointCommandMode(JntCmdType mode) {
-  joint_command_->mode_ = mode;
+const double& Joint::joint_command_const_ref() {
+  return joint_command_->command_;
+}
+
+const double* Joint::joint_command_const_pointer() {
+  return &(joint_command_->command_);
 }
 
 JntCmdType Joint::joint_command_mode() {
   return joint_command_->mode_;
 }
 
-/*bool Joint::new_command(Packet* pkt) {
-  if (!new_command_) return false;
-  new_command_ = false;
-
-  memset(pkt, '\0', sizeof(Packet));
-  pkt->msg_id = msg_id_;
-  pkt->size   = 2;
-  short count = (joint_command_->command_ - offset_) / scale_;
-  pkt->data[0] = count;
-  pkt->data[1] = count >> 8;
-  // memcpy(pkt->data, &count, sizeof(short));
-  return true;
-}*/
+const JntCmdType& Joint::joint_command_mode_const_ref() {
+  return joint_command_->mode_;
+}
+const JntCmdType* Joint::joint_command_mode_const_pointer() {
+  return &(joint_command_->mode_);
+}
 
 } /* namespace middleware */
 

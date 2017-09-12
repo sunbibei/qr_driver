@@ -22,7 +22,7 @@
 
 #define DEBUG_TOPIC
 #ifdef DEBUG_TOPIC
-#include <system/resources/joint.h>
+#include <repository/resource/joint.h>
 #endif
 
 using namespace middleware;

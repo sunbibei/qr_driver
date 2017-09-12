@@ -5,11 +5,11 @@
  *      Author: silence
  */
 
-#include <system/resources/joint.h>
+#include <repository/resource/force_sensor.h>
+#include <repository/resource/joint.h>
+#include <repository/resource/joint_manager.h>
 #include <system/foundation/label.h>
 #include <system/platform/master.h>
-#include <system/resources/touchdown.h>
-#include <system/resources/joint_manager.h>
 #include <system/platform/propagate/propagate_manager.h>
 #include "system/robot/mii_robot.h"
 #include "system/foundation/cfg_reader.h"

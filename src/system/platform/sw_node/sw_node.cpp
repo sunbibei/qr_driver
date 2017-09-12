@@ -14,7 +14,7 @@
 namespace middleware {
 
 SWNode::SWNode(const MiiString& l)
-: Label(l), node_id_(INVALID_ID) {
+: Label(l), node_id_(INVALID_BYTE) {
   SWNodeManager::instance()->add(this);
 }
 

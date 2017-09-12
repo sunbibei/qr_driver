@@ -12,20 +12,22 @@
 
 namespace middleware {
 
-class TouchDown : public Label {
+class ForceSensor : public Label {
   friend class LegNode;
 public:
-  TouchDown(const MiiString& __l = Label::null);
-
+  ForceSensor(const MiiString& __l = Label::null);
   // 妥协方案
   virtual bool init() override;
-  ~TouchDown();
+  ~ForceSensor();
 
   /**
    * Interface for user layer
    */
-  double touchdown_data();
   const LegType& leg_type() const;
+
+  double force_data();
+  const double* force_data_const_pointer();
+  const double& force_data_const_ref();
 
 protected:
 
@@ -33,12 +35,10 @@ protected:
    * Interface for communication layer
    */
   // data = count * scale + offset
-  void updateTouchdownState(short count);
+  void updateForceCount(short count);
 
-  LegType        leg_type_;
-
-  unsigned char  msg_id_;
-  class TDState* td_state_;
+  LegType           leg_type_;
+  class ForceState* td_state_;
 
   double         scale_;
   double         offset_;

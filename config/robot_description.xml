@@ -3,43 +3,31 @@
 
 	<!-- All of the hardwares list here, and it will be automatic instance -->
 	<fl>
-		<yaw  auto_inst="middleware::Joint" leg="fl" jnt="yaw"  name="fl_yaw"
-			msg_id="0x03" scale="0.0001" offset="0" />
-		<hip  auto_inst="middleware::Joint" leg="fl" jnt="hip"  name="fl_hip"
-			msg_id="0x02" scale="0.0001" offset="0" />
-		<knee auto_inst="middleware::Joint" leg="fl" jnt="knee" name="fl_knee"
-			msg_id="0x01" scale="0.0001" offset="0" />
-		<touchdown auto_inst="middleware::TouchDown" leg="fl"   msg_id="0x04" scale="0.0001" offset="0" />
+		<yaw  auto_inst="middleware::Joint" leg="fl" jnt="yaw"  name="fl_yaw"  />
+		<hip  auto_inst="middleware::Joint" leg="fl" jnt="hip"  name="fl_hip"  />
+		<knee auto_inst="middleware::Joint" leg="fl" jnt="knee" name="fl_knee" />
+		<touchdown auto_inst="middleware::TouchDown" leg="fl"                  />
 	</fl>
 
 	<hl>
-		<yaw  auto_inst="middleware::Joint" leg="hl" jnt="yaw"  name="hl_yaw"
-			msg_id="0x03" scale="0.0001" offset="0" />
-		<hip  auto_inst="middleware::Joint" leg="hl" jnt="hip"  name="hl_hip"
-			msg_id="0x02" scale="0.0001" offset="0" />
-		<knee auto_inst="middleware::Joint" leg="hl" jnt="knee" name="hl_knee"
-			msg_id="0x01" scale="0.0001" offset="0" />
-		<touchdown auto_inst="middleware::TouchDown" leg="hl"   msg_id="0x04" scale="0.0001" offset="0" />
+		<yaw  auto_inst="middleware::Joint" leg="hl" jnt="yaw"  name="hl_yaw"  />
+		<hip  auto_inst="middleware::Joint" leg="hl" jnt="hip"  name="hl_hip"  />
+		<knee auto_inst="middleware::Joint" leg="hl" jnt="knee" name="hl_knee" />
+		<touchdown auto_inst="middleware::TouchDown" leg="hl"                  />
 	</hl>
 
 	<fr>
-		<yaw  auto_inst="middleware::Joint" leg="fr" jnt="yaw"  name="fr_yaw"
-			msg_id="0x03" scale="0.0001" offset="0" />
-		<hip  auto_inst="middleware::Joint" leg="fr" jnt="hip"  name="fr_hip"
-			msg_id="0x02" scale="0.0001" offset="0" />
-		<knee auto_inst="middleware::Joint" leg="fr" jnt="knee" name="fr_knee"
-			msg_id="0x01" scale="0.0001" offset="0" />
-		<touchdown auto_inst="middleware::TouchDown" leg="fr"   msg_id="0x04" scale="0.0001" offset="0" />
+		<yaw  auto_inst="middleware::Joint" leg="fr" jnt="yaw"  name="fr_yaw"  />
+		<hip  auto_inst="middleware::Joint" leg="fr" jnt="hip"  name="fr_hip"  />
+		<knee auto_inst="middleware::Joint" leg="fr" jnt="knee" name="fr_knee" />
+		<touchdown auto_inst="middleware::TouchDown" leg="fr"                  />
 	</fr>
 
 	<hr>
-		<yaw  auto_inst="middleware::Joint" leg="hr" jnt="yaw"  name="hr_yaw"
-			msg_id="0x03" scale="0.0001" offset="0" />
-		<hip  auto_inst="middleware::Joint" leg="hr" jnt="hip"  name="hr_hip"
-			msg_id="0x02" scale="0.0001" offset="0" />
-		<knee auto_inst="middleware::Joint" leg="hr" jnt="knee" name="hr_knee"
-			msg_id="0x01" scale="0.0001" offset="0" />
-		<touchdown auto_inst="middleware::TouchDown" leg="hr"   msg_id="0x04" scale="0.0001" offset="0" />
+		<yaw  auto_inst="middleware::Joint" leg="hr" jnt="yaw"  name="hr_yaw"  />
+		<hip  auto_inst="middleware::Joint" leg="hr" jnt="hip"  name="hr_hip"  />
+		<knee auto_inst="middleware::Joint" leg="hr" jnt="knee" name="hr_knee" />
+		<touchdown auto_inst="middleware::TouchDown" leg="hr"                  />
 	</hr>
 
 	<!-- About propagates, it will be automatic instance and addtion to PropagatesManager -->
@@ -56,37 +44,37 @@
 	<!-- All of the nodes will be managed by HwManager which contains propagates-->
 	<lf name="hardwares" >
 		<node auto_inst="middleware::LegNode" leg="fl" node_id="0x02" >
-			<joint_0     jnt="yaw"  label="qr.fl.yaw"       />
-			<joint_1     jnt="hip"  label="qr.fl.hip"       />
-			<joint_2     jnt="knee" label="qr.fl.knee"      />
-			<touchdown              label="qr.fl.touchdown" />
+			<joint_0     jnt="yaw"  label="qr.fl.yaw"       scale="0.0001" offset="0" />
+			<joint_1     jnt="hip"  label="qr.fl.hip"       scale="0.0001" offset="0" />
+			<joint_2     jnt="knee" label="qr.fl.knee"      scale="0.0001" offset="0" />
+			<touchdown              label="qr.fl.touchdown" scale="0.0001" offset="0" />
 		</node>
 	</lf>
 
 	<hl>
 		<node auto_inst="middleware::LegNode" leg="hl" node_id="0x03" >
-			<joint_0     jnt="yaw"  label="qr.hl.yaw"       />
-			<joint_1     jnt="hip"  label="qr.hl.hip"       />
-			<joint_2     jnt="knee" label="qr.hl.knee"      />
-			<touchdown              label="qr.hl.touchdown" />
+			<joint_0     jnt="yaw"  label="qr.hl.yaw"       scale="0.0001" offset="0" />
+			<joint_1     jnt="hip"  label="qr.hl.hip"       scale="0.0001" offset="0" />
+			<joint_2     jnt="knee" label="qr.hl.knee"      scale="0.0001" offset="0" />
+			<touchdown              label="qr.hl.touchdown" scale="0.0001" offset="0" />
 		</node>
 	</hl>
 
 	<fr>
 		<node auto_inst="middleware::LegNode" leg="fr" node_id="0x04" >
-			<joint_0     jnt="yaw"  label="qr.fr.yaw"       />
-			<joint_1     jnt="hip"  label="qr.fr.hip"       />
-			<joint_2     jnt="knee" label="qr.fr.knee"      />
-			<touchdown              label="qr.fr.touchdown" />
+			<joint_0     jnt="yaw"  label="qr.fr.yaw"       scale="0.0001" offset="0" />
+			<joint_1     jnt="hip"  label="qr.fr.hip"       scale="0.0001" offset="0" />
+			<joint_2     jnt="knee" label="qr.fr.knee"      scale="0.0001" offset="0" />
+			<touchdown              label="qr.fr.touchdown" scale="0.0001" offset="0" />
 		</node>
 	</fr>
 
 	<hr>
 		<node auto_inst="middleware::LegNode" leg="hr" node_id="0x05" >
-			<joint_0     jnt="yaw"  label="qr.hr.yaw"       />
-			<joint_1     jnt="hip"  label="qr.hr.hip"       />
-			<joint_2     jnt="knee" label="qr.hr.knee"      />
-			<touchdown              label="qr.hr.touchdown" />
+			<joint_0     jnt="yaw"  label="qr.hr.yaw"       scale="0.0001" offset="0" />
+			<joint_1     jnt="hip"  label="qr.hr.hip"       scale="0.0001" offset="0" />
+			<joint_2     jnt="knee" label="qr.hr.knee"      scale="0.0001" offset="0" />
+			<touchdown              label="qr.hr.touchdown" scale="0.0001" offset="0" />
 		</node>
 	</hr>
 

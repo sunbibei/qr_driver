@@ -7,10 +7,11 @@
 
 #include "system/foundation/cfg_reader.h"
 #include <boost/algorithm/string.hpp>
-#include <system/resources/joint.h>
-#include <system/resources/touchdown.h>
+#include <repository/resource/force_sensor.h>
+#include <repository/resource/joint.h>
 #include <system/foundation/utf.h>
 #include <system/platform/sw_node/leg_node.h>
+#include "system/platform/protocol/qr_protocol.h"
 
 #include <iomanip>
 
@@ -18,15 +19,18 @@ namespace middleware {
 
 LegNode::LegNode(const MiiString& __l)
   : SWNode(__l), leg_(LegType::UNKNOWN_LEG), td_(nullptr) {
+  for (auto& c : jnt_cmds_)
+    c = nullptr;
+
+  for (auto& c : jnt_mods_)
+    c = nullptr;
 }
 
 LegNode::~LegNode() {
-  for (auto& jnt : joints_) {
-    delete jnt;
+  for (auto& jnt : joints_by_type_) {
     jnt = nullptr;
   }
 
-  delete td_;
   td_ = nullptr;
 }
 
@@ -52,7 +56,7 @@ bool LegNode::init() {
   }
 
   int count = 0;
-  unsigned char max_id = 0x00;
+  joints_by_type_.resize(JntType::N_JNTS);
   MiiString tag = Label::make_label(getLabel(), "joint_0");
   while(cfg->get_value(tag, "label", tmp_str)) {
     tag = Label::make_label(getLabel(), "joint_" + std::to_string(++count));
@@ -64,27 +68,30 @@ bool LegNode::init() {
           << "' pointer from LabelSystem.";
       continue;
     }
-    joints_.push_back(jnt);
-    if (max_id < jnt->msg_id_) max_id = jnt->msg_id_;
+    joints_by_type_[jnt->joint_type()] = jnt;
+    jnt_cmds_[jnt->joint_type()]       = jnt->joint_command_const_pointer();
+    jnt_mods_[jnt->joint_type()]       = jnt->joint_command_mode_const_pointer();
   }
-  if (0x00 == max_id) {
-    LOG_WARNING << "No joint push back!";
-    return false;
-  }
-
-  joints_by_id_.resize(++max_id);
-  for (auto j : joints_)
-    joints_by_id_[j->msg_id_] = j;
 
   tag = Label::make_label(getLabel(), "touchdown");
   if ((cfg->get_value(tag, "label", tmp_str))
-      && (td_ = Label::getHardwareByName<TouchDown>(tmp_str))) {
+      && (td_ = Label::getHardwareByName<ForceSensor>(tmp_str))) {
     LOG_DEBUG << getLabel() << "'s TD: " << td_->getLabel() << "\t" << td_;
     return true;
   } else {
     LOG_WARNING << "The touchdown parameter is not found.";
     return false;
   }
+}
+
+void LegNode::updateFromBuf(const char* __p) {
+  int offset  = 0;
+  for (const auto& type : {JntType::YAW, JntType::HIP, JntType::KNEE}) {
+    joints_by_type_[type]->updateJointCount((__p[offset] | (__p[offset + 1] << 8)));
+    offset += 2; // each count will stand two bytes.
+  }
+
+  td_->updateForceCount((__p[6] | (__p[7] << 8)));
 }
 
 void LegNode::handleMsg(const Packet& pkt) {
@@ -94,27 +101,26 @@ void LegNode::handleMsg(const Packet& pkt) {
   }
 
   switch (pkt.msg_id) {
+  case MII_MSG_HEARTBEAT_MSG_1:
+    // parse the joint state and touchdown data
+    updateFromBuf(pkt.data);
+    break;
   default:
     SWNode::handleMsg(pkt);
   }
-
-  short count = pkt.data[0] + (pkt.data[1] << 8);
-  // memcpy(&count , pkt.data, sizeof(short));
-  if (pkt.msg_id == td_->msg_id_)
-    td_->updateTouchdownState(count);
-  else
-    joints_by_id_[pkt.msg_id]->updateJointPosition(count);
 }
 
 bool LegNode::generateCmd(std::vector<Packet>& pkts) {
-  Packet cmd;
-  cmd.node_id = node_id_;
-  for (auto& j : joints_) {
-    // if (j->new_command(&cmd))
-      continue;
+  Packet cmd{node_id_, MII_MSG_COMMON_DATA_1, 6, {0}};
 
-    // double new_cmd = j->joint_command();
+  int offset = 0;
+  for (const auto& type : {JntType::YAW, JntType::HIP, JntType::KNEE}) {
+    if (joints_by_type_[type]->new_command_)
+      memcpy(cmd.data, jnt_cmds_[type], offset + 2 * sizeof(char));
+    offset += 2; // Each count stand two bytes.
   }
+
+  pkts.push_back(cmd);
 
   return true;
 }

@@ -6,7 +6,7 @@
  */
 
 
-#include <system/resources/joint.h>
+#include <repository/resource/joint.h>
 #include <system/foundation/label.h>
 #include <system/utils/trajectoryfollower.h>
 

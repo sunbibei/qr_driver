@@ -18,6 +18,7 @@ public:
   Joint(const MiiString& l = Label::null);
   // 妥协方案
   virtual bool init() override;
+  ~Joint();
 
   const MiiString&   joint_name() const;
   const JntType&     joint_type() const;
@@ -26,20 +27,30 @@ public:
    * Interface for user layer.
    */
   // About joint state
-  double joint_position();
-  double joint_velocity();
-  double joint_torque();
+  double        joint_position();
+  const double& joint_position_const_ref();
   const double* joint_position_const_pointer();
+
+  double        joint_velocity();
+  const double& joint_velocity_const_ref();
   const double* joint_velocity_const_pointer();
+
+  double        joint_torque();
+  const double& joint_torque_const_ref();
   const double* joint_torque_const_pointer();
 
   // About joint command
   void updateJointCommand(double);
+  void updateJointCommand(JntCmdType);
   void updateJointCommand(double, JntCmdType);
-  double joint_command();
 
-  void changeJointCommandMode(JntCmdType);
-  JntCmdType joint_command_mode();
+  double            joint_command();
+  const double&     joint_command_const_ref();
+  const double*     joint_command_const_pointer();
+
+  JntCmdType        joint_command_mode();
+  const JntCmdType& joint_command_mode_const_ref();
+  const JntCmdType* joint_command_mode_const_pointer();
 
 protected:
   /**
@@ -47,7 +58,7 @@ protected:
    */
   // The velocity will be change after updating joint position
   // position = count * scale + offset
-  void updateJointPosition(short count);
+  void updateJointCount(short count);
   // if has new command, return true and fill the Packet pointer
   bool new_command_; // the flag indicate whether has new command
   // bool new_command(class Packet*);
@@ -56,11 +67,11 @@ protected:
 protected:
   JntType             jnt_type_;
   LegType             leg_type_;
-  std::string         jnt_name_;
+  MiiString           jnt_name_;
   double              scale_;
   double              offset_;
 
-  unsigned char       msg_id_;
+  // unsigned char       msg_id_;
   class JointState*   joint_state_;
   class JointCommand* joint_command_;
 };

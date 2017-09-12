@@ -8,25 +8,25 @@
 #include "system/foundation/cfg_reader.h"
 
 #include <boost/algorithm/string.hpp>
-#include <system/resources/touchdown.h>
+#include <repository/resource/force_sensor.h>
 #include <tinyxml.h>
 
 namespace middleware {
 
-struct TDState {
-  TDState(double d = 0) : data(0) {}
+struct ForceState {
+  ForceState(double d = 0) : data(0) {}
   double data;
 };
 
-TouchDown::TouchDown(const MiiString& l)
+ForceSensor::ForceSensor(const MiiString& l)
   : Label(l),leg_type_(LegType::UNKNOWN_LEG),
-    msg_id_(0), td_state_(new TDState),
+    td_state_(new ForceState),
     scale_(0), offset_(0) {
   // The implement of init() should be here.
   ;
 }
 
-TouchDown::~TouchDown() {
+ForceSensor::~ForceSensor() {
   // Nothing to do here
   if (nullptr != td_state_) {
     delete td_state_;
@@ -34,12 +34,11 @@ TouchDown::~TouchDown() {
   }
 }
 
-bool TouchDown::init() {
+bool ForceSensor::init() {
   auto cfg = MiiCfgReader::instance();
 
-  cfg->get_value_fatal(getLabel(), "msg_id", msg_id_);
-  cfg->get_value_fatal(getLabel(), "msg_id", scale_);
-  cfg->get_value_fatal(getLabel(), "msg_id", offset_);
+  cfg->get_value(getLabel(), "msg_id", scale_);
+  cfg->get_value(getLabel(), "msg_id", offset_);
 
   std::string tmp_str;
   cfg->get_value_fatal(getLabel(), "leg", tmp_str);
@@ -61,18 +60,26 @@ bool TouchDown::init() {
   return true;
 }
 
-void TouchDown::updateTouchdownState(short _count) {
+void ForceSensor::updateForceCount(short _count) {
   td_state_->data = _count * scale_ + offset_;
 }
 
-double TouchDown::touchdown_data() {
+double ForceSensor::force_data() {
   return td_state_->data;
 }
 
-const LegType& TouchDown::leg_type() const
+const double* ForceSensor::force_data_const_pointer() {
+  return &(td_state_->data);
+}
+
+const double& ForceSensor::force_data_const_ref() {
+  return td_state_->data;
+}
+
+const LegType& ForceSensor::leg_type() const
 { return leg_type_; }
 
 } /* namespace middleware */
 
 #include <class_loader/class_loader_register_macro.h>
-CLASS_LOADER_REGISTER_CLASS(middleware::TouchDown, middleware::Label)
+CLASS_LOADER_REGISTER_CLASS(middleware::ForceSensor, middleware::Label)

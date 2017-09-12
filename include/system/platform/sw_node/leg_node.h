@@ -24,11 +24,14 @@ public:
   virtual bool generateCmd(std::vector<Packet>&) override;
 
 protected:
+  void updateFromBuf(const char*);
   // there are three joint in each leg
   LegType                   leg_;
-  std::vector<class Joint*> joints_;
-  std::vector<class Joint*> joints_by_id_;
-  class TouchDown*          td_;
+  std::vector<class Joint*> joints_by_type_;
+  class ForceSensor*          td_;
+  // The constant pointer of the joint command
+  const double*             jnt_cmds_[JntType::N_JNTS];
+  const JntCmdType*         jnt_mods_[JntType::N_JNTS];
 };
 
 } /* namespace middleware */
