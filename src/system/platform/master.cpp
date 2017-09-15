@@ -69,7 +69,7 @@ void Master::tick() {
 
     // Just for debug
     for (const Packet& pkt : packets_) {
-      if (false)
+      if (true)
         printf("NODE_ID: 0x%02X, MSG_ID: 0x%02X, LEN: %d, \
           DATA: 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X\n",
           pkt.node_id, pkt.msg_id, pkt.size, pkt.data[0],

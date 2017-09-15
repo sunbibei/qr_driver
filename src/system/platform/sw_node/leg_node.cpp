@@ -91,7 +91,7 @@ void LegNode::updateFromBuf(const char* __p) {
     offset += 2; // each count will stand two bytes.
   }
 
-  td_->updateForceCount((__p[6] | (__p[7] << 8)));
+  td_->updateForceCount((__p[offset] | (__p[offset + 1] << 8)));
 }
 
 void LegNode::handleMsg(const Packet& pkt) {
@@ -111,16 +111,18 @@ void LegNode::handleMsg(const Packet& pkt) {
 }
 
 bool LegNode::generateCmd(std::vector<Packet>& pkts) {
-  Packet cmd{node_id_, MII_MSG_COMMON_DATA_1, 6, {0}};
-
   int offset = 0;
   for (const auto& type : {JntType::YAW, JntType::HIP, JntType::KNEE}) {
-    if (joints_by_type_[type]->new_command_)
+    if (joints_by_type_[type]->new_command_) {
+      Packet cmd{node_id_, MII_MSG_COMMON_DATA_1, 6, {0}};
+
       memcpy(cmd.data, jnt_cmds_[type], offset + 2 * sizeof(char));
+      joints_by_type_[type]->new_command_ = false;
+
+      pkts.push_back(cmd);
+    }
     offset += 2; // Each count stand two bytes.
   }
-
-  pkts.push_back(cmd);
 
   return true;
 }

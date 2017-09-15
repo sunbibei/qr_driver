@@ -33,11 +33,11 @@
 	<!-- About propagates, it will be automatic instance and addtion to PropagatesManager -->
 	<!-- These objects as follow communication between the real robot directly -->
 	<propagates name="propagates" >
-		<pcan_fake auto_inst="middleware::PcanChannelFake"
+		<!--pcan_fake auto_inst="middleware::PcanChannelFake"
 			output="/home/bibei/output" repeat="true" input="/home/bibei/input"
-			channel="0x51" baud="500" type="0" port="0" interrupt="0" />
-		<!--pcan auto_inst="middleware::PcanChannel"
 			channel="0x51" baud="500" type="0" port="0" interrupt="0" /-->
+		<pcan auto_inst="middleware::PcanChannel"
+			channel="0x51" baud="500" type="0" port="0" interrupt="0" />
 	</propagates>
 	
 	<!-- Got the packet message from PropagateManager and update the information of hardware -->

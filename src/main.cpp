@@ -9,6 +9,9 @@
 #include <iostream>
 
 int main(int argc, char* argv[]) {
+  google::InitGoogleLogging("qr_driver");
+  google::FlushLogFiles(google::GLOG_INFO);
+
   ros::init(argc, argv, "qr_driver");
   ros::NodeHandle nh("~");
 
