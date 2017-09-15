@@ -13,9 +13,13 @@
 namespace middleware {
 
 struct __PrivateThreadVar {
-  bool         thread_started_;
+  MiiString    thread_name_;
+  bool         thread_alive_;
   std::thread* thread_handle_;
-  __PrivateThreadVar() : thread_started_(false), thread_handle_(nullptr) { }
+  std::function<void()> thread_func_;
+  __PrivateThreadVar(const MiiString& _n, std::function<void()>& _f)
+  : thread_name_(_n),        thread_alive_(false),
+    thread_handle_(nullptr), thread_func_(_f) { }
 };
 
 SINGLETON_IMPL(ThreadPool)
@@ -27,13 +31,36 @@ ThreadPool::~ThreadPool() {
   stop();
 }
 
+void ThreadPool::__register_thread_task(const MiiString& __n, std::function<void()>& __f) {
+  if (thread_vars_.end() != thread_vars_.find(__n))
+    LOG_WARNING << "The named thread(" << __n << ") task function "
+      << "has inserted into the function list. It will be replaced.";
+
+  __PrivateThreadVar* var = new __PrivateThreadVar(__n, __f);
+  LOG_INFO << "ThreadPool has received a thread task, named '" << __n << "'.";
+  thread_vars_.insert(std::make_pair(__n, var));
+}
+
+void ThreadPool::__internal_thread_task(__PrivateThreadVar* var) {
+  if (nullptr == var) {
+    LOG_ERROR << "One of threads you want to launch does not exist!";
+    return;
+  }
+
+  LOG_INFO << "This thread has started -- " << var->thread_name_;
+  var->thread_alive_ = true;
+  var->thread_func_();
+  var->thread_alive_ = false;
+  LOG_INFO << "This thread has  exited -- " << var->thread_name_;
+}
+
 bool ThreadPool::init() {
   return true;
 }
 
 bool ThreadPool::start() {
   bool ret = true;
-  for (auto& f : thread_funcs_) {
+  for (auto& f : thread_vars_) {
     ret  = ret && start(f.first);
   }
   return ret;
@@ -42,29 +69,32 @@ bool ThreadPool::start() {
 bool ThreadPool::start(const MiiString& __n) {
   LOG_INFO << "This thread is starting -- " << __n;
   // start the specific named threads
-  auto t = thread_funcs_.find(__n);
-  if (thread_funcs_.end() == t) {
+  auto iter = thread_vars_.find(__n);
+  if (thread_vars_.end() == iter) {
     LOG_WARNING << "The task function of the specific named thread "
         << "isn't exist in function list.";
     return false;
   }
-
-  auto var = thread_vars_.find(__n);
-  if (thread_vars_.end() == var) {
-    thread_vars_.insert(std::make_pair(__n, new __PrivateThreadVar));
-    thread_vars_[__n]->thread_handle_  = new std::thread(t->second);
-    thread_vars_[__n]->thread_started_ = true;
-    LOG_INFO << "This thread has started -- " << __n;
-  } else {
-    LOG_WARNING << "This thread(" << __n << ") has started ago.";
+  auto var = iter->second;
+  if ((nullptr == var) || (0 != __n.compare(var->thread_name_))
+      || (nullptr != var->thread_handle_) || (var->thread_alive_)) {
+    LOG_WARNING << "The " << __n << " thread launchs fail, something is wrong!"
+        << ((((nullptr == var) || (0 != __n.compare(var->thread_name_)))) ?
+            ("Register Wrong!")
+            : (((nullptr != var->thread_handle_) || (var->thread_alive_)) ?
+                ("Thread has launched ago!")
+                : ("What fucking wrong!")));
+    return false;
   }
 
+  var->thread_handle_  = new std::thread(
+      std::bind(&ThreadPool::__internal_thread_task, this, var));
   return true;
 }
 
 void ThreadPool::stop() {
-  for (auto& var : thread_vars_)
-    stop(var.first);
+  while (!thread_vars_.empty())
+    stop(thread_vars_.begin()->first);
 
   thread_vars_.clear();
 }
@@ -77,22 +107,26 @@ void ThreadPool::stop(const MiiString& __n) {
     return;
   }
 
+  LOG_INFO << "The named '" << __n << " thread has stopped.1";
   if (nullptr != var->second) {
     if (nullptr != var->second->thread_handle_) {
+      LOG_INFO << "The named '" << __n << " thread has stopped.2";
       var->second->thread_handle_->join();
       delete var->second->thread_handle_;
       var->second->thread_handle_ = nullptr;
     }
+    LOG_INFO << "The named '" << __n << " thread has stopped.3";
     delete var->second;
     var->second = nullptr;
   }
 
   thread_vars_.erase(var);
-  LOG_INFO << "The named '" << __n << " thread has stopped.";
+  LOG_INFO << "The named '" << __n << " thread has stopped.4";
 }
 
 bool ThreadPool::is_running(const MiiString& __n) {
-  return (thread_vars_.end() != thread_vars_.find(__n));
+  return ((thread_vars_.end() != thread_vars_.find(__n))
+      && (thread_vars_.find(__n)->second->thread_alive_));
 }
 
 } /* namespace middleware */
