@@ -27,6 +27,9 @@ PropagateManager::PropagateManager()
 
 PropagateManager::~PropagateManager() {
   thread_alive_ = false;
+  for (auto& c : res_list_) {
+    c->stop();
+  }
 }
 
 bool PropagateManager::run() {
@@ -77,18 +80,24 @@ void PropagateManager::updatePktsQueues() {
 
 bool PropagateManager::readPackets(std::vector<Packet>& pkts) {
   MUTEX_TRY_LOCK(lock_4_recv_)
-  if (!pkts_queue_4_recv_.empty())
+  if (!pkts_queue_4_recv_.empty()) {
     for (const auto& pkt : pkts_queue_4_recv_)
       pkts.push_back(pkt);
+
+    pkts_queue_4_recv_.clear();
+  }
   MUTEX_UNLOCK(lock_4_recv_)
   return true;
 }
 
 bool PropagateManager::writePackets(const std::vector<Packet>& pkts) {
   MUTEX_TRY_LOCK(lock_4_send_)
-  if (!pkts.empty())
+  if (!pkts.empty()) {
     for (const auto& pkt : pkts)
       pkts_queue_4_send_.push_back(pkt);
+
+    pkts_queue_4_send_.clear();
+  }
   MUTEX_UNLOCK(lock_4_send_)
   return true;
 }

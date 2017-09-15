@@ -59,8 +59,15 @@ bool SWNodeManager::init() {
 }
 
 void SWNodeManager::handleMsg(const MiiVector<Packet>& pkts) {
-  for (const auto& pkt : pkts)
+  for (const auto& pkt : pkts) {
+    if ((hw_list_by_id_.size() <= pkt.node_id)
+      || (nullptr == hw_list_by_id_[pkt.node_id])) {
+      LOG_ERROR << "What fucking message!(" << (int)pkt.node_id << "/"
+        << hw_list_by_id_.size() << "), Address: 0x" << hw_list_by_id_[pkt.node_id];
+      continue;
+    }
     hw_list_by_id_[pkt.node_id]->handleMsg(pkt);
+  }
 }
 
 void SWNodeManager::generateCmd(MiiVector<Packet>& pkts) {

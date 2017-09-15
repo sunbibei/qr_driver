@@ -127,11 +127,16 @@ bool PcanChannel::read(Packet& pkt) {
   }
   if (PCAN_ERROR_OK != g_status_) return false;
 
-  pkt.node_id = MII_MSG_EXTRACT_NODE_ID(msg_4_send_->ID);
-  pkt.msg_id  = MII_MSG_EXTRACT_MSG_ID(msg_4_send_->ID);
-  pkt.size    = msg_4_send_->LEN;
+  printf("ID: 0x%02X, LEN: %d, DATA: 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X\n",
+      msg_4_recv_->ID, (int)msg_4_recv_->LEN,
+      msg_4_recv_->DATA[0], msg_4_recv_->DATA[1], msg_4_recv_->DATA[2], msg_4_recv_->DATA[3],
+      msg_4_recv_->DATA[4], msg_4_recv_->DATA[5], msg_4_recv_->DATA[6], msg_4_recv_->DATA[7]);
+
+  pkt.node_id = MII_MSG_EXTRACT_NODE_ID(msg_4_recv_->ID);
+  pkt.msg_id  = MII_MSG_EXTRACT_MSG_ID(msg_4_recv_->ID);
+  pkt.size    = msg_4_recv_->LEN;
   memset(pkt.data, '\0', 8 * sizeof(char));
-  memcpy(pkt.data, msg_4_send_->DATA, pkt.size * sizeof(char));
+  memcpy(pkt.data, msg_4_recv_->DATA, pkt.size * sizeof(char));
 
   // This code aims to compatible with the old protocol
   // TODO It should be updated.

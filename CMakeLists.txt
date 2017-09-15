@@ -133,32 +133,3 @@ foreach(dir images launch config)
   install(DIRECTORY ${dir}/
     DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/${dir})
 endforeach(dir)
-
-#############
-## Testing ##
-#############
-#[[
-if(CATKIN_ENABLE_TESTING)
-  catkin_add_gtest(simple_transmission_test           test/simple_transmission_test.cpp)
-  catkin_add_gtest(differential_transmission_test     test/differential_transmission_test.cpp)
-  catkin_add_gtest(four_bar_linkage_transmission_test test/four_bar_linkage_transmission_test.cpp)
-
-  catkin_add_gtest(transmission_interface_test        test/transmission_interface_test.cpp)
-  target_link_libraries(transmission_interface_test ${catkin_LIBRARIES} ${TinyXML_LIBRARIES})
-
-  catkin_add_gtest(transmission_parser_test test/transmission_parser_test.cpp)
-  target_link_libraries(transmission_parser_test ${PROJECT_NAME}_parser)
-
-  catkin_add_gtest(simple_transmission_loader_test test/simple_transmission_loader_test.cpp)
-  target_link_libraries(simple_transmission_loader_test ${PROJECT_NAME}_parser)
-
-  catkin_add_gtest(differential_transmission_loader_test test/differential_transmission_loader_test.cpp)
-  target_link_libraries(differential_transmission_loader_test ${PROJECT_NAME}_parser)
-
-  catkin_add_gtest(four_bar_linkage_transmission_loader_test test/four_bar_linkage_transmission_loader_test.cpp)
-  target_link_libraries(four_bar_linkage_transmission_loader_test ${PROJECT_NAME}_parser)
-
-  catkin_add_gtest(transmission_interface_loader_test test/transmission_interface_loader_test.cpp)
-  target_link_libraries(transmission_interface_loader_test ${PROJECT_NAME}_parser
-                                                          transmission_interface_loader)
-endif()]]
