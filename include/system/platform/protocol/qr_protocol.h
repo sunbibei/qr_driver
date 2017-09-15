@@ -19,11 +19,15 @@ namespace middleware {
 #define DATA_SIZE (8)
 #endif
 
+/*#ifndef BYTE
+#define BYTE unsigned char
+#endif*/
+
 struct Packet {
   unsigned char node_id;
   unsigned char msg_id;
-  unsigned int  size;
-  char data[DATA_SIZE];
+  unsigned char size;
+  unsigned char data[DATA_SIZE];
 };
 
 #define INVALID_BYTE (0x88)

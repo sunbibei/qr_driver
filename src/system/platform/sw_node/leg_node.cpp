@@ -84,14 +84,21 @@ bool LegNode::init() {
   }
 }
 
-void LegNode::updateFromBuf(const char* __p) {
+void LegNode::updateFromBuf(const unsigned char* __p) {
   int offset  = 0;
-  for (const auto& type : {JntType::YAW, JntType::HIP, JntType::KNEE}) {
-    joints_by_type_[type]->updateJointCount((__p[offset] | (__p[offset + 1] << 8)));
-    offset += 2; // each count will stand two bytes.
+  /*printf("0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X\n", 
+      __p[0], __p[1], __p[2], __p[3], __p[4], __p[5], __p[6], __p[7]);*/
+  unsigned short tmp = 0;
+  for (const auto& type : {JntType::KNEE, JntType::HIP, JntType::YAW}) {
+    tmp = 0;
+    memcpy(&tmp, __p + offset, sizeof(tmp));
+    joints_by_type_[type]->updateJointCount(tmp);
+    offset += sizeof(tmp); // each count will stand two bytes.
   }
 
-  td_->updateForceCount((__p[offset] | (__p[offset + 1] << 8)));
+  tmp = 0;
+  memcpy(&tmp, __p + offset, sizeof(tmp));
+  td_->updateForceCount(tmp);
 }
 
 void LegNode::handleMsg(const Packet& pkt) {
@@ -112,7 +119,7 @@ void LegNode::handleMsg(const Packet& pkt) {
 
 bool LegNode::generateCmd(std::vector<Packet>& pkts) {
   int offset = 0;
-  for (const auto& type : {JntType::YAW, JntType::HIP, JntType::KNEE}) {
+  for (const auto& type : {JntType::KNEE, JntType::HIP, JntType::YAW}) {
     if (joints_by_type_[type]->new_command_) {
       Packet cmd{node_id_, MII_MSG_COMMON_DATA_1, 6, {0}};
 

@@ -119,16 +119,23 @@ bool PcanChannel::write(const Packet& pkt) {
   return false;
 }
 
+unsigned int read_counter = 0;
+
 bool PcanChannel::read(Packet& pkt) {
   g_times_count = 0;
-  while ((g_status_ = CAN_Read(g_channel, msg_4_recv_, nullptr)) == PCAN_ERROR_QRCVEMPTY){
+  memset(msg_4_recv_, '\0', sizeof(TPCANMsg));
+  while (PCAN_ERROR_QRCVEMPTY == (g_status_ = CAN_Read(PCAN_USBBUS1, msg_4_recv_, NULL))) {
     std::this_thread::sleep_for(std::chrono::milliseconds(5));
-    if (g_times_count++ >= MAX_TRY_TIMES) break;
+    if (g_times_count++ >= MAX_TRY_TIMES) {
+      LOG_WARNING << "read again! (" << g_times_count << "/" << MAX_TRY_TIMES << ")";
+      break;
+    }
   }
   if (PCAN_ERROR_OK != g_status_) return false;
 
-  printf("ID: 0x%02X, LEN: %d, DATA: 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X\n",
-      msg_4_recv_->ID, (int)msg_4_recv_->LEN,
+  if (true)
+    printf("%d -- ID: 0x%02X, LEN: %d, DATA: 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X\n",
+      read_counter++, msg_4_recv_->ID, (int)msg_4_recv_->LEN,
       msg_4_recv_->DATA[0], msg_4_recv_->DATA[1], msg_4_recv_->DATA[2], msg_4_recv_->DATA[3],
       msg_4_recv_->DATA[4], msg_4_recv_->DATA[5], msg_4_recv_->DATA[6], msg_4_recv_->DATA[7]);
 

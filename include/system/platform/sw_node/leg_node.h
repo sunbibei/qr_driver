@@ -24,7 +24,7 @@ public:
   virtual bool generateCmd(std::vector<Packet>&) override;
 
 protected:
-  void updateFromBuf(const char*);
+  void updateFromBuf(const unsigned char*);
   // there are three joint in each leg
   LegType                   leg_;
   std::vector<class Joint*> joints_by_type_;

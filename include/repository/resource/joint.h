@@ -58,7 +58,7 @@ protected:
    */
   // The velocity will be change after updating joint position
   // position = count * scale + offset
-  void updateJointCount(short count);
+  void updateJointCount(unsigned short count);
   // if has new command, return true and fill the Packet pointer
   bool new_command_; // the flag indicate whether has new command
   // bool new_command(class Packet*);

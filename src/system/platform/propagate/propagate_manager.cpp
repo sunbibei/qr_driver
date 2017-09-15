@@ -20,7 +20,7 @@ const size_t MAX_QUEUE_SIZE = 1024;
 SINGLETON_IMPL(PropagateManager)
 
 PropagateManager::PropagateManager()
-  : ResourceManager<Propagate>(), propa_interval_(20), thread_alive_(true) {
+  : ResourceManager<Propagate>(), propa_interval_(50), thread_alive_(true) {
   pkts_queue_4_send_.reserve(MAX_QUEUE_SIZE);
   pkts_queue_4_recv_.reserve(MAX_QUEUE_SIZE);
 }
@@ -68,8 +68,8 @@ void PropagateManager::updatePktsQueues() {
     MUTEX_UNLOCK(lock_4_send_)
 
     MUTEX_TRY_LOCK(lock_4_recv_)
-    Packet pkt;
     for (auto& c : res_list_) {
+      Packet pkt;
       if (c->read(pkt)) pkts_queue_4_recv_.push_back(pkt);
     }
     MUTEX_UNLOCK(lock_4_recv_)
