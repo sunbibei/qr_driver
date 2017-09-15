@@ -38,8 +38,6 @@ public:
    *        t.add(static_cast<void (SomeClass::*)()>(&A::some_method), obj);
    *        t.add(static_cast<void (SomeClass::*)(int)>(&A::some_method). obj, 100);
    * @param __n        The name of thread
-   * @param __interval The interval of thread's loop, it uses the default time(20ms)
-   *                   if the given value less than zero.
    * @param __f        The address of function
    * @param __args     The variadic templates offer the list of arguments.
    */
@@ -47,6 +45,7 @@ public:
   void add(const MiiString& __n, _Func&& __f, _BoundArgs&&... __args);
 
   bool init();
+
   bool start();
   bool start(const MiiString& __n);
   void stop();
@@ -55,11 +54,11 @@ public:
   bool is_running(const MiiString& __n);
 
 protected:
-  // static ThreadPool*             instance_;
+  void __internal_thread_task(class __PrivateThreadVar*);
+  void __register_thread_task(const MiiString&, std::function<void()>&);
   /**
    * The list of thread function and variate.
    */
-  MiiMap<MiiString, std::function<void()>>      thread_funcs_;
   MiiMap<MiiString, class __PrivateThreadVar*>  thread_vars_;
 };
 
@@ -71,12 +70,8 @@ protected:
 ///////////////////////////////////////////////////////////////////////////////
 template<typename _Func, typename... _BoundArgs>
 void ThreadPool::add(const MiiString& __n, _Func&& __f, _BoundArgs&&... __args) {
-  if (thread_funcs_.end() != thread_funcs_.find(__n))
-    LOG_WARNING << "The named thread(" << __n << ") task function "
-      << "has inserted into the function list. It will be replaced.";
-
-  LOG_INFO << "ThreadPool has received a thread task, named '" << __n << "'.";
-  thread_funcs_.insert(std::make_pair(__n, std::bind(__f, __args...)));
+  std::function<void()> f = std::bind(__f, __args...);
+  __register_thread_task(__n, f);
 }
 
 } /* namespace middleware */
