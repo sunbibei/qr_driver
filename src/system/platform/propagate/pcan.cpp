@@ -127,6 +127,12 @@ bool PcanChannel::read(Packet& pkt) {
       return false;
     }
   }
+  if (0x06 == tmp.ID) {
+    LOG_DEBUG << "FUCKING!";
+    stop();
+    usleep(5000);
+    start();
+  }
 
   printf("  - COUNT: %05d ID:0x%03X LEN:%1x DATA:0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X\n",
         read_counter++, (int)tmp.ID, (int)tmp.LEN,
