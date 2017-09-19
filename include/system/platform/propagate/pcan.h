@@ -28,9 +28,9 @@ public:
   virtual bool read (class Packet&)       override;
 
 protected:
-  TPCANMsg*     msg_4_send_;
-  TPCANMsg*     msg_4_recv_;
-  bool          connected_;
+  TPCANMsg     msg_4_send_;
+  TPCANMsg     msg_4_recv_;
+  bool         connected_;
 };
 
 } /* namespace qr_driver */
