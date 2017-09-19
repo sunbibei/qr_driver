@@ -132,7 +132,7 @@ bool PcanChannel::read(Packet& pkt) {
       read_counter++, recv_msg_.ID, (int)recv_msg_.LEN,
       recv_msg_.DATA[0], recv_msg_.DATA[1], recv_msg_.DATA[2], recv_msg_.DATA[3],
       recv_msg_.DATA[4], recv_msg_.DATA[5], recv_msg_.DATA[6], recv_msg_.DATA[7]);
-
+ 
   pkt.node_id = MII_MSG_EXTRACT_NODE_ID(recv_msg_.ID);
   pkt.msg_id  = MII_MSG_EXTRACT_MSG_ID(recv_msg_.ID);
   pkt.size    = recv_msg_.LEN;
