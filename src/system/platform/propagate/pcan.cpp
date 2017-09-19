@@ -42,7 +42,8 @@ bool PcanChannel::start() {
   connected_ = false;
   // try to 10 times
   for (g_times_count = 0; g_times_count < MAX_TRY_TIMES; ++g_times_count) {
-    g_status_ = CAN_Initialize(g_channel, g_baud_rate, g_type, g_port, g_interrupt);
+    // g_status_ = CAN_Initialize(g_channel, g_baud_rate, g_type, g_port, g_interrupt);
+    TPCANStatus status = CAN_Initialize(PCAN_USBBUS1, PCAN_BAUD_500K, 0, 0, 0);
     connected_ = (PCAN_ERROR_OK == g_status_);
     if (!connected_) {
       LOG_WARNING << "(" << g_times_count + 1 << "/10) Initialize CAN FAIL, "
@@ -117,9 +118,11 @@ unsigned int read_counter = 0;
 bool PcanChannel::read(Packet& pkt) {
   g_times_count = 0;
   memset(&recv_msg_, '\0', sizeof(TPCANMsg));
-  while (PCAN_ERROR_OK != CAN_Read(g_channel, &recv_msg_, nullptr)) {
+
+  while (PCAN_ERROR_OK != (g_status_ = CAN_Read(PCAN_USBBUS1, &recv_msg_, NULL))) {
     if (++g_times_count < MAX_TRY_TIMES) {
-      LOG_WARNING << "read again! (" << g_times_count << "/" << MAX_TRY_TIMES << ")";
+      LOG_WARNING << "read again!(" << g_times_count << "/"
+          << MAX_TRY_TIMES << "), error code: " << g_status_;
       std::this_thread::sleep_for(std::chrono::milliseconds(5));
     } else {
       LOG_ERROR << "The pcan channel has read fail!";
@@ -128,11 +131,15 @@ bool PcanChannel::read(Packet& pkt) {
   }
 
   if (true)
-    printf("%d -- ID: 0x%02X, LEN: %d, DATA: 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X\n",
-      read_counter++, recv_msg_.ID, (int)recv_msg_.LEN,
-      recv_msg_.DATA[0], recv_msg_.DATA[1], recv_msg_.DATA[2], recv_msg_.DATA[3],
-      recv_msg_.DATA[4], recv_msg_.DATA[5], recv_msg_.DATA[6], recv_msg_.DATA[7]);
- 
+    printf("  - %d ID:0x%04X LEN:%1x DATA:0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X\n",
+      read_counter++, (int)recv_msg_.ID, (int)recv_msg_.LEN,
+      (int)recv_msg_.DATA[0], (int)recv_msg_.DATA[1],
+      (int)recv_msg_.DATA[2], (int)recv_msg_.DATA[3],
+      (int)recv_msg_.DATA[4], (int)recv_msg_.DATA[5],
+      (int)recv_msg_.DATA[6], (int)recv_msg_.DATA[7]);
+
+  return false;
+
   pkt.node_id = MII_MSG_EXTRACT_NODE_ID(recv_msg_.ID);
   pkt.msg_id  = MII_MSG_EXTRACT_MSG_ID(recv_msg_.ID);
   pkt.size    = recv_msg_.LEN;
@@ -152,7 +159,6 @@ bool PcanChannel::read(Packet& pkt) {
   memcpy(pkt.data, msg_4_recv_.DATA + 3, pkt.size * sizeof(BYTE));*/
   return true;
 }
-
 
 } /* namespace qr_driver */
 

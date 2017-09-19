@@ -11,6 +11,9 @@
 #include "propagate.h"
 
 #define linux
+#include <unistd.h>
+#include <asm/types.h>
+
 #include <PCANBasic.h>
 
 namespace middleware {
