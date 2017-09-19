@@ -61,18 +61,18 @@ void Master::tick() {
   TIMER_INIT
 
   while (thread_alive_) {
-
     // The manager delivers each packet which read from Propagate for hardware update.
     packets_.clear();
     propagate_manager_->readPackets(packets_);
-
     sw_node_manager_->handleMsg(packets_);
+    if (false) {
     // Collecting all of the new command to control the robot
     packets_.clear();
     sw_node_manager_->generateCmd(packets_);
     // if (!packets_.empty()) LOG_DEBUG << "Got Command from SWNode, size=" << packets_.size();
     // else LOG_DEBUG << "No Command from SWNode";
     propagate_manager_->writePackets(packets_);
+    }
 
     TIMER_CONTROL(tick_interval_)
   }

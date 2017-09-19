@@ -5,7 +5,7 @@
  *      Author: bibei
  */
 
-#include <system/platform/propagate/propagate_manager.h>
+#include "system/platform/propagate/propagate_manager.h"
 
 #include "system/platform/thread/threadpool.h"
 
@@ -16,17 +16,21 @@ namespace middleware {
 
 const MiiString THREAD_NAME = "propagate";
 const size_t MAX_QUEUE_SIZE = 1024;
+std::thread update_thread_;
 
 SINGLETON_IMPL(PropagateManager)
 
 PropagateManager::PropagateManager()
-  : ResourceManager<Propagate>(), propa_interval_(50), thread_alive_(true) {
+  : internal::ResourceManager<Propagate>(),
+    propa_interval_(20), thread_alive_(true) {
+
   pkts_queue_4_send_.reserve(MAX_QUEUE_SIZE);
   pkts_queue_4_recv_.reserve(MAX_QUEUE_SIZE);
 }
 
 PropagateManager::~PropagateManager() {
   thread_alive_ = false;
+  ThreadPool::instance()->stop(THREAD_NAME);
   for (auto& c : res_list_) {
     c->stop();
   }
@@ -38,8 +42,11 @@ bool PropagateManager::run() {
     return false;
   }
   LOG_DEBUG << "==========PropagateManager::run==========";
-  LOG_DEBUG << "resource list: ";
-  LOG_DEBUG << "size: " << ResourceManager<Propagate>::size();
+  LOG_DEBUG << "The list of Propagate: ";
+  for (size_t i = 0; i < res_list_.size(); ++i)
+    LOG_DEBUG << i + 1 << "/" << res_list_.size()
+        << ": " << res_list_[i]->propa_name_;
+
   for (auto c : res_list_) {
     // for (auto c = begin(); c != end(); ++c) {
     LOG_INFO << c->getLabel() << " is starting.";
@@ -50,12 +57,14 @@ bool PropagateManager::run() {
   }
 
   LOG_INFO << "Started the all of propagate!";
-  ThreadPool::instance()->add(THREAD_NAME, &PropagateManager::updatePktsQueues, this);
+  // ThreadPool::instance()->add(THREAD_NAME, &PropagateManager::update, this);
+  update_thread_ = std::thread(std::bind(&PropagateManager::update, this));
   return true;
 }
 
-void PropagateManager::updatePktsQueues() {
+void PropagateManager::update() {
   TIMER_INIT
+
   while (thread_alive_) {
     MUTEX_TRY_LOCK(lock_4_send_)
     while (!pkts_queue_4_send_.empty()) {

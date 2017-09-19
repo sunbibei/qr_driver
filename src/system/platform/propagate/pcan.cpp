@@ -7,7 +7,6 @@
 
 #include <system/platform/protocol/qr_protocol.h>
 #include "system/platform/propagate/pcan.h"
-#include <thread>
 
 namespace middleware {
 
@@ -44,12 +43,12 @@ bool PcanChannel::start() {
   for (g_times_count = 0; g_times_count < MAX_TRY_TIMES; ++g_times_count) {
     // g_status_ = CAN_Initialize(g_channel, g_baud_rate, g_type, g_port, g_interrupt);
     TPCANStatus status = CAN_Initialize(PCAN_USBBUS1, PCAN_BAUD_500K, 0, 0, 0);
-    connected_ = (PCAN_ERROR_OK == g_status_);
+    connected_ = (PCAN_ERROR_OK == status);
     if (!connected_) {
       LOG_WARNING << "(" << g_times_count + 1 << "/10) Initialize CAN FAIL, "
-          "status code: " << g_status_ << ", Waiting 500ms... ...";
+          "status code: " << status << ", Waiting 500ms... ...";
       // Waiting 500ms
-      std::this_thread::sleep_for(std::chrono::milliseconds(500));
+      usleep(500000);
     } else {
       LOG_INFO << "Initialize CAN OK!";
       return connected_;
@@ -69,7 +68,7 @@ void PcanChannel::stop() {
       LOG_WARNING << "(" << g_times_count + 1 << "/10) Uninitialize CAN FAIL, "
           "status code: " << g_status_ << ", Waiting 500ms... ...";
       // Waiting 500ms
-      std::this_thread::sleep_for(std::chrono::milliseconds(500));
+      usleep(500000);
     } else {
       LOG_INFO << "Uninitialize CAN OK!";
       return;
@@ -103,7 +102,7 @@ bool PcanChannel::write(const Packet& pkt) {
       LOG_WARNING << "(" << g_times_count + 1 << "/10) Write CAN message FAIL, "
           "status code: " << g_status_ << ", Waiting 50ms... ...";
       // Waiting 50ms
-      std::this_thread::sleep_for(std::chrono::milliseconds(50));
+      usleep(50000);
     } else
       // g_w_err_count = 0;
       return true;
@@ -123,7 +122,7 @@ bool PcanChannel::read(Packet& pkt) {
     if (++g_times_count < MAX_TRY_TIMES) {
       LOG_WARNING << "read again!(" << g_times_count << "/"
           << MAX_TRY_TIMES << "), error code: " << g_status_;
-      std::this_thread::sleep_for(std::chrono::milliseconds(5));
+      usleep(5000);
     } else {
       LOG_ERROR << "The pcan channel has read fail!";
       return false;

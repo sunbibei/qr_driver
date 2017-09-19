@@ -8,10 +8,9 @@
 #ifndef INCLUDE_SYSTEM_ROBOT_PROPAGATE_MANAGER_H_
 #define INCLUDE_SYSTEM_ROBOT_PROPAGATE_MANAGER_H_
 
-#include <system/platform/protocol/qr_protocol.h>
-#include <system/platform/internal/resource_manager.h>
+#include "system/platform/protocol/qr_protocol.h"
+#include "system/platform/internal/resource_manager.h"
 #include "system/platform/propagate/propagate.h"
-
 #include <mutex>
 
 namespace middleware {
@@ -27,8 +26,13 @@ public:
   /**
    * @brief This method is the main function for propagate thread.
    */
-  void updatePktsQueues();
+  void update();
 
+  /**
+   * @brief These methods offer the public function for user, User could obtains
+   *        the incoming data through the follow @readPackets methods and sends
+   *        the outgoing data through the @writePackets methods.
+   */
   bool readPackets (MiiVector<Packet>&);
   bool writePackets(const MiiVector<Packet>&);
 

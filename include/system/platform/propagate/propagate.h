@@ -49,7 +49,6 @@ public:
   virtual bool read(Packet& pkt);
 
 protected:
-  // 本通信方式的名称， 该名称作为Hw_Unit的Channel参数
   MiiString propa_name_;
 };
 
