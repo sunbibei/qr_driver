@@ -118,7 +118,7 @@ bool PcanChannel::read(Packet& pkt) {
   g_times_count = 0;
   memset(&recv_msg_, '\0', sizeof(TPCANMsg));
 
-  while (PCAN_ERROR_OK != (g_status_ = CAN_Read(PCAN_USBBUS1, &recv_msg_, NULL))) {
+  while (PCAN_ERROR_OK != (g_status_ = CAN_Read(g_channel, &recv_msg_, NULL))) {
     if (++g_times_count < MAX_TRY_TIMES) {
       LOG_WARNING << "read again!(" << g_times_count << "/"
           << MAX_TRY_TIMES << "), error code: " << g_status_;
@@ -128,6 +128,29 @@ bool PcanChannel::read(Packet& pkt) {
       return false;
     }
   }
+  if (PCAN_ERROR_OK != g_status_) return false;
+
+  // I don't known what happen to here, It always receives a odd message with id
+  // is 0x06. Everything is ok, and the result is wrong!
+  // I have no idea, so here is compromise way, we will reset the pcan channel
+  // when the odd message is coming.
+  g_times_count = 0;
+  while (!MII_MSG_IS_TO_HOST(recv_msg_.ID)) {
+    if (++g_times_count < MAX_TRY_TIMES) {
+      LOG_WARNING << "It read odd message(" << g_times_count << "/"
+          << MAX_TRY_TIMES << "), and reset pcan now.";
+    } else {
+      LOG_ERROR << "The pcan channel always read odd message, and we give up reset!"
+          << "trying to restart the pcan system.";
+      stop();
+      usleep(5000);
+      start();
+      return false;
+    }
+    CAN_Reset(g_channel);
+    usleep(5000);
+    g_status_ = CAN_Read(g_channel, &recv_msg_, NULL);
+  }
 
   if (true)
     printf("  - COUNT: %05d ID:0x%03X LEN:%1x DATA:0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X\n",
@@ -136,16 +159,6 @@ bool PcanChannel::read(Packet& pkt) {
       (int)recv_msg_.DATA[2], (int)recv_msg_.DATA[3],
       (int)recv_msg_.DATA[4], (int)recv_msg_.DATA[5],
       (int)recv_msg_.DATA[6], (int)recv_msg_.DATA[7]);
-
-  // I don't known what happen to here, It always receives a odd message with id
-  // is 0x06. Everything is ok, and the result is wrong!
-  // I have no idea, so here is compromise way, we will reset the pcan channel
-  // when the odd message is coming.
-  if (!MII_MSG_IS_TO_HOST(recv_msg_.ID)) {
-    LOG_DEBUG << "FUCKING!";
-    // std::cin >> read_counter;
-    CAN_Reset(g_channel);
-  }
 
   pkt.node_id = MII_MSG_EXTRACT_NODE_ID(recv_msg_.ID);
   pkt.msg_id  = MII_MSG_EXTRACT_MSG_ID(recv_msg_.ID);
