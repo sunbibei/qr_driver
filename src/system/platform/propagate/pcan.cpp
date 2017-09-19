@@ -113,12 +113,11 @@ bool PcanChannel::write(const Packet& pkt) {
 }
 
 unsigned int read_counter = 0;
-
 bool PcanChannel::read(Packet& pkt) {
   g_times_count = 0;
   // memset(&recv_msg_, '\0', sizeof(TPCANMsg));
-
-  while (PCAN_ERROR_OK != (g_status_ = CAN_Read(PCAN_USBBUS1, &recv_msg_, NULL))) {
+  auto tmp = recv_msg_;
+  while (PCAN_ERROR_OK != (g_status_ = CAN_Read(PCAN_USBBUS1, &tmp, NULL))) {
     if (++g_times_count < MAX_TRY_TIMES) {
       LOG_WARNING << "read again!(" << g_times_count << "/"
           << MAX_TRY_TIMES << "), error code: " << g_status_;
@@ -129,13 +128,19 @@ bool PcanChannel::read(Packet& pkt) {
     }
   }
 
-  if (true)
-    printf("  - %05d ID:0x%04X LEN:%1x DATA:0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X\n",
+  printf("  - COUNT: %05d ID:0x%03X LEN:%1x DATA:0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X\n",
+        read_counter++, (int)tmp.ID, (int)tmp.LEN,
+        (int)tmp.DATA[0], (int)tmp.DATA[1],
+        (int)tmp.DATA[2], (int)tmp.DATA[3],
+        (int)tmp.DATA[4], (int)tmp.DATA[5],
+        (int)tmp.DATA[6], (int)tmp.DATA[7]);
+  /*if (true)
+    printf("  - COUNT: %05d ID:0x%03X LEN:%1x DATA:0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X\n",
       read_counter++, (int)recv_msg_.ID, (int)recv_msg_.LEN,
       (int)recv_msg_.DATA[0], (int)recv_msg_.DATA[1],
       (int)recv_msg_.DATA[2], (int)recv_msg_.DATA[3],
       (int)recv_msg_.DATA[4], (int)recv_msg_.DATA[5],
-      (int)recv_msg_.DATA[6], (int)recv_msg_.DATA[7]);
+      (int)recv_msg_.DATA[6], (int)recv_msg_.DATA[7]);*/
 
   return false;
 
