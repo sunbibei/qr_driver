@@ -26,7 +26,7 @@ unsigned int       g_times_count = 0;
 
 PcanChannel::PcanChannel(const MiiString& l)
   : Propagate(l), connected_(false) {
-  msg_4_send_.MSGTYPE = PCAN_MESSAGE_STANDARD;
+  send_msg_.MSGTYPE = PCAN_MESSAGE_STANDARD;
 }
 
 PcanChannel::~PcanChannel() {
@@ -79,11 +79,11 @@ void PcanChannel::stop() {
 }
 
 bool PcanChannel::write(const Packet& pkt) {
-  msg_4_send_.MSGTYPE = PCAN_MESSAGE_STANDARD;
-  msg_4_send_.ID      = MII_MSG_FILL_TO_NODE_MSG(pkt.node_id, pkt.msg_id);
-  msg_4_send_.LEN     = pkt.size;
-  memset(msg_4_send_.DATA, '\0', 8 * sizeof(BYTE));
-  memcpy(msg_4_send_.DATA, pkt.data, msg_4_send_.LEN * sizeof(BYTE));
+  send_msg_.MSGTYPE = PCAN_MESSAGE_STANDARD;
+  send_msg_.ID      = MII_MSG_FILL_TO_NODE_MSG(pkt.node_id, pkt.msg_id);
+  send_msg_.LEN     = pkt.size;
+  memset(send_msg_.DATA, '\0', 8 * sizeof(BYTE));
+  memcpy(send_msg_.DATA, pkt.data, send_msg_.LEN * sizeof(BYTE));
   // static int g_w_err_count = 0;
   // if (!connected_) { return connected_; }
   // This code aims to compatible with the old protocol
@@ -97,7 +97,7 @@ bool PcanChannel::write(const Packet& pkt) {
 
   // try to 10 times
   for (g_times_count = 0; g_times_count < MAX_TRY_TIMES; ++g_times_count) {
-    g_status_ = CAN_Write(g_channel, &msg_4_send_);
+    g_status_ = CAN_Write(g_channel, &send_msg_);
     if (PCAN_ERROR_OK != g_status_){
       LOG_WARNING << "(" << g_times_count + 1 << "/10) Write CAN message FAIL, "
           "status code: " << g_status_ << ", Waiting 50ms... ...";
@@ -116,27 +116,28 @@ unsigned int read_counter = 0;
 
 bool PcanChannel::read(Packet& pkt) {
   g_times_count = 0;
-  memset(&msg_4_recv_, '\0', sizeof(TPCANMsg));
-  while (PCAN_ERROR_QRCVEMPTY == (g_status_ = CAN_Read(g_channel, &msg_4_recv_, nullptr))) {
-    std::this_thread::sleep_for(std::chrono::milliseconds(5));
-    if (g_times_count++ >= MAX_TRY_TIMES) {
+  memset(&recv_msg_, '\0', sizeof(TPCANMsg));
+  while (PCAN_ERROR_OK != CAN_Read(g_channel, &recv_msg_, nullptr)) {
+    if (++g_times_count < MAX_TRY_TIMES) {
       LOG_WARNING << "read again! (" << g_times_count << "/" << MAX_TRY_TIMES << ")";
-      break;
+      std::this_thread::sleep_for(std::chrono::milliseconds(5));
+    } else {
+      LOG_ERROR << "The pcan channel has read fail!";
+      return false;
     }
   }
-  if (PCAN_ERROR_OK != g_status_) return false;
 
   if (true)
     printf("%d -- ID: 0x%02X, LEN: %d, DATA: 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X\n",
-      read_counter++, msg_4_recv_.ID, (int)msg_4_recv_.LEN,
-      msg_4_recv_.DATA[0], msg_4_recv_.DATA[1], msg_4_recv_.DATA[2], msg_4_recv_.DATA[3],
-      msg_4_recv_.DATA[4], msg_4_recv_.DATA[5], msg_4_recv_.DATA[6], msg_4_recv_.DATA[7]);
+      read_counter++, recv_msg_.ID, (int)recv_msg_.LEN,
+      recv_msg_.DATA[0], recv_msg_.DATA[1], recv_msg_.DATA[2], recv_msg_.DATA[3],
+      recv_msg_.DATA[4], recv_msg_.DATA[5], recv_msg_.DATA[6], recv_msg_.DATA[7]);
 
-  pkt.node_id = MII_MSG_EXTRACT_NODE_ID(msg_4_recv_.ID);
-  pkt.msg_id  = MII_MSG_EXTRACT_MSG_ID(msg_4_recv_.ID);
-  pkt.size    = msg_4_recv_.LEN;
+  pkt.node_id = MII_MSG_EXTRACT_NODE_ID(recv_msg_.ID);
+  pkt.msg_id  = MII_MSG_EXTRACT_MSG_ID(recv_msg_.ID);
+  pkt.size    = recv_msg_.LEN;
   memset(pkt.data, '\0', 8 * sizeof(char));
-  memcpy(pkt.data, msg_4_recv_.DATA, pkt.size * sizeof(char));
+  memcpy(pkt.data, recv_msg_.DATA, pkt.size * sizeof(char));
 
   // This code aims to compatible with the old protocol
   // TODO It should be updated.

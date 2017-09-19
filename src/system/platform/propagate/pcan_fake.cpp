@@ -74,30 +74,30 @@ bool PcanChannelFake::write(const Packet& pkt) {
   // if (!connected_) { return connected_; }
   // This code aims to compatible with the old protocol
   // TODO It should be updated.
-  msg_4_send_.ID  = pkt.node_id;
-  msg_4_send_.LEN = pkt.size + 3;
-  memset(msg_4_send_.DATA, '\0', sizeof(msg_4_send_.DATA));
-  msg_4_send_.DATA[0] = pkt.msg_id;
-  msg_4_send_.DATA[1] = ONLY_ONE_PKT;
-  msg_4_send_.DATA[2] = INVALID_BYTE;
-  memcpy(msg_4_send_.DATA + 3, pkt.data, pkt.size * sizeof(BYTE));
+  send_msg_.ID  = pkt.node_id;
+  send_msg_.LEN = pkt.size + 3;
+  memset(send_msg_.DATA, '\0', sizeof(send_msg_.DATA));
+  send_msg_.DATA[0] = pkt.msg_id;
+  send_msg_.DATA[1] = ONLY_ONE_PKT;
+  send_msg_.DATA[2] = INVALID_BYTE;
+  memcpy(send_msg_.DATA + 3, pkt.data, pkt.size * sizeof(BYTE));
 
   printf(PACKET_W_FORMAT,
        g_tm_->tm_year + 1900, g_tm_->tm_mon, g_tm_->tm_mday, g_tm_->tm_hour,
-       g_tm_->tm_min, g_tm_->tm_sec, msg_4_send_.ID, (int)msg_4_send_.LEN,
-       msg_4_send_.DATA[0], msg_4_send_.DATA[1], msg_4_send_.DATA[2],
-       msg_4_send_.DATA[3], msg_4_send_.DATA[4], msg_4_send_.DATA[5],
-       msg_4_send_.DATA[6], msg_4_send_.DATA[7]);
+       g_tm_->tm_min, g_tm_->tm_sec, send_msg_.ID, (int)send_msg_.LEN,
+       send_msg_.DATA[0], send_msg_.DATA[1], send_msg_.DATA[2],
+       send_msg_.DATA[3], send_msg_.DATA[4], send_msg_.DATA[5],
+       send_msg_.DATA[6], send_msg_.DATA[7]);
 
   time(g_time_t);
   g_tm_ = std::localtime(g_time_t);
   if (g_w_fd)
     fprintf(g_w_fd, PACKET_W_FORMAT, g_tm_->tm_year + 1900, g_tm_->tm_mon,
         g_tm_->tm_mday, g_tm_->tm_hour, g_tm_->tm_min, g_tm_->tm_sec,
-        msg_4_send_.ID, (int)msg_4_send_.LEN, msg_4_send_.DATA[0],
-        msg_4_send_.DATA[1], msg_4_send_.DATA[2], msg_4_send_.DATA[3],
-        msg_4_send_.DATA[4], msg_4_send_.DATA[5], msg_4_send_.DATA[6],
-        msg_4_send_.DATA[7]);
+        send_msg_.ID, (int)send_msg_.LEN, send_msg_.DATA[0],
+        send_msg_.DATA[1], send_msg_.DATA[2], send_msg_.DATA[3],
+        send_msg_.DATA[4], send_msg_.DATA[5], send_msg_.DATA[6],
+        send_msg_.DATA[7]);
 
   return true;
 }
@@ -113,11 +113,11 @@ bool PcanChannelFake::read(Packet& pkt) {
       }
     }
     fscanf(g_r_fd, PACKET_R_FORMAT,
-        &msg_4_recv_.ID, (int*)&msg_4_recv_.LEN,
-         (int*)(msg_4_recv_.DATA + 0), (int*)(msg_4_recv_.DATA + 1),
-         (int*)(msg_4_recv_.DATA + 2), (int*)(msg_4_recv_.DATA + 3),
-         (int*)(msg_4_recv_.DATA + 4), (int*)(msg_4_recv_.DATA + 5),
-         (int*)(msg_4_recv_.DATA + 6), (int*)(msg_4_recv_.DATA + 7));
+        &recv_msg_.ID, (int*)&recv_msg_.LEN,
+         (int*)(recv_msg_.DATA + 0), (int*)(recv_msg_.DATA + 1),
+         (int*)(recv_msg_.DATA + 2), (int*)(recv_msg_.DATA + 3),
+         (int*)(recv_msg_.DATA + 4), (int*)(recv_msg_.DATA + 5),
+         (int*)(recv_msg_.DATA + 6), (int*)(recv_msg_.DATA + 7));
   } else {
     LOG_EVERY_N(ERROR, 10) << "Read file FAIL!!!";
     return false;
@@ -125,21 +125,21 @@ bool PcanChannelFake::read(Packet& pkt) {
 
   if (false)
     printf("ID: 0x%02X, LEN: %d, DATA: 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X\n",
-      msg_4_recv_.ID, (int)msg_4_recv_.LEN,
-      msg_4_recv_.DATA[0], msg_4_recv_.DATA[1], msg_4_recv_.DATA[2], msg_4_recv_.DATA[3],
-      msg_4_recv_.DATA[4], msg_4_recv_.DATA[5], msg_4_recv_.DATA[6], msg_4_recv_.DATA[7]);
+      recv_msg_.ID, (int)recv_msg_.LEN,
+      recv_msg_.DATA[0], recv_msg_.DATA[1], recv_msg_.DATA[2], recv_msg_.DATA[3],
+      recv_msg_.DATA[4], recv_msg_.DATA[5], recv_msg_.DATA[6], recv_msg_.DATA[7]);
   // This code aims to compatible with the old protocol
   // TODO It should be updated.
-  if (msg_4_recv_.LEN < 3) {
+  if (recv_msg_.LEN < 3) {
     LOG_EVERY_N(ERROR, 10) << "Error Message from can bus, this length of message data is "
-        << msg_4_recv_.LEN;
+        << recv_msg_.LEN;
     return false;
   }
-  pkt.node_id = msg_4_recv_.ID;
-  pkt.msg_id  = msg_4_recv_.DATA[0];
-  pkt.size    = msg_4_recv_.LEN - 3;
+  pkt.node_id = recv_msg_.ID;
+  pkt.msg_id  = recv_msg_.DATA[0];
+  pkt.size    = recv_msg_.LEN - 3;
   memset(pkt.data, '\0', sizeof(pkt.data));
-  memcpy(pkt.data, msg_4_recv_.DATA + 3, pkt.size * sizeof(BYTE));
+  memcpy(pkt.data, recv_msg_.DATA + 3, pkt.size * sizeof(BYTE));
   return true;
 }
 
