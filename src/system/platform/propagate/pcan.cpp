@@ -119,7 +119,7 @@ bool PcanChannel::read(Packet& pkt) {
   memset(&recv_msg_, '\0', sizeof(TPCANMsg));
 
   while (PCAN_ERROR_OK != (g_status_ = CAN_Read(g_channel, &recv_msg_, NULL))) {
-    if (++g_times_count < MAX_TRY_TIMES) {
+    if (++g_times_count <= MAX_TRY_TIMES) {
       LOG_WARNING << "read again!(" << g_times_count << "/"
           << MAX_TRY_TIMES << "), error code: " << g_status_;
       usleep(5000);
@@ -136,19 +136,16 @@ bool PcanChannel::read(Packet& pkt) {
   // when the odd message is coming.
   g_times_count = 0;
   while (!MII_MSG_IS_TO_HOST(recv_msg_.ID)) {
-    if (++g_times_count < MAX_TRY_TIMES) {
+    if (++g_times_count <= MAX_TRY_TIMES) {
       LOG_WARNING << "It read odd message(" << g_times_count << "/"
-          << MAX_TRY_TIMES << "), and reset pcan now.";
+          << MAX_TRY_TIMES << "), and reset pcan now... ...";
     } else {
       LOG_ERROR << "The pcan channel always read odd message, and we give up reset!"
-          << "trying to restart the pcan system.";
-      stop();
-      usleep(5000);
-      start();
-      return false;
+          << "Now we are trying to restart the pcan system.";
+      CAN_Reset(g_channel);
+      g_times_count = 0;
     }
-    CAN_Reset(g_channel);
-    usleep(5000);
+
     g_status_ = CAN_Read(g_channel, &recv_msg_, NULL);
   }
 
