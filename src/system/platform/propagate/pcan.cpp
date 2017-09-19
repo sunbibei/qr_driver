@@ -116,7 +116,7 @@ unsigned int read_counter = 0;
 
 bool PcanChannel::read(Packet& pkt) {
   g_times_count = 0;
-  memset(&recv_msg_, '\0', sizeof(TPCANMsg));
+  // memset(&recv_msg_, '\0', sizeof(TPCANMsg));
 
   while (PCAN_ERROR_OK != (g_status_ = CAN_Read(PCAN_USBBUS1, &recv_msg_, NULL))) {
     if (++g_times_count < MAX_TRY_TIMES) {
@@ -130,7 +130,7 @@ bool PcanChannel::read(Packet& pkt) {
   }
 
   if (true)
-    printf("  - %d ID:0x%04X LEN:%1x DATA:0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X\n",
+    printf("  - %05d ID:0x%04X LEN:%1x DATA:0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X\n",
       read_counter++, (int)recv_msg_.ID, (int)recv_msg_.LEN,
       (int)recv_msg_.DATA[0], (int)recv_msg_.DATA[1],
       (int)recv_msg_.DATA[2], (int)recv_msg_.DATA[3],
