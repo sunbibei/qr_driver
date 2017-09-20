@@ -109,10 +109,7 @@ bool PropagateManager::writePackets(const std::vector<Packet>& pkts) {
   if (!pkts.empty()) {
     for (const auto& pkt : pkts)
       pkts_queue_4_send_.push_back(pkt);
-
-    pkts_queue_4_send_.clear();
   }
-  LOG_DEBUG << "The queue for send is " << pkts_queue_4_send_.size();
   MUTEX_UNLOCK(lock_4_send_)
   return true;
 }
