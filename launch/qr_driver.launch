@@ -10,9 +10,9 @@
   <include file="$(find qr_description)/launch/upload_robot.launch" />
   <!-- echo $LD_LIBRARY_PATH | awk -F':' '{split($0,arr,":")}END{for(i=1;i<=NF;i++)printf("%s\n",arr[i])}'|grep 'qr_ws' -->
   <!-- Load hardware interface -->
-  <node name="qr_driver_alpha" pkg="qr_driver_alpha" type="qr_driver_alpha" output="screen">
-    <param name="configure" command="cat '$(find qr_driver_alpha)/config/robot_description.xml'"/>
-    <param name="library" value="/home/robot/Workspaces/qr_ws/devel/lib/libqr_driver_alpha_sys_platform.so"/>
+  <node name="qr_driver_alpha" pkg="qr_driver" type="qr_driver" output="screen">
+    <param name="configure" command="cat '$(find qr_driver)/config/robot_description.xml'"/>
+    <param name="library" value="/home/robot/Workspaces/qr_ws/devel/lib/libqr_driver_sys_platform.so"/>
     <param name="use_ros_control"     type="bool"   value="$(arg use_ros_control)"     />
     <param name="debug"               type="bool"   value="$(arg debug)"               />
     <param name="rt_frequency"        type="double" value="$(arg rt_frequency)"        />

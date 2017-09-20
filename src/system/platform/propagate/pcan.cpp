@@ -102,7 +102,6 @@ bool PcanChannel::write(const Packet& pkt) {
       // Waiting 50ms
       usleep(50000);
     } else
-      // g_w_err_count = 0;
       return true;
   }
 
@@ -133,11 +132,11 @@ bool PcanChannel::read(Packet& pkt) {
   g_times_count = 0;
   while (!MII_MSG_IS_TO_HOST(recv_msg_.ID)) {
     if (++g_times_count <= MAX_TRY_TIMES) {
-      LOG_EVERY_N(WARNING, 10) << "It read odd message"
-          << ", and the host could not parse, read again... ...";
+      ;// LOG_EVERY_N(WARNING, 10) << "It read odd message"
+      //     << ", and the host could not parse, read again... ...";
     } else {
-      LOG_EVERY_N(ERROR, 10) << "The pcan channel always read odd messages, and we give up read!"
-          << "Now we are trying to reset the pcan system.";
+      // LOG_EVERY_N(ERROR, 10) << "The pcan channel always read odd messages, and we give up read!"
+      //     << "Now we are trying to reset the pcan system.";
       CAN_Reset(g_channel);
       g_times_count = 0;
     }

@@ -70,12 +70,7 @@ void PropagateManager::update() {
     while (!pkts_queue_4_send_.empty()) {
       const auto& pkt = pkts_queue_4_send_.back();
       for (auto& c : res_list_) {
-        if (c->write(pkt)) {
-          LOG_DEBUG << "The propagate " << c->getLabel() << " has write compeleted.";
-          break;
-        } else {
-          LOG_DEBUG << "What fucking!";
-        }
+        if (c->write(pkt)) break;
       }
       pkts_queue_4_send_.pop_back();
     }

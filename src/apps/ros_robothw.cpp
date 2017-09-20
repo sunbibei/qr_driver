@@ -101,10 +101,10 @@ void RosRobotHW::write() {
   // TODO
   if (velocity_interface_running_) {
     for (auto& jnt : *jnt_manager_)
-      jnt->updateJointCommand(*jnt_pos_cmds_[jnt->joint_name()]);
+      jnt->updateJointCommand(*jnt_vel_cmds_[jnt->joint_name()]);
   } else if (position_interface_running_) {
     for (auto& jnt : *jnt_manager_)
-      jnt->updateJointCommand(*jnt_tor_cmds_[jnt->joint_name()]);
+      jnt->updateJointCommand(*jnt_pos_cmds_[jnt->joint_name()]);
   } else if (effort_interface_running_) {
     LOG_WARNING << "NO IMPLEMENTES"; // Nothing to do here
   } else {
@@ -115,200 +115,15 @@ void RosRobotHW::write() {
 bool RosRobotHW::canSwitch(
       const std::list<hardware_interface::ControllerInfo> &start_list,
       const std::list<hardware_interface::ControllerInfo> &stop_list) const {
-  for (std::list<hardware_interface::ControllerInfo>::const_iterator controller_it =
-      start_list.begin(); controller_it != start_list.end();
-      ++controller_it) {
-    if (0 == controller_it->type.compare(
-        "hardware_interface::VelocityJointInterface")) {
-      if (velocity_interface_running_) {
-        LOG_ERROR << controller_it->name.c_str()
-            << ": An interface of that type ("
-            << controller_it->type.c_str()
-            << ") is already running";
-        return false;
-      }
-      if (position_interface_running_) {
-        bool error = true;
-        for (std::list<hardware_interface::ControllerInfo>::const_iterator stop_controller_it =
-            stop_list.begin();
-            stop_controller_it != stop_list.end();
-            ++stop_controller_it) {
-          if (0 == stop_controller_it->type.compare(
-              "hardware_interface::PositionJointInterface")) {
-            error = false;
-            break;
-          }
-        }
-        if (error) {
-          LOG_ERROR << controller_it->name.c_str()
-              << " (type " << controller_it->type.c_str()
-              << ") can not be run simultaneously with a PositionJointInterface";
-          return false;
-        }
-      }
-      if (effort_interface_running_) {
-        bool error = true;
-        for (std::list<hardware_interface::ControllerInfo>::const_iterator stop_controller_it =
-            stop_list.begin();
-            stop_controller_it != stop_list.end();
-            ++stop_controller_it) {
-          if (0 == stop_controller_it->type.compare(
-              "hardware_interface::EffortJointInterface")) {
-            error = false;
-            break;
-          }
-        }
-        if (error) {
-          LOG_ERROR << controller_it->name.c_str()
-              << " (type " << controller_it->type.c_str()
-              << ") can not be run simultaneously with a EffortJointInterface";
-          return false;
-        }
-      }
-    } else if (0 == controller_it->type.compare(
-        "hardware_interface::PositionJointInterface")) {
-      if (position_interface_running_) {
-        LOG_ERROR << "%s: An interface of that type (%s) is already running"
-            << controller_it->name.c_str()
-            << controller_it->type.c_str();
-        return false;
-      }
-      if (velocity_interface_running_) {
-        bool error = true;
-        for (std::list<hardware_interface::ControllerInfo>::const_iterator stop_controller_it =
-            stop_list.begin();
-            stop_controller_it != stop_list.end();
-            ++stop_controller_it) {
-          if (0 == stop_controller_it->type.compare(
-              "hardware_interface::VelocityJointInterface")) {
-            error = false;
-            break;
-          }
-        }
-        if (error) {
-          LOG_ERROR << "%s (type %s) can not be run simultaneously with a VelocityJointInterface"
-              << controller_it->name.c_str()
-              << controller_it->type.c_str();
-          return false;
-        }
-      }
-      if (effort_interface_running_) {
-          bool error = true;
-          for (std::list<hardware_interface::ControllerInfo>::const_iterator stop_controller_it =
-              stop_list.begin();
-              stop_controller_it != stop_list.end();
-              ++stop_controller_it) {
-            if (0 == stop_controller_it->type.compare(
-                "hardware_interface::EffortJointInterface")) {
-              error = false;
-              break;
-            }
-          }
-          if (error) {
-            LOG_ERROR << controller_it->name.c_str() << " (type "
-                << controller_it->type.c_str()
-                << ") can not be run simultaneously with a VelocityJointInterface";
-            return false;
-          }
-        }
-    } else if (0 == controller_it->type.compare(
-        "hardware_interface::EffortJointInterface")) {
-      if (effort_interface_running_) {
-        LOG_ERROR << controller_it->name.c_str()
-            << ": An interface of that type ("
-            << controller_it->type.c_str()
-            << ") is already running";
-        return false;
-      }
-      if (velocity_interface_running_) {
-        bool error = true;
-        for (std::list<hardware_interface::ControllerInfo>::const_iterator stop_controller_it =
-            stop_list.begin();
-            stop_controller_it != stop_list.end();
-            ++stop_controller_it) {
-          if (0 == stop_controller_it->type.compare(
-              "hardware_interface::VelocityJointInterface")) {
-            error = false;
-            break;
-          }
-        }
-        if (error) {
-          LOG_ERROR << controller_it->name.c_str()
-                    << " (type " << controller_it->type.c_str()
-                    << ") can not be run simultaneously with a VelocityJointInterface";
-          return false;
-        }
-      }
-      if (position_interface_running_) {
-          bool error = true;
-          for (std::list<hardware_interface::ControllerInfo>::const_iterator stop_controller_it =
-              stop_list.begin();
-              stop_controller_it != stop_list.end();
-              ++stop_controller_it) {
-            if (0 == stop_controller_it->type.compare(
-                "hardware_interface::PositionJointInterface")) {
-              error = false;
-              break;
-            }
-          }
-          if (error) {
-            LOG_ERROR << controller_it->name.c_str()
-                << " (type " << controller_it->type.c_str()
-                << ") can not be run simultaneously with a PositionJointInterface";
-            return false;
-          }
-        }
-    }
-  }
-
-  // we can always stop a controller
   return true;
+  // TODO 
 }
 
 void RosRobotHW::doSwitch(const std::list<hardware_interface::ControllerInfo>&start_list,
     const std::list<hardware_interface::ControllerInfo>&stop_list) {
-  for (std::list<hardware_interface::ControllerInfo>::const_iterator controller_it =
-      stop_list.begin(); controller_it != stop_list.end();
-      ++controller_it) {
-    if (0 == controller_it->type.compare(
-        "hardware_interface::VelocityJointInterface")) {
-      velocity_interface_running_ = false;
-      LOG_INFO << ("Stopping velocity interface");
-    }
-    if (0 == controller_it->type.compare(
-        "hardware_interface::PositionJointInterface")) {
-      position_interface_running_ = false;
-      // std::vector<double> tmp;
-      // robot_->closeServo(tmp);
-      LOG_INFO << ("Stopping position interface");
-    }
-    if (0 == controller_it->type.compare(
-        "hardware_interface::EffortJointInterface")) {
-      effort_interface_running_ = false;
-      // std::vector<double> tmp;
-      // robot_->closeServo(tmp);
-      LOG_INFO << ("Stopping position interface");
-    }
-  }
-  for (std::list<hardware_interface::ControllerInfo>::const_iterator controller_it =
-      start_list.begin(); controller_it != start_list.end();
-      ++controller_it) {
-    if (0 == controller_it->type.compare(
-        "hardware_interface::VelocityJointInterface")) {
-      velocity_interface_running_ = true;
-      LOG_INFO << ("Starting velocity interface");
-    }
-    if (0 == controller_it->type.compare(
-        "hardware_interface::PositionJointInterface")) {
+  // TODO
+  for (const auto& info : start_list) {
+    if (0 != info.name.compare("joint_state_controller"))
       position_interface_running_ = true;
-      // robot_->uploadProg();
-      LOG_INFO << ("Starting position interface");
-    }
-    if (0 == controller_it->type.compare(
-        "hardware_interface::EffortJointInterface")) {
-      effort_interface_running_ = true;
-      // robot_->uploadProg();
-      LOG_INFO << ("Starting effort interface");
-    }
   }
 }

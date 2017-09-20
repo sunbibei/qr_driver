@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(qr_driver_alpha)
+project(qr_driver)
 
 add_definitions(-std=c++11)
 # Load catkin and all dependencies required for this package
