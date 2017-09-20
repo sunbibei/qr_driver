@@ -38,7 +38,7 @@ struct JointCommand {
 
 Joint::Joint(const MiiString& l)
   : Label(l), new_command_(false), jnt_type_(JntType::UNKNOWN_JNT),
-    leg_type_(LegType::UNKNOWN_LEG), scale_(1), offset_(0), /*msg_id_(INVALID_BYTE),*/
+    leg_type_(LegType::UNKNOWN_LEG),  /*msg_id_(INVALID_BYTE),*/
     joint_state_(new JointState), joint_command_(new JointCommand) {
   // The code as follow should be here.
   // JointManager::instance()->add(this);
@@ -57,13 +57,9 @@ Joint::~Joint() {
 
 bool Joint::init() {
   auto cfg = MiiCfgReader::instance();
-
   cfg->get_value_fatal(getLabel(), "jnt",  jnt_type_);
   cfg->get_value_fatal(getLabel(), "leg",  leg_type_);
   cfg->get_value_fatal(getLabel(), "name", jnt_name_);
-
-  cfg->get_value(getLabel(), "scale",  scale_);
-  cfg->get_value(getLabel(), "offset", offset_);
 
   JointManager::instance()->add(this);
   return true;
@@ -73,13 +69,12 @@ const MiiString& Joint::joint_name() const { return jnt_name_; }
 const JntType& Joint::joint_type() const { return jnt_type_; }
 const LegType& Joint::owner_type()   const { return leg_type_; }
 
-void Joint::updateJointCount(unsigned short _count) {
-  double pos = joint_state_->pos_;
-  joint_state_->pos_ = _count * scale_ + offset_;
+void Joint::updateJointPosition(double pos) {
   auto t0 = std::chrono::high_resolution_clock::now();
   auto duration = t0 - joint_state_->previous_time_;
   auto count = std::chrono::duration_cast<std::chrono::duration<double>>(duration).count();
-  joint_state_->vel_ = (joint_state_->pos_ - pos) / count;
+  joint_state_->vel_ = (pos - joint_state_->pos_) / count;
+  joint_state_->pos_ = pos;
 
   // LOG_DEBUG << jnt_name_ << ": " << joint_state_->pos_ << ", " << joint_state_->vel_;
 }

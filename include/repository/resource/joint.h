@@ -39,7 +39,7 @@ public:
   const double& joint_torque_const_ref();
   const double* joint_torque_const_pointer();
 
-  // About joint command
+  ///! About joint command, This is only way that the user update the joint command.
   void updateJointCommand(double);
   void updateJointCommand(JntCmdType);
   void updateJointCommand(double, JntCmdType);
@@ -56,22 +56,15 @@ protected:
   /**
    * Interface for communication layer, friend class LegNode.
    */
-  // The velocity will be change after updating joint position
-  // position = count * scale + offset
-  void updateJointCount(unsigned short count);
+  void updateJointPosition(double pos);
   // if has new command, return true and fill the Packet pointer
   bool new_command_; // the flag indicate whether has new command
-  // bool new_command(class Packet*);
-  // position = count * scale + offset
 
 protected:
   JntType             jnt_type_;
   LegType             leg_type_;
   MiiString           jnt_name_;
-  double              scale_;
-  double              offset_;
-
-  // unsigned char       msg_id_;
+  // The private data structure
   class JointState*   joint_state_;
   class JointCommand* joint_command_;
 };

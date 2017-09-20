@@ -17,13 +17,16 @@
 
 namespace middleware {
 
-struct __PrivateJointParams {
-  double k_;
-  double b_;
+struct __PrivateLinearParams {
+  double base;
+  double offset;
+  double k_cmd;
+  double b_cmd;
 };
 
 LegNode::LegNode(const MiiString& __l)
-  : SWNode(__l), leg_(LegType::UNKNOWN_LEG), td_(nullptr) {
+  : SWNode(__l), leg_(LegType::UNKNOWN_LEG),
+    td_(nullptr) {
   for (auto& c : jnt_cmds_)
     c = nullptr;
 
@@ -32,11 +35,16 @@ LegNode::LegNode(const MiiString& __l)
 }
 
 LegNode::~LegNode() {
-  for (auto& jnt : joints_by_type_) {
+  for (auto& jnt : jnts_by_type_) {
     jnt = nullptr;
   }
 
   td_ = nullptr;
+
+  for (auto& p : jnt_params_) {
+    delete p;
+    p = nullptr;
+  }
 }
 
 bool LegNode::init() {
@@ -61,7 +69,8 @@ bool LegNode::init() {
   }
 
   int count = 0;
-  joints_by_type_.resize(JntType::N_JNTS);
+  jnts_by_type_.resize(JntType::N_JNTS);
+  jnt_params_.resize(JntType::N_JNTS);
   MiiString tag = Label::make_label(getLabel(), "joint_0");
   while(cfg->get_value(tag, "label", tmp_str)) {
     tag = Label::make_label(getLabel(), "joint_" + std::to_string(++count));
@@ -73,7 +82,13 @@ bool LegNode::init() {
           << "' pointer from LabelSystem.";
       continue;
     }
-    joints_by_type_[jnt->joint_type()] = jnt;
+    jnts_by_type_[jnt->joint_type()] = jnt;
+    auto param  = new __PrivateLinearParams;
+    cfg->get_value_fatal(tag, "base", param->base);
+    cfg->get_value_fatal(tag, "offset", param->offset);
+    cfg->get_value_fatal(tag, "k_cmd", param->k_cmd);
+    cfg->get_value_fatal(tag, "b_cmd", param->b_cmd);
+    jnt_params_[jnt->joint_type()]  = param;
     jnt_cmds_[jnt->joint_type()]       = jnt->joint_command_const_pointer();
     jnt_mods_[jnt->joint_type()]       = jnt->joint_command_mode_const_pointer();
   }
@@ -90,19 +105,17 @@ bool LegNode::init() {
 }
 
 void LegNode::updateFromBuf(const unsigned char* __p) {
-  int offset  = 0;
   /*printf("0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X\n", 
       __p[0], __p[1], __p[2], __p[3], __p[4], __p[5], __p[6], __p[7]);*/
-  // unsigned short tmp = 0;
+  int offset  = 0;
+  short count = 0;
   for (const auto& type : {JntType::KNEE, JntType::HIP, JntType::YAW}) {
-    // tmp = 0;
-    // memcpy(&tmp, __p + offset, sizeof(tmp));
-    joints_by_type_[type]->updateJointCount((__p[offset] | (__p[offset + 1] << 8)));
-    offset += 2; // sizeof(tmp); // each count will stand two bytes.
+    memcpy(&count, __p + offset, sizeof(count));
+    jnts_by_type_[type]->updateJointPosition(
+        jnt_params_[type]->base * ((36*count/4096*10) - jnt_params_[type]->offset) * 3.1415 / 180);
+    offset += sizeof(count); // each count will stand two bytes.
   }
 
-  // tmp = 0;
-  // memcpy(&tmp, __p + offset, sizeof(tmp));
   td_->updateForceCount((__p[offset] | (__p[offset + 1] << 8)));
   LOG_DEBUG << "The touchdown' data of " << td_->leg_type() << " is " << td_->force_data();
 }
@@ -124,16 +137,20 @@ void LegNode::handleMsg(const Packet& pkt) {
 }
 
 bool LegNode::generateCmd(std::vector<Packet>& pkts) {
-  int offset = 0;
+  int offset  = 0;
+  short count = 0;
   for (const auto& type : {JntType::KNEE, JntType::HIP, JntType::YAW}) {
-    if (joints_by_type_[type]->new_command_) {
-      Packet cmd{node_id_, MII_MSG_COMMON_DATA_1, 6, {0}};
-
-      memcpy(cmd.data, jnt_cmds_[type], offset + 2 * sizeof(char));
-      joints_by_type_[type]->new_command_ = false;
-
-      pkts.push_back(cmd);
+    Packet cmd{node_id_, MII_MSG_COMMON_DATA_1, 6, {0}};
+    if (jnts_by_type_[type]->new_command_) {
+      count = (short)((*jnt_cmds_[type] - jnt_params_[type]->b_cmd) / jnt_params_[type]->k_cmd);
+      memcpy(cmd.data + offset, &count, sizeof(count));
+      jnts_by_type_[type]->new_command_ = false;
+    } else {
+      cmd.data[offset]     = INVALID_BYTE;
+      cmd.data[offset + 1] = INVALID_BYTE;
     }
+
+    pkts.push_back(cmd);
     offset += 2; // Each count stand two bytes.
   }
 

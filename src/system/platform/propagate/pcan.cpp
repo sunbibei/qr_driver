@@ -42,7 +42,7 @@ bool PcanChannel::start() {
   // try to 10 times
   for (g_times_count = 0; g_times_count < MAX_TRY_TIMES; ++g_times_count) {
     // g_status_ = CAN_Initialize(g_channel, g_baud_rate, g_type, g_port, g_interrupt);
-    TPCANStatus status = CAN_Initialize(PCAN_USBBUS1, PCAN_BAUD_500K, 0, 0, 0);
+    TPCANStatus status = CAN_Initialize(g_channel, g_baud_rate, 0, 0, 0);
     connected_ = (PCAN_ERROR_OK == status);
     if (!connected_) {
       LOG_WARNING << "(" << g_times_count + 1 << "/10) Initialize CAN FAIL, "

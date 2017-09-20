@@ -27,12 +27,11 @@ protected:
   void updateFromBuf(const unsigned char*);
   // there are three joint in each leg
   LegType                                leg_;
-  MiiVector<class Joint*>                joints_by_type_;
+  MiiVector<class Joint*>                jnts_by_type_;
   class ForceSensor*                     td_;
 
-  // Th
-  MiiVector<class __PrivateJointParams*> joints_params_;
-  class __PrivateForceSensorParams*      td_params_;
+  // The order match the @joints_by_type_
+  MiiVector<class __PrivateLinearParams*> jnt_params_;
   // The constant pointer of the joint command
   const double*             jnt_cmds_[JntType::N_JNTS];
   const JntCmdType*         jnt_mods_[JntType::N_JNTS];
