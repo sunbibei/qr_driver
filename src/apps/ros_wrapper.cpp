@@ -162,6 +162,7 @@ void RosWrapper::halt() {
 #ifdef DEBUG_TOPIC
 void RosWrapper::cbForDebug(const std_msgs::Int32ConstPtr& msg) {
   for (auto& jnt : *jnt_manager_) {
+    LOG_DEBUG << "Joint " << jnt->joint_name() << " adds the command " << msg->data;
     jnt->updateJointCommand(msg->data);
   }
   // 实现方式0

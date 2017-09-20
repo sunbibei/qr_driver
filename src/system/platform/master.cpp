@@ -69,6 +69,13 @@ void Master::tick() {
     // Collecting all of the new command to control the robot
     packets_.clear();
     sw_node_manager_->generateCmd(packets_);
+    // just for debug
+    for (auto& pkt : packets_) {
+      printf("  - NODE ID:0x%02X MSG ID: 0x%02X LEN:%1x DATA:0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X\n",
+            (int)pkt.node_id, (int)pkt.msg_id,  (int)pkt.size,
+            (int)pkt.data[0], (int)pkt.data[1], (int)pkt.data[2], (int)pkt.data[3],
+            (int)pkt.data[4], (int)pkt.data[5], (int)pkt.data[6], (int)pkt.data[7]);
+    }
     // if (!packets_.empty()) LOG_DEBUG << "Got Command from SWNode, size=" << packets_.size();
     // else LOG_DEBUG << "No Command from SWNode";
     propagate_manager_->writePackets(packets_);

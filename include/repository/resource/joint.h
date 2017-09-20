@@ -9,6 +9,7 @@
 #define INCLUDE_SYSTEM_RESOURCES_JOINT_H_
 
 #include <system/foundation/label.h>
+#include <atomic>
 
 namespace middleware {
 
@@ -58,7 +59,7 @@ protected:
    */
   void updateJointPosition(double pos);
   // if has new command, return true and fill the Packet pointer
-  bool new_command_; // the flag indicate whether has new command
+  std::atomic_bool new_command_; // the flag indicate whether has new command
 
 protected:
   JntType             jnt_type_;
