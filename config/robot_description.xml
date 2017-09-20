@@ -44,37 +44,37 @@
 	<!-- All of the nodes will be managed by HwManager which contains propagates-->
 	<lf name="hardwares" >
 		<node auto_inst="middleware::LegNode" leg="fl" node_id="0x02" >
-			<joint_0     jnt="yaw"  label="qr.fl.yaw"       scale="1" offset="0" />
-			<joint_1     jnt="hip"  label="qr.fl.hip"       scale="1" offset="0" />
-			<joint_2     jnt="knee" label="qr.fl.knee"      scale="1" offset="0" />
-			<touchdown              label="qr.fl.td"        scale="1" offset="0" />
+			<joint_0     jnt="yaw"  label="qr.fl.yaw"  k_pos="1" b_pos="0" k_cmd="1000" b_cmd="0" />
+			<joint_1     jnt="hip"  label="qr.fl.hip"  k_pos="1" b_pos="0" k_cmd="1000" b_cmd="0" />
+			<joint_2     jnt="knee" label="qr.fl.knee" k_pos="1" b_pos="0" k_cmd="1000" b_cmd="0" />
+			<touchdown              label="qr.fl.td" />
 		</node>
 	</lf>
 
 	<hl>
 		<node auto_inst="middleware::LegNode" leg="hl" node_id="0x03" >
-			<joint_0     jnt="yaw"  label="qr.hl.yaw"       scale="1" offset="0" />
-			<joint_1     jnt="hip"  label="qr.hl.hip"       scale="1" offset="0" />
-			<joint_2     jnt="knee" label="qr.hl.knee"      scale="1" offset="0" />
-			<touchdown              label="qr.hl.td"        scale="1" offset="0" />
+			<joint_0     jnt="yaw"  label="qr.hl.yaw"  k_pos="1" b_pos="0" k_cmd="1000" b_cmd="0" />
+			<joint_1     jnt="hip"  label="qr.hl.hip"  k_pos="1" b_pos="0" k_cmd="1000" b_cmd="0" />
+			<joint_2     jnt="knee" label="qr.hl.knee" k_pos="1" b_pos="0" k_cmd="1000" b_cmd="0" />
+			<touchdown              label="qr.hl.td" />
 		</node>
 	</hl>
 
 	<fr>
 		<node auto_inst="middleware::LegNode" leg="fr" node_id="0x04" >
-			<joint_0     jnt="yaw"  label="qr.fr.yaw"       scale="1" offset="0" />
-			<joint_1     jnt="hip"  label="qr.fr.hip"       scale="1" offset="0" />
-			<joint_2     jnt="knee" label="qr.fr.knee"      scale="1" offset="0" />
-			<touchdown              label="qr.fr.td"        scale="1" offset="0" />
+			<joint_0     jnt="yaw"  label="qr.fr.yaw"  k_pos="1" b_pos="0" k_cmd="1000" b_cmd="0" />
+			<joint_1     jnt="hip"  label="qr.fr.hip"  k_pos="1" b_pos="0" k_cmd="1000" b_cmd="0" />
+			<joint_2     jnt="knee" label="qr.fr.knee" k_pos="1" b_pos="0" k_cmd="1000" b_cmd="0" />
+			<touchdown              label="qr.fr.td" />
 		</node>
 	</fr>
 
 	<hr>
 		<node auto_inst="middleware::LegNode" leg="hr" node_id="0x05" >
-			<joint_0     jnt="yaw"  label="qr.hr.yaw"       scale="1" offset="0" />
-			<joint_1     jnt="hip"  label="qr.hr.hip"       scale="1" offset="0" />
-			<joint_2     jnt="knee" label="qr.hr.knee"      scale="1" offset="0" />
-			<touchdown              label="qr.hr.td"        scale="1" offset="0" />
+			<joint_0     jnt="yaw"  label="qr.hr.yaw"  k_pos="1" b_pos="0" k_cmd="1000" b_cmd="0" />
+			<joint_1     jnt="hip"  label="qr.hr.hip"  k_pos="1" b_pos="0" k_cmd="1000" b_cmd="0" />
+			<joint_2     jnt="knee" label="qr.hr.knee" k_pos="1" b_pos="0" k_cmd="1000" b_cmd="0" />
+			<touchdown              label="qr.hr.td" />
 		</node>
 	</hr>
 

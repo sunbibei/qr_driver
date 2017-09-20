@@ -137,11 +137,11 @@ bool PcanChannel::read(Packet& pkt) {
   g_times_count = 0;
   while (!MII_MSG_IS_TO_HOST(recv_msg_.ID)) {
     if (++g_times_count <= MAX_TRY_TIMES) {
-      LOG_WARNING << "It read odd message(" << g_times_count << "/"
-          << MAX_TRY_TIMES << "), and reset pcan now... ...";
+      LOG_EVERY_N(WARNING, 10) << "It read odd message(" << g_times_count << "/"
+          << MAX_TRY_TIMES << "), and the host could not parse, read again... ...";
     } else {
-      LOG_ERROR << "The pcan channel always read odd message, and we give up reset!"
-          << "Now we are trying to restart the pcan system.";
+      LOG_EVERY_N(ERROR, 10) << "The pcan channel always read odd messages, and we give up read!"
+          << "Now we are trying to reset the pcan system.";
       CAN_Reset(g_channel);
       g_times_count = 0;
     }
@@ -149,7 +149,7 @@ bool PcanChannel::read(Packet& pkt) {
     g_status_ = CAN_Read(g_channel, &recv_msg_, NULL);
   }
 
-  if (true)
+  if (false)
     printf("  - COUNT: %05d ID:0x%03X LEN:%1x DATA:0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X\n",
       read_counter++, (int)recv_msg_.ID, (int)recv_msg_.LEN,
       (int)recv_msg_.DATA[0], (int)recv_msg_.DATA[1],
@@ -161,6 +161,7 @@ bool PcanChannel::read(Packet& pkt) {
   pkt.msg_id  = MII_MSG_EXTRACT_MSG_ID(recv_msg_.ID);
   pkt.size    = recv_msg_.LEN;
   memset(pkt.data, '\0', 8 * sizeof(char));
+  // pkt.data    = new unsigned char(8);
   memcpy(pkt.data, recv_msg_.DATA, pkt.size * sizeof(char));
 
   // This code aims to compatible with the old protocol

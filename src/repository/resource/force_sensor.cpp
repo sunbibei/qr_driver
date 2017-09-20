@@ -45,7 +45,7 @@ bool ForceSensor::init() {
 }
 
 void ForceSensor::updateForceCount(short _count) {
-  td_state_->data = _count * scale_ + offset_;
+  td_state_->data = _count; // * scale_ + offset_;
 }
 
 double ForceSensor::force_data() {

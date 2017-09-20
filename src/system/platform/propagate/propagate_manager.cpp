@@ -57,8 +57,8 @@ bool PropagateManager::run() {
   }
 
   LOG_INFO << "Started the all of propagate!";
-  // ThreadPool::instance()->add(THREAD_NAME, &PropagateManager::update, this);
-  update_thread_ = std::thread(std::bind(&PropagateManager::update, this));
+  ThreadPool::instance()->add(THREAD_NAME, &PropagateManager::update, this);
+  // update_thread_ = std::thread(std::bind(&PropagateManager::update, this));
   return true;
 }
 
