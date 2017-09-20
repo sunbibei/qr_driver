@@ -72,8 +72,8 @@ void SWNodeManager::handleMsg(const MiiVector<Packet>& pkts) {
 
 void SWNodeManager::generateCmd(MiiVector<Packet>& pkts) {
   for (auto& node : hw_list_by_cmd_) {
-    LOG_DEBUG << "SW Node: " << node->getLabel() << " generate the command.";
-    node->generateCmd(pkts);
+    if (node->generateCmd(pkts))
+      LOG_DEBUG << "SW Node: " << node->getLabel() << " generate the command.";
   }
 }
 

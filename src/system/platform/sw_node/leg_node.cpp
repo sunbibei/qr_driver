@@ -146,10 +146,12 @@ void LegNode::handleMsg(const Packet& pkt) {
 bool LegNode::generateCmd(std::vector<Packet>& pkts) {
   int offset  = 0;
   short count = 0;
+  bool is_any_valid = false;
   Packet cmd{node_id_, MII_MSG_COMMON_DATA_1, 6, {0}};
 
   for (const auto& type : {JntType::KNEE, JntType::HIP, JntType::YAW}) {
     if (jnts_by_type_[type]->new_command_) {
+      is_any_valid = true;
       count = (short)(*jnt_cmds_[type] * jnt_params_[type]->k_cmd + jnt_params_[type]->b_cmd);
       memcpy(cmd.data + offset, &count, sizeof(count));
       jnts_by_type_[type]->new_command_ = false;
@@ -160,8 +162,8 @@ bool LegNode::generateCmd(std::vector<Packet>& pkts) {
     offset += 2; // Each count stand two bytes.
   }
 
-  pkts.push_back(cmd);
-  return true;
+  if (is_any_valid) pkts.push_back(cmd);
+  return is_any_valid;
 }
 
 } /* namespace middleware */
