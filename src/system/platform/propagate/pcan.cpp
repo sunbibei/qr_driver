@@ -96,7 +96,7 @@ bool PcanChannel::write(const Packet& pkt) {
   // try to 10 times
   for (g_times_count = 0; g_times_count < MAX_TRY_TIMES; ++g_times_count) {
     g_status_ = CAN_Write(g_channel, &send_msg_);
-    if (PCAN_ERROR_OK != g_status_){
+    if (PCAN_ERROR_OK != g_status_) {
       LOG_WARNING << "(" << g_times_count + 1 << "/10) Write CAN message FAIL, "
           "status code: " << g_status_ << ", Waiting 50ms... ...";
       // Waiting 50ms

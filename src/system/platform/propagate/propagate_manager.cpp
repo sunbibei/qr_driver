@@ -70,7 +70,12 @@ void PropagateManager::update() {
     while (!pkts_queue_4_send_.empty()) {
       const auto& pkt = pkts_queue_4_send_.back();
       for (auto& c : res_list_) {
-        if (c->write(pkt)) break;
+        if (c->write(pkt)) {
+          LOG_DEBUG << "The propagate " << c->getLabel() << " has write compeleted.";
+          break;
+        } else {
+          LOG_DEBUG << "What fucking!";
+        }
       }
       pkts_queue_4_send_.pop_back();
     }
@@ -107,6 +112,7 @@ bool PropagateManager::writePackets(const std::vector<Packet>& pkts) {
 
     pkts_queue_4_send_.clear();
   }
+  LOG_DEBUG << "The queue for send is " << pkts_queue_4_send_.size();
   MUTEX_UNLOCK(lock_4_send_)
   return true;
 }

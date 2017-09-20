@@ -70,6 +70,7 @@ void Master::tick() {
     packets_.clear();
     sw_node_manager_->generateCmd(packets_);
     // just for debug
+    if (false)
     for (auto& pkt : packets_) {
       printf("  - NODE ID:0x%02X MSG ID: 0x%02X LEN:%1x DATA:0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X\n",
             (int)pkt.node_id, (int)pkt.msg_id,  (int)pkt.size,
