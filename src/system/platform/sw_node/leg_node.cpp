@@ -73,13 +73,13 @@ bool LegNode::init() {
   jnt_params_.resize(JntType::N_JNTS);
   MiiString tag = Label::make_label(getLabel(), "joint_0");
   while(cfg->get_value(tag, "label", tmp_str)) {
-    tag = Label::make_label(getLabel(), "joint_" + std::to_string(++count));
     Joint* jnt = Label::getHardwareByName<Joint>(tmp_str);
     LOG_DEBUG << getLabel() << "'s joint_" << count
         << ": " << tmp_str << ",\t" << jnt;
     if (nullptr == jnt) {
       LOG_WARNING << "Can't get joint '" << tmp_str
           << "' pointer from LabelSystem.";
+      tag = Label::make_label(getLabel(), "joint_" + std::to_string(++count));
       continue;
     }
     jnts_by_type_[jnt->joint_type()] = jnt;
@@ -91,6 +91,8 @@ bool LegNode::init() {
     jnt_params_[jnt->joint_type()]  = param;
     jnt_cmds_[jnt->joint_type()]       = jnt->joint_command_const_pointer();
     jnt_mods_[jnt->joint_type()]       = jnt->joint_command_mode_const_pointer();
+
+    tag = Label::make_label(getLabel(), "joint_" + std::to_string(++count));
   }
 
   tag = Label::make_label(getLabel(), "touchdown");
@@ -109,15 +111,20 @@ void LegNode::updateFromBuf(const unsigned char* __p) {
       __p[0], __p[1], __p[2], __p[3], __p[4], __p[5], __p[6], __p[7]);*/
   int offset  = 0;
   short count = 0;
+  double pos  = 0.0;
   for (const auto& type : {JntType::KNEE, JntType::HIP, JntType::YAW}) {
     memcpy(&count, __p + offset, sizeof(count));
-    jnts_by_type_[type]->updateJointPosition(
-        jnt_params_[type]->base * ((36*count/4096*10) - jnt_params_[type]->offset) * 3.1415 / 180);
+
+    pos = 3600 * (double)count / 4096 * 10;
+    pos = jnt_params_[type]->base * (pos - jnt_params_[type]->offset);
+    pos = pos * 314.15926 / 180;
+    pos = pos / 10000;
+    
+    jnts_by_type_[type]->updateJointPosition(pos);
     offset += sizeof(count); // each count will stand two bytes.
   }
 
   td_->updateForceCount((__p[offset] | (__p[offset + 1] << 8)));
-  LOG_DEBUG << "The touchdown' data of " << td_->leg_type() << " is " << td_->force_data();
 }
 
 void LegNode::handleMsg(const Packet& pkt) {
@@ -139,21 +146,21 @@ void LegNode::handleMsg(const Packet& pkt) {
 bool LegNode::generateCmd(std::vector<Packet>& pkts) {
   int offset  = 0;
   short count = 0;
+  Packet cmd{node_id_, MII_MSG_COMMON_DATA_1, 6, {0}};
+
   for (const auto& type : {JntType::KNEE, JntType::HIP, JntType::YAW}) {
-    Packet cmd{node_id_, MII_MSG_COMMON_DATA_1, 6, {0}};
     if (jnts_by_type_[type]->new_command_) {
-      count = (short)((*jnt_cmds_[type] - jnt_params_[type]->b_cmd) / jnt_params_[type]->k_cmd);
+      count = (short)(*jnt_cmds_[type] * jnt_params_[type]->k_cmd + jnt_params_[type]->b_cmd);
       memcpy(cmd.data + offset, &count, sizeof(count));
       jnts_by_type_[type]->new_command_ = false;
     } else {
       cmd.data[offset]     = INVALID_BYTE;
       cmd.data[offset + 1] = INVALID_BYTE;
     }
-
-    pkts.push_back(cmd);
     offset += 2; // Each count stand two bytes.
   }
 
+  pkts.push_back(cmd);
   return true;
 }
 

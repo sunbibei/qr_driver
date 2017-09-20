@@ -84,16 +84,14 @@ bool PcanChannel::write(const Packet& pkt) {
   send_msg_.LEN     = pkt.size;
   memset(send_msg_.DATA, '\0', 8 * sizeof(BYTE));
   memcpy(send_msg_.DATA, pkt.data, send_msg_.LEN * sizeof(BYTE));
-  // static int g_w_err_count = 0;
-  // if (!connected_) { return connected_; }
-  // This code aims to compatible with the old protocol
-  // TODO It should be updated.
-  /*msg_4_send_.ID  = pkt.node_id;
-  msg_4_send_.LEN = pkt.size + 3;
-  msg_4_send_.DATA[0] = pkt.msg_id;
-  msg_4_send_.DATA[1] = ONLY_ONE_PKT;
-  msg_4_send_.DATA[2] = INVALID_BYTE;
-  memcpy(msg_4_send_.DATA + 3, pkt.data, pkt.size * sizeof(BYTE));*/
+
+  if (true)
+    printf("  - ID:0x%03X LEN:%1x DATA:0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X\n",
+      (int)send_msg_.ID, (int)send_msg_.LEN,
+      (int)send_msg_.DATA[0], (int)send_msg_.DATA[1],
+      (int)send_msg_.DATA[2], (int)send_msg_.DATA[3],
+      (int)send_msg_.DATA[4], (int)send_msg_.DATA[5],
+      (int)send_msg_.DATA[6], (int)send_msg_.DATA[7]);
 
   // try to 10 times
   for (g_times_count = 0; g_times_count < MAX_TRY_TIMES; ++g_times_count) {
@@ -112,8 +110,6 @@ bool PcanChannel::write(const Packet& pkt) {
   return false;
 }
 
-// This variable just aims to debug information output.
-unsigned int read_counter = 0;
 bool PcanChannel::read(Packet& pkt) {
   g_times_count = 0;
   memset(&recv_msg_, '\0', sizeof(TPCANMsg));
@@ -137,8 +133,8 @@ bool PcanChannel::read(Packet& pkt) {
   g_times_count = 0;
   while (!MII_MSG_IS_TO_HOST(recv_msg_.ID)) {
     if (++g_times_count <= MAX_TRY_TIMES) {
-      LOG_EVERY_N(WARNING, 10) << "It read odd message(" << g_times_count << "/"
-          << MAX_TRY_TIMES << "), and the host could not parse, read again... ...";
+      LOG_EVERY_N(WARNING, 10) << "It read odd message"
+          << ", and the host could not parse, read again... ...";
     } else {
       LOG_EVERY_N(ERROR, 10) << "The pcan channel always read odd messages, and we give up read!"
           << "Now we are trying to reset the pcan system.";
@@ -150,8 +146,8 @@ bool PcanChannel::read(Packet& pkt) {
   }
 
   if (false)
-    printf("  - COUNT: %05d ID:0x%03X LEN:%1x DATA:0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X\n",
-      read_counter++, (int)recv_msg_.ID, (int)recv_msg_.LEN,
+    printf("  - ID:0x%03X LEN:%1x DATA:0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X\n",
+      (int)recv_msg_.ID, (int)recv_msg_.LEN,
       (int)recv_msg_.DATA[0], (int)recv_msg_.DATA[1],
       (int)recv_msg_.DATA[2], (int)recv_msg_.DATA[3],
       (int)recv_msg_.DATA[4], (int)recv_msg_.DATA[5],

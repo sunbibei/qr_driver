@@ -201,9 +201,9 @@
 void UpdatePosition()
 {
 	kneeAngleoff = getJointCoder(kneeCoder);
-	kneeAngle = 36*kneeAngleoff/4096*10;    // 100倍放大，度数值
+	kneeAngle = 3600*kneeAngleoff/4096*10;    // 100倍放大，度数值
 	kneeAngle = kneeBaseSym*(kneeAngle - kneeBaseOff);  // 减去零度角基准
-	kneeAngle = kneeAngle*3.1415/180;		 // 转幅度，放大100倍，共10000倍
+	kneeAngle = kneeAngle*314.15/180;		 // 转幅度，放大100倍，共10000倍
 	
 	hipAngleoff  = getJointCoder(hipCoder); 
 	hipAngle  = 36*hipAngleoff/4096*10;        //100倍放大
