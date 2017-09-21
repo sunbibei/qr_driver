@@ -38,6 +38,7 @@ catkin_package(
 include_directories(include ${catkin_INCLUDE_DIRS} ${TinyXML_INCLUDE_DIRS})
 
 set(SRC_ROOT            src)
+set(SRC_EXAMPLES        examples/src)
 
 set(SRC_SYS             ${SRC_ROOT}/system)
 set(SRC_SYS_FOUNDATION  ${SRC_SYS}/foundation)
@@ -51,7 +52,7 @@ set(SRC_REP_EST         ${SRC_REP}/estimator)
 
 set(SRC_APP             ${SRC_ROOT}/apps)
 
-
+# Files define.
 set(SYS_FLATFORM_FILES  ${SRC_SYS_FOUNDATION}/label.cpp
                         ${SRC_SYS_FOUNDATION}/auto_instanceor.cpp
                         ${SRC_SYS_FOUNDATION}/cfg_reader.cpp
@@ -83,6 +84,9 @@ set(BIN_FILES           ${SRC_ROOT}/main.cpp
                         ${SRC_APP}/ros_wrapper.cpp
 )
 
+set(EX_FILES            ${SRC_EXAMPLES}/qr_driver_test.cpp
+)
+
 ## Declare a C++ library
 add_library(${PROJECT_NAME}_sys_platform
   ${SYS_FLATFORM_FILES}
@@ -92,21 +96,29 @@ add_library(${PROJECT_NAME}_sys_robot
   ${SYS_ROBOT_FILES}
 )
 
+add_library(${PROJECT_NAME}_test_lib
+  ${EX_FILES}
+)
+
 ## Declare a C++ executable
 add_executable(${PROJECT_NAME}
   ${BIN_FILES}
 )
 
 ## Specify libraries to link a library or executable target against
+target_link_libraries(${PROJECT_NAME}_sys_robot
+  ${catkin_LIBRARIES}
+  ${PROJECT_NAME}_sys_platform
+)
+
 target_link_libraries(${PROJECT_NAME}_sys_platform
   ${catkin_LIBRARIES}
   glog
   pcanbasic
 )
 
-target_link_libraries(${PROJECT_NAME}_sys_robot
+target_link_libraries(${PROJECT_NAME}_test_lib
   ${catkin_LIBRARIES}
-  ${PROJECT_NAME}_sys_platform
 )
 
 target_link_libraries(${PROJECT_NAME}

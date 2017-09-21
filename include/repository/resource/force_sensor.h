@@ -26,7 +26,9 @@ public:
   const LegType& leg_type() const;
 
   double force_data();
-  const double* force_data_const_pointer();
+  // TODO Should be const double*, see the issue #282 in the ros_control's github
+  // reference to https://github.com/ros-controls/ros_control/issues/282
+  double* force_data_const_pointer();
   const double& force_data_const_ref();
 
 protected:

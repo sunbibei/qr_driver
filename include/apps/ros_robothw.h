@@ -25,11 +25,12 @@ using namespace middleware;
 class RosRobotHW: public hardware_interface::RobotHW {
 public:
   virtual ~RosRobotHW();
-  RosRobotHW(ros::NodeHandle&);
+  RosRobotHW(ros::NodeHandle&, const MiiString&);
 
   /// \brief Initialize the hardware interface
   virtual void init();
   /// \brief Read the state from the robot hardware.
+  // The program will automatic read the data from the const reference of @MiiRobot
   virtual void read();
   /// \brief write the command to the robot hardware.
   virtual void write();
@@ -46,9 +47,16 @@ protected:
         const std::list<hardware_interface::ControllerInfo>&,
         const std::list<hardware_interface::ControllerInfo>&) const;
 
+  ///! Helper methods for @init()
+  void initJointInterface();
+  void initForceSensorInterface();
+  void initImuSensorInterface();
+
 protected:
   // Startup and shutdown of the internal node inside a roscpp program
   ros::NodeHandle nh_;
+  ///! The tag of the configure file
+  MiiString       tag_;
   // Joint API
   JointManager* jnt_manager_;
   // Interfaces
@@ -66,10 +74,6 @@ protected:
 
   MiiVector<std::string> joint_names_;
   size_t num_joints_;
-
-  MiiVector<const double*> jnt_pos_;
-  MiiVector<const double*> jnt_vel_;
-  MiiVector<const double*> jnt_tor_;
 
   // Shared memory
   MiiMap<MiiString, double*> jnt_pos_cmds_;

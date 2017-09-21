@@ -15,11 +15,20 @@
 #define ROS_CTRL_THREAD ("ros_control")
 #define RT_PUB_THREAD   ("rt_publish")
 
-SINGLETON_IMPL(RosWrapper)
+SINGLETON_IMPL_NO_CREATE(RosWrapper)
 
-RosWrapper::RosWrapper()
-  : MiiRobot("qr.wrapper"), alive_(false), rt_duration_(1000/50),
-    ros_ctrl_duration_(1000/100), use_ros_control_(false) {
+RosWrapper* RosWrapper::create_instance(const MiiString& __tag) {
+  if (nullptr != instance_) {
+    LOG_WARNING << "This method 'create_instance()' is called twice.";
+  } else {
+    instance_ = new RosWrapper(__tag);
+  }
+  return instance_;
+}
+
+RosWrapper::RosWrapper(const MiiString& __tag)
+  : MiiRobot(Label::make_label(__tag, "robot")), root_tag_(__tag), alive_(false),
+    rt_duration_(1000/50), ros_ctrl_duration_(1000/100), use_ros_control_(false) {
   LOG_DEBUG << "Enter the roswrapper construction";
   // google::InitGoogleLogging("qr_driver");
   // google::SetLogDestination(google::GLOG_INFO, "/path/to/log/INFO_");
@@ -73,7 +82,7 @@ bool RosWrapper::start() {
   ros::param::get("~use_ros_control", use_ros_control_);
   if (use_ros_control_) {
     hardware_interface_.reset(
-              new RosRobotHW(nh_));
+              new RosRobotHW(nh_, Label::make_label(root_tag_, "roswrapper")));
     controller_manager_.reset(
         new controller_manager::ControllerManager(
             hardware_interface_.get(), nh_));

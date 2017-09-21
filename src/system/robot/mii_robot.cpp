@@ -33,7 +33,7 @@ void MiiRobot::auto_inst(const MiiString& __p, const MiiString& __type) {
 }
 
 MiiRobot::MiiRobot(const MiiString& __tag)
-: prefix_tag_(Label::make_label(__tag, "robot")),
+: prefix_tag_(__tag),
   master_(nullptr), jnt_manager_(nullptr) {
   ;
 }

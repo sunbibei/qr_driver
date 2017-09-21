@@ -1,0 +1,7 @@
+<library path="lib/libqr_driver_test_lib">
+
+    <class name="qr_driver_test/QrDriverTestController"
+      type="qr_driver_test::QrDriverTestController"
+      base_class_type="controller_interface::ControllerBase"/>
+
+</library>

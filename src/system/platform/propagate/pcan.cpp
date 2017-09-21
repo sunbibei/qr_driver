@@ -79,6 +79,10 @@ void PcanChannel::stop() {
 }
 
 bool PcanChannel::write(const Packet& pkt) {
+  if (!connected_) {
+    LOG_FIRST_N(WARNING, 100) << "The pcan has not been launched, or initialized fail.";
+    return false;
+  }
   send_msg_.MSGTYPE = PCAN_MESSAGE_STANDARD;
   send_msg_.ID      = MII_MSG_FILL_TO_NODE_MSG(pkt.node_id, pkt.msg_id);
   send_msg_.LEN     = pkt.size;
@@ -110,6 +114,11 @@ bool PcanChannel::write(const Packet& pkt) {
 }
 
 bool PcanChannel::read(Packet& pkt) {
+  if (!connected_) {
+    LOG_FIRST_N(WARNING, 100) << "The pcan has not been launched, or initialized fail.";
+    return false;
+  }
+
   g_times_count = 0;
   memset(&recv_msg_, '\0', sizeof(TPCANMsg));
 
@@ -156,20 +165,7 @@ bool PcanChannel::read(Packet& pkt) {
   pkt.msg_id  = MII_MSG_EXTRACT_MSG_ID(recv_msg_.ID);
   pkt.size    = recv_msg_.LEN;
   memset(pkt.data, '\0', 8 * sizeof(char));
-  // pkt.data    = new unsigned char(8);
   memcpy(pkt.data, recv_msg_.DATA, pkt.size * sizeof(char));
-
-  // This code aims to compatible with the old protocol
-  // TODO It should be updated.
-  /*if (msg_4_recv_.LEN < 3) {
-    LOG_EVERY_N(ERROR, 10) << "Error Message from can bus, this length of message data is "
-        << msg_4_recv_.LEN;
-    return false;
-  }
-  pkt.node_id = msg_4_recv_.ID;
-  pkt.msg_id  = msg_4_recv_.DATA[0];
-  pkt.size    = msg_4_recv_.LEN - 3;
-  memcpy(pkt.data, msg_4_recv_.DATA + 3, pkt.size * sizeof(BYTE));*/
   return true;
 }
 

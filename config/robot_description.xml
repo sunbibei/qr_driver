@@ -94,6 +94,11 @@
 		</robot>
 		<!-- The necessary parameters are asked by RosWrapper -->
 		<roswrapper>
+			<touchdown_0 label="qr.fl.td" name="fl_td" frame_id="fl_foot" />
+			<touchdown_1 label="qr.fr.td" name="fr_td" frame_id="fr_foot" />
+			<touchdown_2 label="qr.hl.td" name="hl_td" frame_id="hl_foot" />
+			<touchdown_3 label="qr.hr.td" name="hr_td" frame_id="hr_foot" />
+			<imu         label="qr.imu"   name="imu"   frame_id="XXX" />
 		</roswrapper>
 	</wrapper>
 

@@ -6,6 +6,8 @@
  */
 
 #include <apps/ros_robothw.h>
+#include "system/foundation/cfg_reader.h"
+#include "repository/resource/force_sensor.h"
 
 RosRobotHW::~RosRobotHW() {
   for (auto& cmd : jnt_pos_cmds_) {
@@ -24,9 +26,8 @@ RosRobotHW::~RosRobotHW() {
   }
 }
 
-RosRobotHW::RosRobotHW(ros::NodeHandle& nh)
-  : nh_(nh), jnt_manager_(nullptr) {
-
+RosRobotHW::RosRobotHW(ros::NodeHandle& nh, const MiiString& __tag)
+  : nh_(nh), tag_(__tag), jnt_manager_(nullptr) {
   jnt_manager_ = JointManager::instance();
   // robot->getJointNames(joint_names_);
   num_joints_ = joint_names_.size();
@@ -37,6 +38,12 @@ RosRobotHW::RosRobotHW(ros::NodeHandle& nh)
 
 /// \brief Initialize the hardware interface
 void RosRobotHW::init() {
+  initJointInterface();
+  initForceSensorInterface();
+  initImuSensorInterface();
+}
+
+void RosRobotHW::initJointInterface() {
   if (jnt_manager_->empty()) {
     LOG_FATAL <<
         "No joints found on parameter server for controller, "
@@ -89,6 +96,50 @@ void RosRobotHW::init() {
   velocity_interface_running_ = false;
   position_interface_running_ = false;
   effort_interface_running_   = false;
+}
+
+void RosRobotHW::initForceSensorInterface() {
+  auto cfg = MiiCfgReader::instance();
+  int count = 0;
+  MiiString str = "";
+  MiiString tag = Label::make_label(tag_, "touchdown_0");
+
+  while(cfg->get_value(tag, "label", str)) {
+    ForceSensor* td = Label::getHardwareByName<ForceSensor>(str);
+    LOG_DEBUG << tag << "'s touchdown_" << count
+        << ": " << str << ",\t" << td;
+    if (nullptr == td) {
+      LOG_WARNING << "Can't get ForceSensor '" << str
+          << "' pointer from LabelSystem.";
+      tag = Label::make_label(tag_, "touchdown_" + std::to_string(++count));
+      continue;
+    }
+    MiiString frame_id, name;
+    cfg->get_value_fatal(tag, "name", name);
+    cfg->get_value_fatal(tag, "frame_id", frame_id);
+    td_state_iface_.registerHandle(
+        hardware_interface::ForceTorqueSensorHandle(name, frame_id,
+            td->force_data_const_pointer(), td->force_data_const_pointer()));
+
+    tag = Label::make_label(tag_, "touchdown_" + std::to_string(++count));
+  }
+
+  registerInterface(&td_state_iface_);
+}
+
+void RosRobotHW::initImuSensorInterface() {
+  auto cfg = MiiCfgReader::instance();
+  MiiString tag = Label::make_label(tag_, "imu");
+  hardware_interface::ImuSensorHandle::Data data;
+
+  cfg->get_value_fatal(tag, "name",     data.name);
+  cfg->get_value_fatal(tag, "frame_id", data.frame_id);
+  // TODO
+
+  imu_state_iface_.registerHandle(
+      hardware_interface::ImuSensorHandle(data));
+
+  registerInterface(&imu_state_iface_);
 }
 
 /// \brief Read the state from the robot hardware.

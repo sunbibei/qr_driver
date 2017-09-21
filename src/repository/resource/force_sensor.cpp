@@ -52,7 +52,7 @@ double ForceSensor::force_data() {
   return td_state_->data;
 }
 
-const double* ForceSensor::force_data_const_pointer() {
+double* ForceSensor::force_data_const_pointer() {
   return &(td_state_->data);
 }
 
