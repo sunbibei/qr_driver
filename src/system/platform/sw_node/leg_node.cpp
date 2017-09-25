@@ -18,10 +18,8 @@
 namespace middleware {
 
 struct __PrivateLinearParams {
-  double base;
+  double scale;
   double offset;
-  double k_cmd;
-  double b_cmd;
 };
 
 LegNode::LegNode(const MiiString& __l)
@@ -84,10 +82,8 @@ bool LegNode::init() {
     }
     jnts_by_type_[jnt->joint_type()] = jnt;
     auto param  = new __PrivateLinearParams;
-    cfg->get_value_fatal(tag, "base", param->base);
+    cfg->get_value_fatal(tag, "scale",  param->scale);
     cfg->get_value_fatal(tag, "offset", param->offset);
-    cfg->get_value_fatal(tag, "k_cmd", param->k_cmd);
-    cfg->get_value_fatal(tag, "b_cmd", param->b_cmd);
     jnt_params_[jnt->joint_type()]  = param;
     jnt_cmds_[jnt->joint_type()]       = jnt->joint_command_const_pointer();
     jnt_mods_[jnt->joint_type()]       = jnt->joint_command_mode_const_pointer();
@@ -115,10 +111,11 @@ void LegNode::updateFromBuf(const unsigned char* __p) {
   for (const auto& type : {JntType::KNEE, JntType::HIP, JntType::YAW}) {
     memcpy(&count, __p + offset, sizeof(count));
 
-    pos = 3600 * (double)count / 4096 * 10;
+    /*pos = 3600 * (double)count / 4096 * 10;
     pos = jnt_params_[type]->base * (pos - jnt_params_[type]->offset);
     pos = pos * 314.15926 / 180;
-    pos = pos / 10000;
+    pos = pos / 10000;*/
+    pos = jnt_params_[type]->scale * (double)count + jnt_params_[type]->offset;
     
     jnts_by_type_[type]->updateJointPosition(pos);
     offset += sizeof(count); // each count will stand two bytes.
@@ -148,17 +145,18 @@ bool LegNode::generateCmd(std::vector<Packet>& pkts) {
   short count = 0;
   bool is_any_valid = false;
   Packet cmd{node_id_, MII_MSG_COMMON_DATA_1, 6, {0}};
+  memset(cmd.data, INVALID_BYTE, 8 * sizeof(unsigned char));
 
   for (const auto& type : {JntType::KNEE, JntType::HIP, JntType::YAW}) {
     if (jnts_by_type_[type]->new_command_) {
       is_any_valid = true;
-      count = (short)(*jnt_cmds_[type] * jnt_params_[type]->k_cmd + jnt_params_[type]->b_cmd);
+      count = (*jnt_cmds_[type] - jnt_params_[type]->offset) / jnt_params_[type]->scale;
       memcpy(cmd.data + offset, &count, sizeof(count));
       jnts_by_type_[type]->new_command_ = false;
-    } else {
+    }/* else {
       cmd.data[offset]     = INVALID_BYTE;
       cmd.data[offset + 1] = INVALID_BYTE;
-    }
+    }*/
     offset += 2; // Each count stand two bytes.
   }
 
