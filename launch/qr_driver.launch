@@ -12,7 +12,7 @@
   <!-- Load hardware interface -->
   <node name="qr_driver_alpha" pkg="qr_driver" type="qr_driver" output="screen">
     <param name="configure" command="cat '$(find qr_driver)/config/robot_description.xml'"/>
-    <param name="library" value="/home/bibei/Workspaces/qr_ws/devel/lib/libqr_driver_sys_platform.so"/>
+    <param name="library" value="/home/robot/Workspaces/qr_ws/devel/lib/libqr_driver_sys_platform.so"/>
     <param name="use_ros_control"     type="bool"   value="$(arg use_ros_control)"     />
     <param name="debug"               type="bool"   value="$(arg debug)"               />
     <param name="rt_frequency"        type="double" value="$(arg rt_frequency)"        />

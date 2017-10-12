@@ -7,6 +7,7 @@
 
 #include <apps/ros_robothw.h>
 #include "system/foundation/cfg_reader.h"
+#include "repository/resource/imu_sensor.h"
 #include "repository/resource/force_sensor.h"
 
 RosRobotHW::~RosRobotHW() {
@@ -132,10 +133,18 @@ void RosRobotHW::initImuSensorInterface() {
   MiiString tag = Label::make_label(tag_, "imu");
   hardware_interface::ImuSensorHandle::Data data;
 
+  MiiString label;
+  cfg->get_value_fatal(tag, "label",    label);
   cfg->get_value_fatal(tag, "name",     data.name);
   cfg->get_value_fatal(tag, "frame_id", data.frame_id);
-  // TODO
 
+  ImuSensor* imu = Label::getHardwareByName<ImuSensor>(label);
+  data.orientation = imu->orientation_const_pointer();
+  data.orientation_covariance = imu->orientation_covariance_const_pointer();
+  data.linear_acceleration = imu->linear_acceleration_const_pointer();
+  data.linear_acceleration_covariance = imu->linear_acceleration_covariance_const_pointer();
+  data.angular_velocity = imu->angular_velocity_const_pointer();
+  data.angular_velocity_covariance = imu->angular_velocity_covariance_const_pointer();
   imu_state_iface_.registerHandle(
       hardware_interface::ImuSensorHandle(data));
 

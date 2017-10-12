@@ -25,7 +25,6 @@ public:
    */
   virtual void create_system_instance();
 
-
   virtual bool init();
 
   virtual bool start();
@@ -81,6 +80,8 @@ protected:
   // type: leg
   MiiVector<class ForceSensor*>          td_list_by_type_;
   MiiMap<MiiString, class ForceSensor*>  td_list_by_name_;
+
+  class ImuSensor*   imu_sensor_;
 };
 
 } /* namespace middleware */

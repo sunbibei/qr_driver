@@ -1,104 +1,114 @@
 <?xml version="1.0" encoding="utf-8"?>
 <qr name="quadruped_robot">
 
+  <!-- Prepare resources for user aims to control the robot -->
 	<!-- All of the hardwares list here, and it will be automatic instance -->
-	<fl>
-		<yaw  auto_inst="middleware::Joint" leg="fl" jnt="yaw"  name="fl_yaw"  />
-		<hip  auto_inst="middleware::Joint" leg="fl" jnt="hip"  name="fl_hip"  />
-		<knee auto_inst="middleware::Joint" leg="fl" jnt="knee" name="fl_knee" />
-		<td   auto_inst="middleware::ForceSensor" leg="fl"                     />
-	</fl>
+	<resources attr="resources">
+		<fl>
+			<yaw  auto_inst="middleware::Joint" leg="fl" jnt="yaw"  name="fl_yaw"  />
+			<hip  auto_inst="middleware::Joint" leg="fl" jnt="hip"  name="fl_hip"  />
+			<knee auto_inst="middleware::Joint" leg="fl" jnt="knee" name="fl_knee" />
+			<td   auto_inst="middleware::ForceSensor" leg="fl"                     />
+		</fl>
 
-	<hl>
-		<yaw  auto_inst="middleware::Joint" leg="hl" jnt="yaw"  name="hl_yaw"  />
-		<hip  auto_inst="middleware::Joint" leg="hl" jnt="hip"  name="hl_hip"  />
-		<knee auto_inst="middleware::Joint" leg="hl" jnt="knee" name="hl_knee" />
-		<td   auto_inst="middleware::ForceSensor" leg="hl"                     />
-	</hl>
+		<hl>
+			<yaw  auto_inst="middleware::Joint" leg="hl" jnt="yaw"  name="hl_yaw"  />
+			<hip  auto_inst="middleware::Joint" leg="hl" jnt="hip"  name="hl_hip"  />
+			<knee auto_inst="middleware::Joint" leg="hl" jnt="knee" name="hl_knee" />
+			<td   auto_inst="middleware::ForceSensor" leg="hl"                     />
+		</hl>
 
-	<fr>
-		<yaw  auto_inst="middleware::Joint" leg="fr" jnt="yaw"  name="fr_yaw"  />
-		<hip  auto_inst="middleware::Joint" leg="fr" jnt="hip"  name="fr_hip"  />
-		<knee auto_inst="middleware::Joint" leg="fr" jnt="knee" name="fr_knee" />
-		<td   auto_inst="middleware::ForceSensor" leg="fr"                     />
-	</fr>
+		<fr>
+			<yaw  auto_inst="middleware::Joint" leg="fr" jnt="yaw"  name="fr_yaw"  />
+			<hip  auto_inst="middleware::Joint" leg="fr" jnt="hip"  name="fr_hip"  />
+			<knee auto_inst="middleware::Joint" leg="fr" jnt="knee" name="fr_knee" />
+			<td   auto_inst="middleware::ForceSensor" leg="fr"                     />
+		</fr>
 
-	<hr>
-		<yaw  auto_inst="middleware::Joint" leg="hr" jnt="yaw"  name="hr_yaw"  />
-		<hip  auto_inst="middleware::Joint" leg="hr" jnt="hip"  name="hr_hip"  />
-		<knee auto_inst="middleware::Joint" leg="hr" jnt="knee" name="hr_knee" />
-		<td   auto_inst="middleware::ForceSensor" leg="hr"                     />
-	</hr>
+		<hr>
+			<yaw  auto_inst="middleware::Joint" leg="hr" jnt="yaw"  name="hr_yaw"  />
+			<hip  auto_inst="middleware::Joint" leg="hr" jnt="hip"  name="hr_hip"  />
+			<knee auto_inst="middleware::Joint" leg="hr" jnt="knee" name="hr_knee" />
+			<td   auto_inst="middleware::ForceSensor" leg="hr"                     />
+		</hr>
+		<imu    auto_inst="middleware::ImuSensor" />
+	</resources>
 
 	<!-- About propagates, it will be automatic instance and addtion to PropagatesManager -->
 	<!-- These objects as follow communication between the real robot directly -->
-	<propagates name="propagates" >
+	<propagates attr="propagates" >
 		<!--pcan_fake auto_inst="middleware::PcanChannelFake"
 			output="/home/bibei/output" repeat="true" input="/home/bibei/input"
 			channel="0x51" baud="500" type="0" port="0" interrupt="0" /-->
-		<pcan auto_inst="middleware::PcanChannel"
-			channel="0x51" baud="500" type="0" port="0" interrupt="0" />
+		<!--pcan auto_inst="middleware::PcanChannel"
+			channel="0x51" baud="500" type="0" port="0" interrupt="0" /-->
+		<usb auto_inst="middleware::USBChannel"
+			channel="/dev/ttyUSB0" baud="9600" imu_node="0x06" />
 	</propagates>
 	
 	<!-- Got the packet message from PropagateManager and update the information of hardware -->
 	<!-- All of the nodes will be managed by HwManager which contains propagates-->
-	<lf name="hardwares" >
-		<node auto_inst="middleware::LegNode" leg="fl" node_id="0x02" >
-			<joint_0     jnt="yaw"  label="qr.fl.yaw"  scale="0.001533981"  offset="-2.744356892" />
-			<joint_1     jnt="hip"  label="qr.fl.hip"  scale="-0.001533981" offset="4.020193122"  />
-			<joint_2     jnt="knee" label="qr.fl.knee" scale="0.001533981"  offset="-4.32492774"  />
-			<touchdown              label="qr.fl.td" />
-		</node>
-	</lf>
+	<nodes attr="hardwares">
+		<lf>
+			<node auto_inst="middleware::LegNode" leg="fl" node_id="0x02" >
+				<joint_0     jnt="yaw"  label="qr.resources.fl.yaw"  scale="0.001533981"  offset="-2.744356892" />
+				<joint_1     jnt="hip"  label="qr.resources.fl.hip"  scale="-0.001533981" offset="4.020193122"  />
+				<joint_2     jnt="knee" label="qr.resources.fl.knee" scale="0.001533981"  offset="-4.32492774"  />
+				<touchdown              label="qr.resources.fl.td" />
+			</node>
+		</lf>
 
-	<hl>
-		<node auto_inst="middleware::LegNode" leg="hl" node_id="0x03" >
-			<joint_0     jnt="yaw"  label="qr.hl.yaw"  scale="-0.001533981" offset="3.346844808" />
-			<joint_1     jnt="hip"  label="qr.hl.hip"  scale="-0.001533981" offset="1.001121288" />
-			<joint_2     jnt="knee" label="qr.hl.knee" scale="0.001533981"  offset="-0.65275342" />
-			<touchdown              label="qr.hl.td" />
-		</node>
-	</hl>
+		<hl>
+			<node auto_inst="middleware::LegNode" leg="hl" node_id="0x03" >
+				<joint_0     jnt="yaw"  label="qr.resources.hl.yaw"  scale="-0.001533981" offset="3.346844808" />
+				<joint_1     jnt="hip"  label="qr.resources.hl.hip"  scale="-0.001533981" offset="1.001121288" />
+				<joint_2     jnt="knee" label="qr.resources.hl.knee" scale="0.001533981"  offset="-0.65275342" />
+				<touchdown              label="qr.resources.hl.td" />
+			</node>
+		</hl>
 
-	<fr>
-		<node auto_inst="middleware::LegNode" leg="fr" node_id="0x04" >
-			<joint_0     jnt="yaw"  label="qr.fr.yaw"  scale="0.001533981"  offset="-3.167075818" />
-			<joint_1     jnt="hip"  label="qr.fr.hip"  scale="-0.001533981" offset="0.409454418"  />
-			<joint_2     jnt="knee" label="qr.fr.knee" scale="0.001533981"  offset="-2.72096947"  />
-			<touchdown              label="qr.fr.td" />
-		</node>
-	</fr>
+		<fr>
+			<node auto_inst="middleware::LegNode" leg="fr" node_id="0x04" >
+				<joint_0     jnt="yaw"  label="qr.resources.fr.yaw"  scale="0.001533981"  offset="-3.167075818" />
+				<joint_1     jnt="hip"  label="qr.resources.fr.hip"  scale="-0.001533981" offset="0.409454418"  />
+				<joint_2     jnt="knee" label="qr.resources.fr.knee" scale="0.001533981"  offset="-2.72096947"  />
+				<touchdown              label="qr.resources.fr.td" />
+			</node>
+		</fr>
 
-	<hr>
-		<node auto_inst="middleware::LegNode" leg="hr" node_id="0x05" >
-			<joint_0     jnt="yaw"  label="qr.hr.yaw"  scale="-0.001533981" offset="2.761810192"  />
-			<joint_1     jnt="hip"  label="qr.hr.hip"  scale="0.001533981"  offset="-3.445979552" />
-			<joint_2     jnt="knee" label="qr.hr.knee" scale="-0.001533981" offset="4.89565065"   />
-			<touchdown              label="qr.hr.td" />
-		</node>
-	</hr>
+		<hr>
+			<node auto_inst="middleware::LegNode" leg="hr" node_id="0x05" >
+				<joint_0     jnt="yaw"  label="qr.resources.hr.yaw"  scale="-0.001533981" offset="2.761810192"  />
+				<joint_1     jnt="hip"  label="qr.resources.hr.hip"  scale="0.001533981"  offset="-3.445979552" />
+				<joint_2     jnt="knee" label="qr.resources.hr.knee" scale="-0.001533981" offset="4.89565065"   />
+				<touchdown              label="qr.resources.hr.td" />
+			</node>
+		</hr>
 
-	<!-- power_node auto_inst="middleware::Power" node_id="0x08"  /-->
+		<imu_node auto_inst="middleware::ImuNode" node_id="0x06" label="qr.resources.imu"  />
+		<!-- power_node auto_inst="middleware::Power" node_id="0x08"  /-->
+	</nodes>
 
 	<!-- User Layer -->
 	<wrapper>
 		<!-- The necessary parameters are asked by MiiRobot -->
 		<robot>
-			<joints     labels="qr.fl.yaw qr.fl.hip qr.fl.knee
-												  qr.hl.yaw qr.hl.hip qr.hl.knee
-												  qr.fr.yaw qr.fr.hip qr.fr.knee
-												  qr.hr.yaw qr.hr.hip qr.hr.knee" />
+			<joints     labels="qr.resources.fl.yaw qr.resources.fl.hip qr.resources.fl.knee
+												  qr.resources.hl.yaw qr.resources.hl.hip qr.resources.hl.knee
+												  qr.resources.fr.yaw qr.resources.fr.hip qr.resources.fr.knee
+												  qr.resources.hr.yaw qr.resources.hr.hip qr.resources.hr.knee" />
 
-			<touchdowns labels="qr.fl.td qr.hl.td
-												  qr.fr.td qr.hr.td" />
+			<touchdowns labels="qr.resources.fl.td qr.resources.hl.td
+												  qr.resources.fr.td qr.resources.hr.td" />
+			<imu        labels="qr.resources.imu" />
 		</robot>
 		<!-- The necessary parameters are asked by RosWrapper -->
 		<roswrapper>
-			<touchdown_0 label="qr.fl.td" name="fl_td" frame_id="fl_foot" />
-			<touchdown_1 label="qr.fr.td" name="fr_td" frame_id="fr_foot" />
-			<touchdown_2 label="qr.hl.td" name="hl_td" frame_id="hl_foot" />
-			<touchdown_3 label="qr.hr.td" name="hr_td" frame_id="hr_foot" />
-			<imu         label="qr.imu"   name="imu"   frame_id="XXX" />
+			<touchdown_0 label="qr.resources.fl.td" name="fl_td" frame_id="fl_foot" />
+			<touchdown_1 label="qr.resources.fr.td" name="fr_td" frame_id="fr_foot" />
+			<touchdown_2 label="qr.resources.hl.td" name="hl_td" frame_id="hl_foot" />
+			<touchdown_3 label="qr.resources.hr.td" name="hr_td" frame_id="hr_foot" />
+			<imu         label="qr.resources.imu"   name="imu"   frame_id="body" />
 		</roswrapper>
 	</wrapper>
 

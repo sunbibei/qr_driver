@@ -57,6 +57,7 @@ set(SYS_FLATFORM_FILES  ${SRC_SYS_FOUNDATION}/label.cpp
                         ${SRC_SYS_FOUNDATION}/auto_instanceor.cpp
                         ${SRC_SYS_FOUNDATION}/cfg_reader.cpp
 
+                        ${SRC_REP_RES}/imu_sensor.cpp
                         ${SRC_REP_RES}/joint.cpp
                         ${SRC_REP_RES}/force_sensor.cpp
                         ${SRC_REP_RES}/joint_manager.cpp
@@ -66,10 +67,12 @@ set(SYS_FLATFORM_FILES  ${SRC_SYS_FOUNDATION}/label.cpp
                         ${SRC_SYS_PLATFORM}/sw_node/sw_node_manager.cpp
                         ${SRC_SYS_PLATFORM}/sw_node/sw_node.cpp
                         ${SRC_SYS_PLATFORM}/sw_node/leg_node.cpp
+                        ${SRC_SYS_PLATFORM}/sw_node/imu_node.cpp
                         ${SRC_SYS_PLATFORM}/propagate/propagate_manager.cpp
                         ${SRC_SYS_PLATFORM}/propagate/propagate.cpp
                         ${SRC_SYS_PLATFORM}/propagate/pcan_fake.cpp
                         ${SRC_SYS_PLATFORM}/propagate/pcan.cpp
+                        ${SRC_SYS_PLATFORM}/propagate/usb.cpp
                         
                         ${SRC_SYS_PLATFORM}/thread/threadpool.cpp
 

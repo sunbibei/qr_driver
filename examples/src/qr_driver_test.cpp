@@ -51,7 +51,7 @@ bool QrDriverTestController::init(RobotHW* robot, ros::NodeHandle &n) {
       imu_handle_ = imu->getHandle(str);
     }
 
-    reset_sub_ = n.subscribe<std_msgs::Bool>("JointReset", 1,
+    reset_sub_ = n.subscribe<std_msgs::Bool>("QrDriverTest", 1,
        &QrDriverTestController::cbForReset, this);
     return true;
 }
@@ -91,6 +91,13 @@ void QrDriverTestController::update(const ros::Time&, const ros::Duration&) {
 
   if (!imu_handle_.getName().empty()) {
     ; // Output the information of IMU
+    std::cout << "ImuSensor:   " << std::endl;
+    auto d = imu_handle_.getAngularVelocity();
+    std::cout << d[0] << " " << d[1] << " " << d[2] << std::endl;
+    d = imu_handle_.getLinearAcceleration();
+    std::cout << d[0] << " " << d[1] << " " << d[2] << std::endl;
+    d = imu_handle_.getOrientation();
+    std::cout << d[0] << " " << d[1] << " " << d[2] << " " << d[3] << std::endl;
   }
 }
 

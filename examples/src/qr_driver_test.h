@@ -20,7 +20,8 @@ namespace qr_driver_test {
 class QrDriverTestController :
         public controller_interface::MultiInterfaceController<
         hardware_interface::PositionJointInterface,
-        hardware_interface::ForceTorqueSensorInterface> {
+        hardware_interface::ForceTorqueSensorInterface,
+        hardware_interface::ImuSensorInterface> {
 public:
   QrDriverTestController();
   ~QrDriverTestController();
