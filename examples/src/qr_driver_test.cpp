@@ -51,7 +51,7 @@ bool QrDriverTestController::init(RobotHW* robot, ros::NodeHandle &n) {
       imu_handle_ = imu->getHandle(str);
     }
 
-    reset_sub_ = n.subscribe<std_msgs::Bool>("JointReset", 1,
+    reset_sub_ = n.subscribe<std_msgs::Bool>("QrDriverTest", 1,
        &QrDriverTestController::cbForReset, this);
     return true;
 }
