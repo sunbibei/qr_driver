@@ -33,13 +33,12 @@ struct Packet {
 #define INVALID_BYTE (0x88)
 
 /*////////////////////////////////////////////////////////
-The message id define:
+The CAN message id define:
         10 09 08 07 06 05 04 03 02 01 00
 to Node  0| 0|    NODE ID|        MSG ID|
 to Group 0| 1|   GROUP ID|        MSG ID|
 to Host  1| X|    NODE ID|        MSG ID|
 ////////////////////////////////////////////////////////*/
-
 #define MII_MSG_ID_BITS_SIZE      (11)
 #define MII_MSG_ID_BYTE_SIZE      (2)
 ///! The template of to node , to group and to host message(No setting node_id and msg_id)
@@ -85,6 +84,70 @@ to Host  1| X|    NODE ID|        MSG ID|
 #define MII_MSG_COMMON_DATA       (0x10u)
 ///! The joint command
 #define MII_MSG_COMMON_DATA_1     (0x11u)
+
+////////////////////////////////////////////////////////////////////////
+///////////////// The IMU communication protocol by the USB
+////////////////////////////////////////////////////////////////////////
+
+/*////////////////////////////////////////////////////////
+The USB message format define:
+           0     1      2     3       4       5   6   7   8
+to IMU   0xFF | 0xAA | ID | DATA_0 | DATA_1 |
+to Host  0x55 | UP_ID|                 DATA             | SUM
+////////////////////////////////////////////////////////*/
+#define USB_UP_MESSAGE_SIZE        (11)
+#define USB_UP_MESSAGE_DATA_SIZE   (8)
+
+#define MII_USB_UP_HEADER          (0x55)
+
+#define MII_USB_UP_ID_TIME         (0x50)
+#define MII_USB_UP_ID_ACC          (0x51)
+#define MII_USB_UP_ID_ANG_VEL      (0x52)
+#define MII_USB_UP_ID_ANG          (0x53)
+#define MII_USB_UP_ID_MAGNIC       (0x54)
+#define MII_USB_UP_ID_STATUS       (0x55)
+#define MII_USB_UP_ID_PA_CM        (0x56)
+#define MII_USB_UP_ID_LON_LAT      (0x57)
+#define MII_USB_UP_ID_YAW          (0x58)
+#define MII_USB_UP_ID_QUATERNION   (0x59)
+#define MII_USB_UP_ID_ACCURACY     (0x5A)
+
+#define MII_USB_DOWN_HEADER        (0xFFAA)
+
+#define MII_USB_DOWN_ID_SAVE       (0x00)
+#define MII_USB_DOWN_ID_POSTBACK   (0x02)
+#define MII_USB_DOWN_ID_RATE       (0x03)
+#define MII_USB_DOWN_ID_BAUD       (0x04)
+
+///! This macro method passes a MII_USB_UP_ID_XXX as id parameter, and passes
+///! a short type as the out RSWL and RSWH data.
+#define MII_USB_SET_POSTBACK_ID(rsw, id) ((rsw) |= (0x01 << ((id) & (0x0F))))
+
+#define MII_USB_DOWN_RATE_0_1HZ    (0x01)
+#define MII_USB_DOWN_RATE_0_5HZ    (0x02)
+#define MII_USB_DOWN_RATE_1HZ      (0x03)
+#define MII_USB_DOWN_RATE_2HZ      (0x04)
+#define MII_USB_DOWN_RATE_5HZ      (0x05)
+#define MII_USB_DOWN_RATE_10HZ     (0x06)
+#define MII_USB_DOWN_RATE_20HZ     (0x07)
+#define MII_USB_DOWN_RATE_50HZ     (0x08)
+#define MII_USB_DOWN_RATE_100HZ    (0x09)
+#define MII_USB_DOWN_RATE_200HZ    (0x0A)
+#define MII_USB_DOWN_RATE_ONCE     (0x0B)
+#define MII_USB_DOWN_RATE_0HZ      (0x0C)
+
+#define MII_USB_DOWN_BAUD_2400     (0x00)
+#define MII_USB_DOWN_BAUD_4800     (0x01)
+#define MII_USB_DOWN_BAUD_9600     (0x02)
+#define MII_USB_DOWN_BAUD_19200    (0x03)
+#define MII_USB_DOWN_BAUD_38400    (0x04)
+#define MII_USB_DOWN_BAUD_57600    (0x05)
+#define MII_USB_DOWN_BAUD_115200   (0x06)
+#define MII_USB_DOWN_BAUD_230400   (0x07)
+#define MII_USB_DOWN_BAUD_460800   (0x08)
+#define MII_USB_DOWN_BAUD_921600   (0x09)
+
+#define MII_USB_DOWN_BAUD(b) MII_USB_DOWN_BAUD_##b
 
 } /* namespace quadruped_robot_driver */
 

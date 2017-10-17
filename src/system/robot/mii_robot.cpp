@@ -6,6 +6,7 @@
  */
 
 #include <repository/resource/force_sensor.h>
+#include <repository/resource/imu_sensor.h>
 #include <repository/resource/joint.h>
 #include <repository/resource/joint_manager.h>
 #include <system/foundation/label.h>
@@ -33,8 +34,8 @@ void MiiRobot::auto_inst(const MiiString& __p, const MiiString& __type) {
 }
 
 MiiRobot::MiiRobot(const MiiString& __tag)
-: prefix_tag_(__tag),
-  master_(nullptr), jnt_manager_(nullptr) {
+: prefix_tag_(__tag), master_(nullptr),
+  jnt_manager_(nullptr), imu_sensor_(nullptr) {
   ;
 }
 
@@ -86,6 +87,10 @@ bool MiiRobot::init() {
   master_->init();
 
   jnt_manager_ = JointManager::instance();
+
+  MiiString imu_name;
+  cfg->get_value_fatal(Label::make_label(prefix_tag_, "imu"), "labels", imu_name);
+  imu_sensor_  = Label::getHardwareByName<ImuSensor>(imu_name);
   return true;
 }
 

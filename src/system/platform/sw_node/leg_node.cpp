@@ -23,8 +23,7 @@ struct __PrivateLinearParams {
 };
 
 LegNode::LegNode(const MiiString& __l)
-  : SWNode(__l), leg_(LegType::UNKNOWN_LEG),
-    td_(nullptr) {
+  : SWNode(__l), leg_(LegType::UNKNOWN_LEG), td_(nullptr) {
   for (auto& c : jnt_cmds_)
     c = nullptr;
 
@@ -48,28 +47,13 @@ LegNode::~LegNode() {
 bool LegNode::init() {
   if (!SWNode::init())     return false;
   auto cfg = MiiCfgReader::instance();
-
-  MiiString tmp_str;
-  cfg->get_value_fatal(getLabel(), "leg", tmp_str);
-  boost::to_lower(tmp_str);
-  if (0 == tmp_str.compare("fl")) {
-    leg_ = LegType::FL;
-  } else if (0 == tmp_str.compare("fr")) {
-    leg_ = LegType::FR;
-  } else if (0 == tmp_str.compare("hl")) {
-    leg_ = LegType::HL;
-  } else if (0 == tmp_str.compare("hr")) {
-    leg_ = LegType::HR;
-  } else {
-    LOG_ERROR << "Error the 'leg' TAG(" << tmp_str << ") in the 'joint' TAG, "
-        << "require 'fl', 'fr', 'hl' or 'hr'";
-    return false;
-  }
+  cfg->get_value_fatal(getLabel(), "leg", leg_);
 
   int count = 0;
   jnts_by_type_.resize(JntType::N_JNTS);
   jnt_params_.resize(JntType::N_JNTS);
   MiiString tag = Label::make_label(getLabel(), "joint_0");
+  MiiString tmp_str;
   while(cfg->get_value(tag, "label", tmp_str)) {
     Joint* jnt = Label::getHardwareByName<Joint>(tmp_str);
     LOG_DEBUG << getLabel() << "'s joint_" << count

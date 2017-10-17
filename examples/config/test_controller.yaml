@@ -15,3 +15,5 @@ touchdown_0: "fl_td"
 touchdown_1: "fr_td"
 touchdown_2: "hl_td"
 touchdown_3: "hr_td"
+
+imu: "imu"

@@ -84,6 +84,7 @@ void QrDriverTestController::update(const ros::Time&, const ros::Duration&) {
   std::cout << std::endl;
 
   std::cout << "ForceSensor: ";
+
   for (const auto& f : td_handles_) {
     printf("%04f ", *(f.getForce()));
   }
@@ -91,6 +92,13 @@ void QrDriverTestController::update(const ros::Time&, const ros::Duration&) {
 
   if (!imu_handle_.getName().empty()) {
     ; // Output the information of IMU
+    std::cout << "ImuSensor:   " << std::endl;
+    auto d = imu_handle_.getAngularVelocity();
+    std::cout << d[0] << " " << d[1] << " " << d[2] << std::endl;
+    d = imu_handle_.getLinearAcceleration();
+    std::cout << d[0] << " " << d[1] << " " << d[2] << std::endl;
+    d = imu_handle_.getOrientation();
+    std::cout << d[0] << " " << d[1] << " " << d[2] << " " << d[3] << std::endl;
   }
 }
 
