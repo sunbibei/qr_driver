@@ -27,7 +27,7 @@ void MiiRobot::auto_inst(const MiiString& __p, const MiiString& __type) {
   LOG_DEBUG << "MiiRobot::auto_inst(" << __p << ", " << __type << ")";
 
   if (AutoInstanceor::instance()->make_instance(__p, __type)) {
-    LOG_INFO << "Create instance(" << __type << " " << __p << ")";
+    LOG_DEBUG << "Create instance(" << __type << " " << __p << ")";
   } else {
     LOG_WARNING << "Create instance(" << __type << " " << __p << ") fail!";
   }
@@ -62,7 +62,7 @@ void MiiRobot::create_system_instance() {
 
 bool MiiRobot::init() {
   create_system_instance();
-  LOG_INFO << "The all of the instances have created successful.";
+  LOG_DEBUG << "The all of the singleton have created successful.";
 
   auto cfg = MiiCfgReader::instance();
   if (nullptr == cfg) {
@@ -71,10 +71,10 @@ bool MiiRobot::init() {
   }
   // All of the objects mark with "auto_inst" in the configure file
   // will be instanced here.
-  LOG_INFO << "Now, We are ready to auto_inst object in the configure file.";
+  LOG_DEBUG << "Now, We are ready to auto_inst object in the configure file.";
   cfg->registerCallbackAndExcute("auto_inst", MiiRobot::auto_inst);
   // Just for debug
-  LOG_WARNING << "Auto instance has finished. The results list as follow:";
+  LOG_DEBUG << "Auto instance has finished. The results list as follow:";
   Label::printfEveryInstance();
 
   master_  = Master::instance();

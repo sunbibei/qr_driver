@@ -28,13 +28,15 @@ AutoInstanceor::AutoInstanceor(const MiiString& lib_path)
   class_loader_ = new class_loader::ClassLoader(lib_path);
 
   // Just for debug
-  LOG_WARNING << "+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-";
-  auto class_list = class_loader_->getAvailableClasses<Label>();
-  LOG_INFO << "Available Classes: ";
-  int count = 0;
-  for (const auto& c : class_list)
-    LOG_INFO << "    " << count++ << ")  " << c;
-  LOG_WARNING << "+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-";
+  if (_DEBUG_INFO_FLAG) {
+    LOG_WARNING << "+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-";
+    auto class_list = class_loader_->getAvailableClasses<Label>();
+    LOG_INFO << "Available Classes: ";
+    int count = 0;
+    for (const auto& c : class_list)
+      LOG_INFO << "    " << count++ << ")  " << c;
+    LOG_WARNING << "+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-";
+  }
 }
 
 AutoInstanceor::~AutoInstanceor() {
@@ -59,7 +61,7 @@ bool AutoInstanceor::make_instance(const MiiString& __p, const MiiString& __type
         << " has not found in the available class list.";
     return false;
   } else {
-    LOG_INFO << "Instance " << __type << " named by " << __p;
+    LOG_DEBUG << "Instance " << __type << " named by " << __p;
   }
 
   Label::LabelPtr __inst = class_loader_->createInstance<Label>(__type);
@@ -76,7 +78,7 @@ bool AutoInstanceor::make_instance(const MiiString& __p, const MiiString& __type
         << "'s init()";
     // s_inst_table_.insert(std::make_pair(__inst->getLabel(), __inst));
     Label::registerClass(__inst);
-    LOG_INFO << "Instance " << __inst->getLabel() << ", Address: "
+    LOG_DEBUG << "Instance " << __inst->getLabel() << ", Address: "
         << __inst.get() << ", Count: " << __inst.use_count();
     return true;
   } else {

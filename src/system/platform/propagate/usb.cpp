@@ -61,7 +61,7 @@ bool USBChannel::start() {
       // Waiting 500ms
       usleep(500000);
     } else {
-      LOG_INFO << "Initialize USB OK!";
+      LOG_DEBUG << "Initialize USB OK!";
       return opened_;
     }
   }
@@ -71,7 +71,8 @@ bool USBChannel::start() {
 }
 
 void USBChannel::stop() {
-  opened_ = false;
+  if ((-1 == imu_fd_) || !opened_) return;
+
   // try to 10 times
   for (g_counter = 0; g_counter < MAX_TRY_TIMES; ++g_counter) {
     int err = close(imu_fd_);
@@ -82,6 +83,8 @@ void USBChannel::stop() {
       // Waiting 500ms
       usleep(500000);
     } else {
+      imu_fd_ = -1;
+      opened_ = false;
       LOG_INFO << "Stopping USB OK!";
       return;
     }

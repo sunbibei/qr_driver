@@ -37,7 +37,7 @@ void ThreadPool::__register_thread_task(const MiiString& __n, std::function<void
       << "has inserted into the function list. It will be replaced.";
 
   __PrivateThreadVar* var = new __PrivateThreadVar(__n, __f);
-  LOG_INFO << "ThreadPool has received a thread task, named '" << __n << "'.";
+  LOG_DEBUG << "ThreadPool has received a thread task, named '" << __n << "'.";
   thread_vars_.insert(std::make_pair(__n, var));
 }
 
@@ -47,11 +47,11 @@ void ThreadPool::__internal_thread_task(__PrivateThreadVar* var) {
     return;
   }
 
-  LOG_INFO << "This thread has started -- " << var->thread_name_;
+  LOG_DEBUG << "This thread has started -- " << var->thread_name_;
   var->thread_alive_ = true;
   var->thread_func_();
   var->thread_alive_ = false;
-  LOG_INFO << "This thread has  exited -- " << var->thread_name_;
+  LOG_DEBUG << "This thread has  exited -- " << var->thread_name_;
 }
 
 bool ThreadPool::init() {
@@ -67,7 +67,7 @@ bool ThreadPool::start() {
 }
 
 bool ThreadPool::start(const MiiString& __n) {
-  LOG_INFO << "This thread is starting -- " << __n;
+  LOG_DEBUG << "This thread is starting -- " << __n;
   // start the specific named threads
   auto iter = thread_vars_.find(__n);
   if (thread_vars_.end() == iter) {

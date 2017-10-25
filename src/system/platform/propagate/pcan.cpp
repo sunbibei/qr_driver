@@ -51,7 +51,7 @@ bool PcanChannel::start() {
       // Waiting 500ms
       usleep(500000);
     } else {
-      LOG_INFO << "Initialize CAN OK!";
+      LOG_DEBUG << "Initialize CAN OK!";
       return connected_;
     }
   }
@@ -61,10 +61,7 @@ bool PcanChannel::start() {
 }
 
 void PcanChannel::stop() {
-  if (!connected_) {
-    LOG_INFO << "Uninitialize CAN OK!";
-    return;
-  }
+  if (!connected_) return;
 
   // try to 10 times
   for (g_times_count = 0; g_times_count < MAX_TRY_TIMES; ++g_times_count) {

@@ -42,21 +42,24 @@ bool PropagateManager::run() {
     return false;
   }
   LOG_DEBUG << "==========PropagateManager::run==========";
-  LOG_DEBUG << "The list of Propagate: ";
-  for (size_t i = 0; i < res_list_.size(); ++i)
-    LOG_DEBUG << i + 1 << "/" << res_list_.size()
-        << ": " << res_list_[i]->propa_name_;
 
+  if (_DEBUG_INFO_FLAG) {
+    LOG_WARNING << "The list of Propagate: ";
+    LOG_WARNING << "=====================================================";
+    for (size_t i = 0; i < res_list_.size(); ++i)
+      LOG_INFO << i + 1 << ": " << res_list_[i]->propa_name_ << "\t"
+          << res_list_[i]->getLabel() << "\t" << res_list_[i];
+    LOG_WARNING << "=====================================================";
+  }
   for (auto c : res_list_) {
     // for (auto c = begin(); c != end(); ++c) {
-    LOG_INFO << c->getLabel() << " is starting.";
+    LOG_DEBUG << c->getLabel() << " is starting.";
     if (!c->start())
-      LOG_WARNING << "The propagate '" << c->propa_name_ << "' starting fail.";
+      LOG_ERROR << "The propagate '" << c->propa_name_ << "' starting FAIL.";
     else
-      LOG_INFO << "The propagate '" << c->propa_name_ << "' has started.";
+      LOG_DEBUG << "The propagate '" << c->propa_name_ << "' has started.";
   }
 
-  LOG_INFO << "Started the all of propagate!";
   ThreadPool::instance()->add(THREAD_NAME, &PropagateManager::update, this);
   // update_thread_ = std::thread(std::bind(&PropagateManager::update, this));
   return true;

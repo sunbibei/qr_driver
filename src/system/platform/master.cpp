@@ -50,7 +50,7 @@ bool Master::run() {
   if (!propagate_manager_->run()) {
     LOG_WARNING << "PropagateManager::run fail!";
   }
-  LOG_INFO << "Starting PropagateManager";
+  LOG_DEBUG << "Starting PropagateManager";
 
   thread_alive_ = true;
   ThreadPool::instance()->add(MASTER_THREAD, &Master::tick, this);
