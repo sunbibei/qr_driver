@@ -55,7 +55,7 @@ bool USBChannel::start() {
     imu_fd_ = open(g_imu_file.c_str(), O_RDWR | O_NOCTTY | O_NDELAY);
     opened_ = (-1 != imu_fd_);
     if (!opened_) {
-      LOG_WARNING << "(" << g_counter + 1 << "/" << MAX_TRY_TIMES
+      LOG_DEBUG << "(" << g_counter + 1 << "/" << MAX_TRY_TIMES
           << ") Initialize USB FAIL, error code: " << errno << "("
           << strerror(errno) << "), Waiting 500ms... ...";
       // Waiting 500ms
@@ -77,7 +77,7 @@ void USBChannel::stop() {
   for (g_counter = 0; g_counter < MAX_TRY_TIMES; ++g_counter) {
     int err = close(imu_fd_);
     if (-1 != err){
-      LOG_WARNING << "(" << g_counter + 1 << "/" << MAX_TRY_TIMES
+      LOG_DEBUG << "(" << g_counter + 1 << "/" << MAX_TRY_TIMES
           << ") Stopping USB FAIL, error code: " << errno << "("
           << strerror(errno) << "), Waiting 500ms... ...";
       // Waiting 500ms
