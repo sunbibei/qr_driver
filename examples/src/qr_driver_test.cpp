@@ -34,7 +34,7 @@ bool QrDriverTestController::init(RobotHW* robot, ros::NodeHandle &n) {
     ForceTorqueSensorInterface* force = robot->get<ForceTorqueSensorInterface>();
     while(true) {
         std::string joint_name;
-        std::string param_name = std::string("td_" + std::to_string(count));
+        std::string param_name = std::string("touchdown_" + std::to_string(count));
         if (ros::param::get(param_name.c_str(), joint_name)) {
             std::cout << "Get Touchdown Name: " << joint_name << std::endl;
             td_handles_.push_back(force->getHandle(joint_name));

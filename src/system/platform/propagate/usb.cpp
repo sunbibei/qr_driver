@@ -140,6 +140,8 @@ bool USBChannel::read(Packet& pkt) {
   }
 }
 
+bool USBChannel::write(const Packet&) { return false; }
+
 } /* namespace middleware */
 
 #include <class_loader/class_loader_register_macro.h>

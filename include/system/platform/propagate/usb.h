@@ -23,6 +23,7 @@ public:
   virtual bool start() override;
   virtual void stop()  override;
 
+  virtual bool write(const Packet&);
   virtual bool read (class Packet&) override;
 
 protected:

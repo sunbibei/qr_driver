@@ -95,6 +95,8 @@ void ImuNode::handleMsg(const Packet& pkt) {
   }
 }
 
+bool ImuNode::requireCmdDeliver() { return false; }
+
 } /* namespace middleware */
 
 #include <class_loader/class_loader_register_macro.h>

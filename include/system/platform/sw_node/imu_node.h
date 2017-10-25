@@ -20,6 +20,7 @@ public:
   virtual ~ImuNode();
 
 public:
+  virtual bool requireCmdDeliver() override;
   virtual void handleMsg(const Packet&) override;
 
 protected:

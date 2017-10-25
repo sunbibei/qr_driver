@@ -40,8 +40,8 @@
 		<!--pcan_fake auto_inst="middleware::PcanChannelFake"
 			output="/home/bibei/output" repeat="true" input="/home/bibei/input"
 			channel="0x51" baud="500" type="0" port="0" interrupt="0" /-->
-		<!--pcan auto_inst="middleware::PcanChannel"
-			channel="0x51" baud="500" type="0" port="0" interrupt="0" /-->
+		<pcan auto_inst="middleware::PcanChannel"
+			channel="0x51" baud="500" type="0" port="0" interrupt="0" />
 		<usb auto_inst="middleware::USBChannel"
 			channel="/dev/ttyUSB0" baud="9600" imu_node="0x06" />
 	</propagates>

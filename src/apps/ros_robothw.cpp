@@ -139,14 +139,13 @@ void RosRobotHW::initImuSensorInterface() {
   cfg->get_value_fatal(tag, "frame_id", data.frame_id);
 
   ImuSensor* imu = Label::getHardwareByName<ImuSensor>(label);
-  data.orientation = imu->orientation_const_pointer();
-  data.orientation_covariance = imu->orientation_covariance_const_pointer();
-  data.linear_acceleration = imu->linear_acceleration_const_pointer();
+  data.orientation                    = imu->orientation_const_pointer();
+  data.orientation_covariance         = imu->orientation_covariance_const_pointer();
+  data.linear_acceleration            = imu->linear_acceleration_const_pointer();
   data.linear_acceleration_covariance = imu->linear_acceleration_covariance_const_pointer();
-  data.angular_velocity = imu->angular_velocity_const_pointer();
-  data.angular_velocity_covariance = imu->angular_velocity_covariance_const_pointer();
-  imu_state_iface_.registerHandle(
-      hardware_interface::ImuSensorHandle(data));
+  data.angular_velocity               = imu->angular_velocity_const_pointer();
+  data.angular_velocity_covariance    = imu->angular_velocity_covariance_const_pointer();
+  imu_state_iface_.registerHandle(data);
 
   registerInterface(&imu_state_iface_);
 }

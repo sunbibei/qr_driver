@@ -105,7 +105,7 @@ void ImuSensor::updateLinearAcc(double x, double y, double z) {
 }
 
 void ImuSensor::updateOrientation(double x, double y, double z, double w) {
-  LOG_WARNING << "Orientation: " << x << " " << y << " " << z << " " << w << std::endl;
+  // LOG_WARNING << "Orientation: " << x << " " << y << " " << z << " " << w << std::endl;
   imu_data_->orientation[0] = x;
   imu_data_->orientation[1] = y;
   imu_data_->orientation[2] = z;

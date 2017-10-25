@@ -89,7 +89,7 @@ bool PcanChannel::write(const Packet& pkt) {
   memset(send_msg_.DATA, '\0', 8 * sizeof(BYTE));
   memcpy(send_msg_.DATA, pkt.data, send_msg_.LEN * sizeof(BYTE));
 
-  if (true)
+  if (false)
     printf("  - ID:0x%03X LEN:%1x DATA:0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X\n",
       (int)send_msg_.ID, (int)send_msg_.LEN,
       (int)send_msg_.DATA[0], (int)send_msg_.DATA[1],
