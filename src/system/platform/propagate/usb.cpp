@@ -19,7 +19,7 @@ namespace middleware {
 MiiString g_imu_file    = "/dev/ttyUSB0";
 int       g_imu_baud    = 9600;
 int       g_counter     = 0;
-const int MAX_TRY_TIMES = 1;
+const int MAX_TRY_TIMES = 10;
 const int MAX_BUF_SIZE  = 1024;
 
 USBChannel::USBChannel(const MiiString& l)

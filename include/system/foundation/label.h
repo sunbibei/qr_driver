@@ -44,13 +44,13 @@ public:
   static void printfEveryInstance() {
     LOG_WARNING << "Label's table, address " << &s_label_table_
         << ", size " << s_label_table_.size();
-    LOG_WARNING << "============================================";
+    LOG_WARNING << "=============================================================";
     int count = 0;
     for (auto l : s_label_table_) {
       LOG_WARNING << count++ << ":\t" << l.second->getLabel()
           << "\t\t" << l.second << "\t" << l.second.use_count();
     }
-    LOG_WARNING << "============================================";
+    LOG_WARNING << "=============================================================";
   }
 
 protected:

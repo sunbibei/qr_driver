@@ -32,7 +32,7 @@ bool SWNodeManager::init() {
   hw_list_by_cmd_.reserve(res_list_.size());
 
   char* debug_info = new char[1024];
-  LOG_INFO << "========================================";
+  LOG_INFO << "=====================================================";
   LOG_INFO << "NAME\t\tADDR\t\tNODE_ID\tCMD";
   // unsigned char max_node_id = 0x00;
   for (auto hw : res_list_) {
@@ -42,7 +42,7 @@ bool SWNodeManager::init() {
     //LOG_INFO << debug_info;
     LOG_INFO << hw->getLabel() << "\t" << hw << "\t0x"
         << std::setw(2) << std::setfill('0') << std::hex << (int)hw->node_id_
-        << "\t" << hw->requireCmdDeliver();
+        << "\t" << (hw->requireCmdDeliver()?"YES":"NO");
 
     hw_list_by_id_[hw->node_id_] = hw;
     hw_list_by_name_.insert(std::make_pair(hw->getLabel().c_str(), hw));
@@ -53,7 +53,7 @@ bool SWNodeManager::init() {
 
   delete[] debug_info;
   debug_info = nullptr;
-  LOG_INFO << "========================================";
+  LOG_INFO << "=====================================================";
 
   return true;
 }

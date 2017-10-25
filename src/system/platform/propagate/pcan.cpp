@@ -20,7 +20,7 @@ TPCANType     g_type         = 0;
 DWORD         g_port         = 0;
 WORD          g_interrupt    = 0;
 
-const unsigned int MAX_TRY_TIMES = 1;
+const unsigned int MAX_TRY_TIMES = 10;
 unsigned int       g_times_count = 0;
 
 PcanChannel::PcanChannel(const MiiString& l)
@@ -61,7 +61,11 @@ bool PcanChannel::start() {
 }
 
 void PcanChannel::stop() {
-  connected_ = false;
+  if (!connected_) {
+    LOG_INFO << "Uninitialize CAN OK!";
+    return;
+  }
+
   // try to 10 times
   for (g_times_count = 0; g_times_count < MAX_TRY_TIMES; ++g_times_count) {
     g_status_ = CAN_Uninitialize(g_channel);
@@ -72,6 +76,7 @@ void PcanChannel::stop() {
       // Waiting 500ms
       usleep(500000);
     } else {
+      connected_ = false;
       LOG_INFO << "Uninitialize CAN OK!";
       return;
     }

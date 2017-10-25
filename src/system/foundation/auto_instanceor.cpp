@@ -28,13 +28,13 @@ AutoInstanceor::AutoInstanceor(const MiiString& lib_path)
   class_loader_ = new class_loader::ClassLoader(lib_path);
 
   // Just for debug
-  LOG_WARNING << "+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-";
+  LOG_WARNING << "+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-";
   auto class_list = class_loader_->getAvailableClasses<Label>();
   LOG_INFO << "Available Classes: ";
   int count = 0;
   for (const auto& c : class_list)
     LOG_INFO << "    " << count++ << ")  " << c;
-  LOG_WARNING << "+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-";
+  LOG_WARNING << "+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-";
 }
 
 AutoInstanceor::~AutoInstanceor() {
