@@ -26,6 +26,16 @@
   ```
 
 ## Ubuntu mate 16.04
+  Open a terminal, and type:
+  ```sh
+  sudo apt-get install raspberrypi-kernel-headers 
+  cd /path/to/peak_linux_driver
+  make
+  sudo make install
+  sudo modprobe pcan
+  ```
+
+  **The follow of operation is Deprecated.**
   1. The ubuntu mate 16.04 on the raspberry pi3 is missing the linux-hearder, so we need to install the linux-hearder firstly. Type the command to veritify the version of linux-hearder.
   ```sh
   echo $(uname -r)
@@ -60,6 +70,14 @@
   <center>
   ![](../../../images/peak_vertify.png)
   </center>
+  And, type this command:
+  ```sh
+  cat /proc/pcan
+  ```
+  the result as follow.
+  <center>
+  ![](../../../images/peak_vertify1.png)
+  </center> 
 
 # Install pcan-basic
   1. Download the PCAN-Basic-Linux.
