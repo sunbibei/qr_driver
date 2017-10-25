@@ -102,26 +102,22 @@ void ThreadPool::stop() {
 void ThreadPool::stop(const MiiString& __n) {
   auto var = thread_vars_.find(__n);
   if (thread_vars_.end() == var) {
-    LOG_WARNING << "These is not exist the named thread(" << __n
+    LOG_WARNING << "These is not exist the named thread('" << __n
         << "') in the thread pool.";
     return;
   }
 
-  LOG_INFO << "The named '" << __n << " thread has stopped.1";
   if (nullptr != var->second) {
     if (nullptr != var->second->thread_handle_) {
-      LOG_INFO << "The named '" << __n << " thread has stopped.2";
       var->second->thread_handle_->join();
       delete var->second->thread_handle_;
       var->second->thread_handle_ = nullptr;
     }
-    LOG_INFO << "The named '" << __n << " thread has stopped.3";
     delete var->second;
     var->second = nullptr;
   }
 
   thread_vars_.erase(var);
-  LOG_INFO << "The named '" << __n << " thread has stopped.4";
 }
 
 bool ThreadPool::is_running(const MiiString& __n) {

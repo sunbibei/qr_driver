@@ -19,7 +19,7 @@ namespace middleware {
 MiiString g_imu_file    = "/dev/ttyUSB0";
 int       g_imu_baud    = 9600;
 int       g_counter     = 0;
-const int MAX_TRY_TIMES = 10;
+const int MAX_TRY_TIMES = 1;
 const int MAX_BUF_SIZE  = 1024;
 
 USBChannel::USBChannel(const MiiString& l)
@@ -55,8 +55,9 @@ bool USBChannel::start() {
     imu_fd_ = open(g_imu_file.c_str(), O_RDWR | O_NOCTTY | O_NDELAY);
     opened_ = (-1 != imu_fd_);
     if (!opened_) {
-      LOG_WARNING << "(" << g_counter + 1 << "/10) Initialize USB FAIL, "
-          << "error code: " << errno << "(" << strerror(errno) << "), Waiting 500ms... ...";
+      LOG_WARNING << "(" << g_counter + 1 << "/" << MAX_TRY_TIMES
+          << ") Initialize USB FAIL, error code: " << errno << "("
+          << strerror(errno) << "), Waiting 500ms... ...";
       // Waiting 500ms
       usleep(500000);
     } else {
@@ -75,8 +76,9 @@ void USBChannel::stop() {
   for (g_counter = 0; g_counter < MAX_TRY_TIMES; ++g_counter) {
     int err = close(imu_fd_);
     if (-1 != err){
-      LOG_WARNING << "(" << g_counter + 1 << "/10) Stopping USB FAIL, "
-          << "error code: " << errno << "(" << strerror(errno) << "), Waiting 500ms... ...";
+      LOG_WARNING << "(" << g_counter + 1 << "/" << MAX_TRY_TIMES
+          << ") Stopping USB FAIL, error code: " << errno << "("
+          << strerror(errno) << "), Waiting 500ms... ...";
       // Waiting 500ms
       usleep(500000);
     } else {
@@ -99,7 +101,7 @@ inline bool __check_sum(const char* data) {
 
 bool USBChannel::read(Packet& pkt) {
   if (!opened_) {
-    LOG_FIRST_N(WARNING, 100) << "The USB has not been launched, or initialized fail.";
+    // LOG_FIRST_N(WARNING, 10000) << "The USB has not been launched, or initialized fail.";
     return false;
   }
   pkt.node_id = imu_node_id_;

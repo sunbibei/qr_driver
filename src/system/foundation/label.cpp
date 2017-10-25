@@ -38,7 +38,9 @@ Label::Label(const MiiString& _l, Label* _obj)
 }
 
 Label::~Label() {
-  // label_table().erase(label_);
+  // auto itr = label_table().find(label_);
+  // if (label_table().end() != itr) label_table().erase(itr);
+  LOG_DEBUG << "The instance named\t" << label_ << "\thas destroyed.";
 }
 
 MiiString Label::make_label(const MiiString& p, const MiiString& l) {

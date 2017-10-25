@@ -10,7 +10,7 @@
 
 namespace middleware {
 
-std::map<MiiString, Label::LabelPtr> AutoInstanceor::s_inst_table_;
+// std::map<MiiString, Label::LabelPtr> AutoInstanceor::s_inst_table_;
 SINGLETON_IMPL_NO_CREATE(AutoInstanceor)
 
 AutoInstanceor* AutoInstanceor::create_instance(const MiiString& lib) {
@@ -38,6 +38,8 @@ AutoInstanceor::AutoInstanceor(const MiiString& lib_path)
 }
 
 AutoInstanceor::~AutoInstanceor() {
+  // s_inst_table_.clear();
+  Label::s_label_table_.clear();
   // The s_inst_table_ will be automatic dealloc.
   if (nullptr != class_loader_) {
     delete class_loader_;
@@ -61,7 +63,7 @@ bool AutoInstanceor::make_instance(const MiiString& __p, const MiiString& __type
   }
 
   Label::LabelPtr __inst = class_loader_->createInstance<Label>(__type);
-  // LOG_DEBUG << "createInstance<Label> OK! address: " << __inst.get();
+  LOG_DEBUG << "createInstance<Label> OK! address: " << __inst.get();
   if (nullptr != __inst.get()) {
     // 情非得已， 不应该出现这样的代码。
     // 但当前自动实例使用class_loader的方式，仅能如此妥协处理。
@@ -72,7 +74,7 @@ bool AutoInstanceor::make_instance(const MiiString& __p, const MiiString& __type
     __inst->init();
     LOG_DEBUG << "Finished to call this instance '" << __inst->getLabel()
         << "'s init()";
-    s_inst_table_.insert(std::make_pair(__inst->getLabel(), __inst));
+    // s_inst_table_.insert(std::make_pair(__inst->getLabel(), __inst));
     Label::registerClass(__inst);
     LOG_INFO << "Instance " << __inst->getLabel() << ", Address: "
         << __inst.get() << ", Count: " << __inst.use_count();

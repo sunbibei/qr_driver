@@ -27,10 +27,11 @@ Master::Master()
 
 Master::~Master() {
   thread_alive_ = false;
-  PropagateManager::destroy_instance();
-  SWNodeManager::destroy_instance();
   propagate_manager_ = nullptr;
   sw_node_manager_   = nullptr;
+
+  PropagateManager::destroy_instance();
+  SWNodeManager::destroy_instance();
 }
 
 bool Master::init() {

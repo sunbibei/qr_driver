@@ -30,7 +30,7 @@ public:
   bool make_instance(const MiiString& __p, const MiiString& __type);
 
 protected:
-  static MiiMap<MiiString, Label::LabelPtr> s_inst_table_;
+  // static MiiMap<MiiString, Label::LabelPtr> s_inst_table_;
   class_loader::ClassLoader*                class_loader_;
 };
 

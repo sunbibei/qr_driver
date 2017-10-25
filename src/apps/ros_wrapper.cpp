@@ -32,7 +32,6 @@ RosWrapper::RosWrapper(const MiiString& __tag)
   LOG_DEBUG << "Enter the roswrapper construction";
   // google::InitGoogleLogging("qr_driver");
   // google::SetLogDestination(google::GLOG_INFO, "/path/to/log/INFO_");
-  // google::LogMessage::Init();
   FLAGS_colorlogtostderr = true;
   // google::FlushLogFiles(google::GLOG_INFO);
   LOG_DEBUG << "Leave the roswrapper construction";
@@ -40,11 +39,12 @@ RosWrapper::RosWrapper(const MiiString& __tag)
 }
 
 RosWrapper::~RosWrapper() {
+  // LOG_DEBUG << "Enter the roswrapper deconstruction";
   halt();
-  AutoInstanceor::destroy_instance();
+  // AutoInstanceor::destroy_instance();
   MiiCfgReader::destroy_instance();
-
-  google::ShutdownGoogleLogging();
+  // LOG_DEBUG << "Leave the roswrapper deconstruction";
+  // google::ShutdownGoogleLogging();
 }
 
 void RosWrapper::create_system_instance() {

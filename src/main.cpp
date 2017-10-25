@@ -22,9 +22,10 @@ int main(int argc, char* argv[]) {
   ros::AsyncSpinner spinner(3);
   spinner.start();
 
+  // Waiting for shutdown by user
   ros::waitForShutdown();
 
-  LOG_INFO << "qr_driver shutdown... ...";
   RosWrapper::destroy_instance();
+  LOG_INFO << "The shutdown of qr_driver has finished... ...";
   return 0;
 }

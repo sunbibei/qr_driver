@@ -47,8 +47,8 @@ public:
     LOG_WARNING << "============================================";
     int count = 0;
     for (auto l : s_label_table_) {
-      LOG_WARNING << count++ << ": " << l.second->getLabel()
-          << "\t" << l.second;
+      LOG_WARNING << count++ << ":\t" << l.second->getLabel()
+          << "\t\t" << l.second << "\t" << l.second.use_count();
     }
     LOG_WARNING << "============================================";
   }

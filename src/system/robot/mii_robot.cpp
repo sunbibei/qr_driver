@@ -39,12 +39,6 @@ MiiRobot::MiiRobot(const MiiString& __tag)
   ;
 }
 
-MiiRobot::~MiiRobot() {
-  ThreadPool::destroy_instance();
-  JointManager::destroy_instance();
-  Master::destroy_instance();
-}
-
 /**
  * This method creates the part of singleton.
  */
@@ -92,6 +86,19 @@ bool MiiRobot::init() {
   cfg->get_value_fatal(Label::make_label(prefix_tag_, "imu"), "labels", imu_name);
   imu_sensor_  = Label::getHardwareByName<ImuSensor>(imu_name);
   return true;
+}
+
+MiiRobot::~MiiRobot() {
+  LOG_DEBUG << "The deconstructor of MiiRobot is starting to work.";
+  Master::destroy_instance();
+  JointManager::destroy_instance();
+  ThreadPool::destroy_instance();
+
+  // destroy the auto_instancor.
+  AutoInstanceor::destroy_instance();
+
+  LOG_DEBUG << "The deconstructor of MiiRobot almost finished.";
+  Label::printfEveryInstance();
 }
 
 

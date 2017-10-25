@@ -20,7 +20,7 @@ TPCANType     g_type         = 0;
 DWORD         g_port         = 0;
 WORD          g_interrupt    = 0;
 
-const unsigned int MAX_TRY_TIMES = 10;
+const unsigned int MAX_TRY_TIMES = 1;
 unsigned int       g_times_count = 0;
 
 PcanChannel::PcanChannel(const MiiString& l)
@@ -45,8 +45,9 @@ bool PcanChannel::start() {
     TPCANStatus status = CAN_Initialize(g_channel, g_baud_rate, 0, 0, 0);
     connected_ = (PCAN_ERROR_OK == status);
     if (!connected_) {
-      LOG_WARNING << "(" << g_times_count + 1 << "/10) Initialize CAN FAIL, "
-          "status code: " << status << ", Waiting 500ms... ...";
+      LOG_WARNING << "(" << g_times_count + 1 << "/" << MAX_TRY_TIMES
+          << ") Initialize CAN FAIL, status code: " << status
+          << ", Waiting 500ms... ...";
       // Waiting 500ms
       usleep(500000);
     } else {
@@ -65,8 +66,9 @@ void PcanChannel::stop() {
   for (g_times_count = 0; g_times_count < MAX_TRY_TIMES; ++g_times_count) {
     g_status_ = CAN_Uninitialize(g_channel);
     if (PCAN_ERROR_OK != g_status_){
-      LOG_WARNING << "(" << g_times_count + 1 << "/10) Uninitialize CAN FAIL, "
-          "status code: " << g_status_ << ", Waiting 500ms... ...";
+      LOG_WARNING << "(" << g_times_count + 1 << "/" << MAX_TRY_TIMES
+          << ") Uninitialize CAN FAIL, status code: " << g_status_
+          << ", Waiting 500ms... ...";
       // Waiting 500ms
       usleep(500000);
     } else {
@@ -80,7 +82,7 @@ void PcanChannel::stop() {
 
 bool PcanChannel::write(const Packet& pkt) {
   if (!connected_) {
-    LOG_FIRST_N(WARNING, 100) << "The pcan has not been launched, or initialized fail.";
+    // LOG_FIRST_N(WARNING, 10000) << "The pcan has not been launched, or initialized fail.";
     return false;
   }
   send_msg_.MSGTYPE = PCAN_MESSAGE_STANDARD;
@@ -101,8 +103,9 @@ bool PcanChannel::write(const Packet& pkt) {
   for (g_times_count = 0; g_times_count < MAX_TRY_TIMES; ++g_times_count) {
     g_status_ = CAN_Write(g_channel, &send_msg_);
     if (PCAN_ERROR_OK != g_status_) {
-      LOG_WARNING << "(" << g_times_count + 1 << "/10) Write CAN message FAIL, "
-          "status code: " << g_status_ << ", Waiting 50ms... ...";
+      LOG_WARNING << "(" << g_times_count + 1 << "/" << MAX_TRY_TIMES
+          << ") Write CAN message FAIL, status code: " << g_status_
+          << ", Waiting 50ms... ...";
       // Waiting 50ms
       usleep(50000);
     } else
@@ -115,7 +118,7 @@ bool PcanChannel::write(const Packet& pkt) {
 
 bool PcanChannel::read(Packet& pkt) {
   if (!connected_) {
-    LOG_FIRST_N(WARNING, 100) << "The pcan has not been launched, or initialized fail.";
+    // LOG_FIRST_N(WARNING, 10000) << "The pcan has not been launched, or initialized fail.";
     return false;
   }
 
