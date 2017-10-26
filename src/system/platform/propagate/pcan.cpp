@@ -45,7 +45,7 @@ bool PcanChannel::start() {
     TPCANStatus status = CAN_Initialize(g_channel, g_baud_rate, 0, 0, 0);
     connected_ = (PCAN_ERROR_OK == status);
     if (!connected_) {
-      LOG_WARNING << "(" << g_times_count + 1 << "/" << MAX_TRY_TIMES
+      LOG_DEBUG << "(" << g_times_count + 1 << "/" << MAX_TRY_TIMES
           << ") Initialize CAN FAIL, status code: " << status
           << ", Waiting 500ms... ...";
       // Waiting 500ms
@@ -67,7 +67,7 @@ void PcanChannel::stop() {
   for (g_times_count = 0; g_times_count < MAX_TRY_TIMES; ++g_times_count) {
     g_status_ = CAN_Uninitialize(g_channel);
     if (PCAN_ERROR_OK != g_status_){
-      LOG_WARNING << "(" << g_times_count + 1 << "/" << MAX_TRY_TIMES
+      LOG_DEBUG << "(" << g_times_count + 1 << "/" << MAX_TRY_TIMES
           << ") Uninitialize CAN FAIL, status code: " << g_status_
           << ", Waiting 500ms... ...";
       // Waiting 500ms
@@ -105,7 +105,7 @@ bool PcanChannel::write(const Packet& pkt) {
   for (g_times_count = 0; g_times_count < MAX_TRY_TIMES; ++g_times_count) {
     g_status_ = CAN_Write(g_channel, &send_msg_);
     if (PCAN_ERROR_OK != g_status_) {
-      LOG_WARNING << "(" << g_times_count + 1 << "/" << MAX_TRY_TIMES
+      LOG_DEBUG << "(" << g_times_count + 1 << "/" << MAX_TRY_TIMES
           << ") Write CAN message FAIL, status code: " << g_status_
           << ", Waiting 50ms... ...";
       // Waiting 50ms
@@ -129,7 +129,7 @@ bool PcanChannel::read(Packet& pkt) {
 
   while (PCAN_ERROR_OK != (g_status_ = CAN_Read(g_channel, &recv_msg_, NULL))) {
     if (++g_times_count <= MAX_TRY_TIMES) {
-      LOG_WARNING << "read again!(" << g_times_count << "/"
+      LOG_DEBUG << "read again!(" << g_times_count << "/"
           << MAX_TRY_TIMES << "), error code: " << g_status_;
       usleep(5000);
     } else {
@@ -137,7 +137,11 @@ bool PcanChannel::read(Packet& pkt) {
       return false;
     }
   }
-  if (PCAN_ERROR_OK != g_status_) return false;
+  if (PCAN_ERROR_OK != g_status_) {
+    // fail to read, we are trying to reset the pcan system.
+    CAN_Reset(g_channel);
+    return false;
+  }
 
   // I don't known what happen to here, It always receives a odd message with id
   // is 0x06. Everything is ok, and the result is wrong!
