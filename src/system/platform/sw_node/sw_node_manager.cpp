@@ -31,6 +31,14 @@ bool SWNodeManager::init() {
   hw_list_by_id_.resize((unsigned char)0xFF);
   hw_list_by_cmd_.reserve(res_list_.size());
 
+  for (auto hw : res_list_) {
+    hw_list_by_id_[hw->node_id_] = hw;
+    hw_list_by_name_.insert(std::make_pair(hw->getLabel().c_str(), hw));
+    if (hw->requireCmdDeliver()) {
+      hw_list_by_cmd_.push_back(hw);
+    }
+  }
+
   if (_DEBUG_INFO_FLAG) {
     LOG_WARNING << "=====================================================";
     LOG_WARNING << "\tNAME\t\tADDR\t\tNODE_ID\tCMD";
@@ -38,12 +46,6 @@ bool SWNodeManager::init() {
       LOG_INFO << hw->getLabel() << "\t" << hw << "\t0x"
           << std::setw(2) << std::setfill('0') << std::hex << (int)hw->node_id_
           << "\t" << (hw->requireCmdDeliver()?"YES":"NO");
-
-      hw_list_by_id_[hw->node_id_] = hw;
-      hw_list_by_name_.insert(std::make_pair(hw->getLabel().c_str(), hw));
-      if (hw->requireCmdDeliver()) {
-        hw_list_by_cmd_.push_back(hw);
-      }
     }
     LOG_WARNING << "=====================================================";
   }

@@ -45,15 +45,17 @@
 		<usb auto_inst="middleware::USBChannel"
 			channel="/dev/ttyUSB0" baud="9600" imu_node="0x06" />
 	</propagates>
-	
+
 	<!-- Got the packet message from PropagateManager and update the information of hardware -->
 	<!-- All of the nodes will be managed by HwManager which contains propagates-->
 	<nodes attr="hardwares">
 		<lf>
 			<node auto_inst="middleware::LegNode" leg="fl" node_id="0x02" >
-				<joint_0     jnt="yaw"  label="qr.resources.fl.yaw"  scale="0.001533981"  offset="-2.744356892" />
+				<!-- ABS(scale) = \frac{360 \pi \alpha}{180*4096} = \frac{360\pi}{180*4096} -->
+				<!-- offset = - \frac{\pi}{18000}\alpha*\beta = -0.000174528*\beta -->
+				<joint_0     jnt="yaw"  label="qr.resources.fl.yaw"  scale="0.001533981"  offset="-2.82735" />
 				<joint_1     jnt="hip"  label="qr.resources.fl.hip"  scale="-0.001533981" offset="4.020193122"  />
-				<joint_2     jnt="knee" label="qr.resources.fl.knee" scale="0.001533981"  offset="-4.32492774"  />
+				<joint_2     jnt="knee" label="qr.resources.fl.knee" scale="0.001533981"  offset="-4.394609444"  />
 				<touchdown              label="qr.resources.fl.td" />
 			</node>
 		</lf>
@@ -61,8 +63,8 @@
 		<hl>
 			<node auto_inst="middleware::LegNode" leg="hl" node_id="0x03" >
 				<joint_0     jnt="yaw"  label="qr.resources.hl.yaw"  scale="-0.001533981" offset="3.346844808" />
-				<joint_1     jnt="hip"  label="qr.resources.hl.hip"  scale="-0.001533981" offset="1.001121288" />
-				<joint_2     jnt="knee" label="qr.resources.hl.knee" scale="0.001533981"  offset="-0.65275342" />
+				<joint_1     jnt="hip"  label="qr.resources.hl.hip"  scale="-0.001533981" offset="0.927789666" />
+				<joint_2     jnt="knee" label="qr.resources.hl.knee" scale="0.001533981"  offset="-0.687639444" />
 				<touchdown              label="qr.resources.hl.td" />
 			</node>
 		</hl>
