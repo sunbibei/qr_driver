@@ -53,36 +53,36 @@
 			<node auto_inst="middleware::LegNode" leg="fl" node_id="0x02" >
 				<!-- ABS(scale) = \frac{360 \pi \alpha}{180*4096} = \frac{360\pi}{180*4096} -->
 				<!-- offset = - \frac{\pi}{18000}\alpha*\beta = -0.000174528*\beta -->
-				<joint_0     jnt="yaw"  label="qr.resources.fl.yaw"  scale="0.001533981"  offset="-2.82735" />
-				<joint_1     jnt="hip"  label="qr.resources.fl.hip"  scale="-0.001533981" offset="4.020193122"  />
-				<joint_2     jnt="knee" label="qr.resources.fl.knee" scale="0.001533981"  offset="-4.394609444"  />
+				<joint_0     jnt="yaw"  label="qr.resources.fl.yaw"  scale="1"  offset="16200" />
+				<joint_1     jnt="hip"  label="qr.resources.fl.hip"  scale="-1" offset="23034" />
+				<joint_2     jnt="knee" label="qr.resources.fl.knee" scale="1"  offset="25180" />
 				<touchdown              label="qr.resources.fl.td" />
 			</node>
 		</lf>
 
 		<hl>
 			<node auto_inst="middleware::LegNode" leg="hl" node_id="0x03" >
-				<joint_0     jnt="yaw"  label="qr.resources.hl.yaw"  scale="-0.001533981" offset="3.346844808" />
-				<joint_1     jnt="hip"  label="qr.resources.hl.hip"  scale="-0.001533981" offset="0.927789666" />
-				<joint_2     jnt="knee" label="qr.resources.hl.knee" scale="0.001533981"  offset="-0.687639444" />
+				<joint_0     jnt="yaw"  label="qr.resources.hl.yaw"  scale="-1" offset="19176" />
+				<joint_1     jnt="hip"  label="qr.resources.hl.hip"  scale="-1" offset="5316" />
+				<joint_2     jnt="knee" label="qr.resources.hl.knee" scale="1"  offset="3940" />
 				<touchdown              label="qr.resources.hl.td" />
 			</node>
 		</hl>
 
 		<fr>
 			<node auto_inst="middleware::LegNode" leg="fr" node_id="0x04" >
-				<joint_0     jnt="yaw"  label="qr.resources.fr.yaw"  scale="0.001533981"  offset="-3.167075818" />
-				<joint_1     jnt="hip"  label="qr.resources.fr.hip"  scale="-0.001533981" offset="0.409454418"  />
-				<joint_2     jnt="knee" label="qr.resources.fr.knee" scale="0.001533981"  offset="-2.72096947"  />
+				<joint_0     jnt="yaw"  label="qr.resources.fr.yaw"  scale="1"  offset="18146" />
+				<joint_1     jnt="hip"  label="qr.resources.fr.hip"  scale="1"  offset="2346"  />
+				<joint_2     jnt="knee" label="qr.resources.fr.knee" scale="-1" offset="15590"  />
 				<touchdown              label="qr.resources.fr.td" />
 			</node>
 		</fr>
 
 		<hr>
 			<node auto_inst="middleware::LegNode" leg="hr" node_id="0x05" >
-				<joint_0     jnt="yaw"  label="qr.resources.hr.yaw"  scale="-0.001533981" offset="2.761810192"  />
-				<joint_1     jnt="hip"  label="qr.resources.hr.hip"  scale="0.001533981"  offset="-3.445979552" />
-				<joint_2     jnt="knee" label="qr.resources.hr.knee" scale="-0.001533981" offset="4.89565065"   />
+				<joint_0     jnt="yaw"  label="qr.resources.hr.yaw"  scale="-1" offset="15824"  />
+				<joint_1     jnt="hip"  label="qr.resources.hr.hip"  scale="1"  offset="19744" />
+				<joint_2     jnt="knee" label="qr.resources.hr.knee" scale="-1" offset="28050"   />
 				<touchdown              label="qr.resources.hr.td" />
 			</node>
 		</hr>

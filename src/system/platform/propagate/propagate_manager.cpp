@@ -22,7 +22,7 @@ SINGLETON_IMPL(PropagateManager)
 
 PropagateManager::PropagateManager()
   : internal::ResourceManager<Propagate>(),
-    propa_interval_(20), thread_alive_(true) {
+    propa_interval_(1), thread_alive_(true) {
 
   pkts_queue_4_send_.reserve(MAX_QUEUE_SIZE);
   pkts_queue_4_recv_.reserve(MAX_QUEUE_SIZE);
