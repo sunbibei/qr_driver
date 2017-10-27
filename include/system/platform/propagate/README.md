@@ -36,16 +36,16 @@
   ```
 
   **The follow of operation is Deprecated.**
-  1. The ubuntu mate 16.04 on the raspberry pi3 is missing the linux-hearder, so we need to install the linux-hearder firstly. Type the command to veritify the version of linux-hearder.
+  >1. The ubuntu mate 16.04 on the raspberry pi3 is missing the linux-hearder, so we need to install the linux-hearder firstly. Type the command to veritify the version of linux-hearder.
   ```sh
   echo $(uname -r)
   ```
-  2. Install linux-hearder
-    1. Downloading the correct version from this [webset](https://www.niksula.hut.fi/~mhiienka/Rpi/linux-headers-rpi/), and installing it with
+  >2. Install linux-hearder
+    >1. Downloading the correct version from this [webset](https://www.niksula.hut.fi/~mhiienka/Rpi/linux-headers-rpi/), and installing it with
     ```sh
     sudo dpkg -i /path/to/linux-hearders-xxx_xxx_armhf.deb
     ```
-    2. Installing the linux-header by Raspberry Pi kernel source installer (more detail see [wiki](https://github.com/notro/rpi-source/wiki)), This method comes from [the peak-system forum](http://www.peak-system.com/forum/viewtopic.php?f=59&t=283&start=90#p5327), and without practice.
+    >2. Installing the linux-header by Raspberry Pi kernel source installer (more detail see [wiki](https://github.com/notro/rpi-source/wiki)), This method comes from [the peak-system forum](http://www.peak-system.com/forum/viewtopic.php?f=59&t=283&start=90#p5327), and without practice.
     ```sh
     git clone https://github.com/notro/rpi-source
     cd rpi-source
@@ -53,7 +53,7 @@
     sudo apt-get install bc
     ./rpi-source
     ```
-  3. Open a termial, and type:
+  >3. Open a termial, and type:
     ```sh
     sudo apt-get install libpopt-dev
     cd /path/to/peak_linux_driver
