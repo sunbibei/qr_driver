@@ -23,7 +23,15 @@ Our design ideas include but not limited that,
  3. Wish to our code could cross-platform. Perhaps, it's just a beautiful wish.
 
 
-
+# Install Ubuntu mate linux system on raspberry PI3
+ More detail about ubuntu mate, please reference to this [webset](http://ubuntu-mate.org/raspberry-pi/).
+ 1. Go to the seafile webset, [http://192.168.1.20](http://192.168.1.20), download the system image in the path `Shared with all/Tools/SystemISO/ubuntu/ubuntu-mate-16.04.2-desktop-armhf-raspberry-pi.img.xz`
+ 2. Extract this image at some place you like.
+ 3. Open a termial, and type the follow command, more details about installing images, please reference to the [install guide](https://www.raspberrypi.org/documentation/installation/installing-images/README.md) and the [linux guide](https://www.raspberrypi.org/documentation/installation/installing-images/linux.md):
+ ```sh
+ sudo dd bs=4M if=ubuntu-mate-16.04.2-desktop-armhf-raspberry-pi.img of=/dev/sdX conv=fsync
+ ```
+ Note, the `of=/dev/sdX` needs to be replaced by the real device file name. This device file name can be found by the command `df -h`.
 
 如上图所示, 软件平台位于用户接口及算法等高级应用之间. 为用户提供硬件抽象以及低级别控制任务接口.主要功能如下所示:
 
