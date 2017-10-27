@@ -68,10 +68,15 @@ bool LegNode::init() {
       continue;
     }
     jnts_by_type_[jnt->joint_type()] = jnt;
+
     auto param  = new __PrivateLinearParams;
-    cfg->get_value_fatal(tag, "scale",  param->scale);
-    cfg->get_value_fatal(tag, "offset", param->offset);
+    double alpha, beta = 0;
+    cfg->get_value_fatal(tag, "scale",  alpha);
+    cfg->get_value_fatal(tag, "offset", beta);
+    param->scale  = alpha * 0.001533981;
+    param->offset = alpha * beta * -0.000174528;
     jnt_params_[jnt->joint_type()]  = param;
+
     jnt_cmds_[jnt->joint_type()]       = jnt->joint_command_const_pointer();
     jnt_mods_[jnt->joint_type()]       = jnt->joint_command_mode_const_pointer();
 
@@ -111,6 +116,7 @@ void LegNode::updateFromBuf(const unsigned char* __p) {
     offset += sizeof(count); // each count will stand two bytes.
   }
 
+  // if (LegType::HL == leg_) printf("%d: 0x%02X, 0x%02X", leg_, __p[offset], __p[offset + 1]);
   td_->updateForceCount((__p[offset] | (__p[offset + 1] << 8)));
 }
 
@@ -137,8 +143,6 @@ bool LegNode::generateCmd(std::vector<Packet>& pkts) {
   Packet cmd{node_id_, MII_MSG_COMMON_DATA_1, 6, {0}};
   memset(cmd.data, INVALID_BYTE, 8 * sizeof(unsigned char));
 
-  std::stringstream ss;
-  ss << leg_ << ": ";
   for (const auto& type : {JntType::KNEE, JntType::HIP, JntType::YAW}) {
     if (jnts_by_type_[type]->new_command_) {
       is_any_valid = true;
@@ -152,10 +156,9 @@ bool LegNode::generateCmd(std::vector<Packet>& pkts) {
       cmd.data[offset + 1] = INVALID_BYTE;
     }*/
     offset += 2; // Each count stand two bytes.
-    ss << *jnt_cmds_[type] << "/" << count << " ";
   }
   
-  if (is_any_valid) { pkts.push_back(cmd); LOG_ERROR << ss.str();}
+  if (is_any_valid) pkts.push_back(cmd);
   return is_any_valid;
 }
 

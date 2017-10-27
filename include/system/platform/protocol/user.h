@@ -20,7 +20,7 @@
 //LF 定义
 #define yawBaseOff_LF 16200  //15724  //4398
 #define hipBaseOff_LF 23034   //10994
-#define kneeBaseOff_LF 25180  //33560  //23645 
+#define kneeBaseOff_LF 24577 //25180  //33560  //23645 
 
 #define yawBaseSym_LF 1  //-1
 #define hipBaseSym_LF -1
@@ -43,8 +43,8 @@
 #define kneeSpeedSym_RB 1 
 //LB 定义
 #define yawBaseOff_LB 19176  //19203  //18620 //+800
-#define hipBaseOff_LB 5316  //5996  //5691	//+100
-#define kneeBaseOff_LB 3940  //3740  //9030 //8770  //+465
+#define hipBaseOff_LB 5800 //5316  //5996  //5691	//+100
+#define kneeBaseOff_LB 3916  //3740  //9030 //8770  //+465
 
 #define yawBaseSym_LB -1
 #define hipBaseSym_LB -1
