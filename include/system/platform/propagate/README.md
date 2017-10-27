@@ -10,6 +10,7 @@
 
 ## Ubuntu 16.04
   1. Open a termial, and type:
+  
     ```sh
     sudo apt-get install libpopt-dev
     ```
@@ -18,6 +19,7 @@
   ![](../../../images/peak_linux_driver_tree.png)
   </center>
   3. Type the command in the terminal
+
   ```sh
   cd /path/to/peak_linux_driver
   make clean
@@ -27,6 +29,7 @@
 
 ## Ubuntu mate 16.04
   Open a terminal, and type:
+
   ```sh
   sudo apt-get install raspberrypi-kernel-headers 
   cd /path/to/peak_linux_driver
