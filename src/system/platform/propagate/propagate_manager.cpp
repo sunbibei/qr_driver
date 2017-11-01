@@ -11,10 +11,13 @@
 
 namespace middleware {
 
+const size_t  MAX_BUS_NUM = 10;
+
 #define MUTEX_TRY_LOCK(locker)    while (!locker.try_lock()) { };
 #define MUTEX_UNLOCK(locker)  locker.unlock();
 
-const MiiString THREAD_NAME = "propagate";
+const MiiString THREAD_R_NAME = "propagate-r";
+const MiiString THREAD_W_NAME = "propagate-w";
 const size_t MAX_QUEUE_SIZE = 1024;
 std::thread update_thread_;
 
@@ -24,24 +27,31 @@ PropagateManager::PropagateManager()
   : internal::ResourceManager<Propagate>(),
     propa_interval_(1), thread_alive_(true) {
 
+  propa_list_by_bus_.reserve(MAX_BUS_NUM);
   pkts_queue_4_send_.reserve(MAX_QUEUE_SIZE);
   pkts_queue_4_recv_.reserve(MAX_QUEUE_SIZE);
 }
 
 PropagateManager::~PropagateManager() {
   thread_alive_ = false;
-  ThreadPool::instance()->stop(THREAD_NAME);
+  ThreadPool::instance()->stop(THREAD_R_NAME);
+  ThreadPool::instance()->stop(THREAD_W_NAME);
   for (auto& c : res_list_) {
     c->stop();
   }
 }
 
 bool PropagateManager::run() {
-  if (ThreadPool::instance()->is_running(THREAD_NAME)) {
+  if (ThreadPool::instance()->is_running(THREAD_R_NAME)
+      || ThreadPool::instance()->is_running(THREAD_W_NAME)) {
     LOG_WARNING << "Call PropagateManager::run() twice!";
     return false;
   }
   LOG_DEBUG << "==========PropagateManager::run==========";
+
+  for (auto& c : res_list_) {
+    propa_list_by_bus_[c->bus_id_] = c;
+  }
 
   if (_DEBUG_INFO_FLAG) {
     LOG_WARNING << "The list of Propagate: ";
@@ -60,12 +70,27 @@ bool PropagateManager::run() {
       LOG_DEBUG << "The propagate '" << c->propa_name_ << "' has started.";
   }
 
-  ThreadPool::instance()->add(THREAD_NAME, &PropagateManager::update, this);
-  // update_thread_ = std::thread(std::bind(&PropagateManager::update, this));
+  ThreadPool::instance()->add(THREAD_R_NAME, &PropagateManager::updateRead,  this);
+  ThreadPool::instance()->add(THREAD_W_NAME, &PropagateManager::updateWrite, this);
   return true;
 }
 
-void PropagateManager::update() {
+void PropagateManager::updateRead() {
+  TIMER_INIT
+
+  while (thread_alive_) {
+    MUTEX_TRY_LOCK(lock_4_recv_)
+    for (auto& c : res_list_) {
+      Packet pkt;
+      if (c->read(pkt)) pkts_queue_4_recv_.push_back(pkt);
+    }
+    MUTEX_UNLOCK(lock_4_recv_)
+
+    TIMER_CONTROL(propa_interval_)
+  }
+}
+
+void PropagateManager::updateWrite() {
   TIMER_INIT
 
   while (thread_alive_) {
@@ -78,13 +103,6 @@ void PropagateManager::update() {
       pkts_queue_4_send_.pop_back();
     }
     MUTEX_UNLOCK(lock_4_send_)
-
-    MUTEX_TRY_LOCK(lock_4_recv_)
-    for (auto& c : res_list_) {
-      Packet pkt;
-      if (c->read(pkt)) pkts_queue_4_recv_.push_back(pkt);
-    }
-    MUTEX_UNLOCK(lock_4_recv_)
 
     TIMER_CONTROL(propa_interval_)
   }

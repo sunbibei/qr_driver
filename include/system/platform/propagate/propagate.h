@@ -49,7 +49,8 @@ public:
   virtual bool read(Packet& pkt);
 
 protected:
-  MiiString propa_name_;
+  unsigned char bus_id_;
+  MiiString     propa_name_;
 };
 
 } /* namespace middleware */

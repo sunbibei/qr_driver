@@ -14,7 +14,6 @@
 #include <mutex>
 
 namespace middleware {
-
 class PropagateManager: public internal::ResourceManager<Propagate> {
   SINGLETON_DECLARE(PropagateManager)
 public:
@@ -23,10 +22,6 @@ public:
    * @return Return true if everything is right, or return false.
    */
   bool run();
-  /**
-   * @brief This method is the main function for propagate thread.
-   */
-  void update();
 
   /**
    * @brief These methods offer the public function for user, User could obtains
@@ -37,6 +32,17 @@ public:
   bool writePackets(const MiiVector<Packet>&);
 
 protected:
+  /**
+   * @brief This method is the read function for propagate thread.
+   */
+  void updateRead();
+  /**
+   * @brief This method is the write function for propagate thread.
+   */
+  void updateWrite();
+
+protected:
+  MiiVector<Propagate*>       propa_list_by_bus_;
   // The interval time between twice RW.(in ms)
   std::chrono::milliseconds  propa_interval_;
   bool                       thread_alive_;

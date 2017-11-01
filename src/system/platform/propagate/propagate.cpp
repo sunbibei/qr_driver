@@ -16,13 +16,14 @@ namespace middleware {
 #define PROPA_TAG_NAME  ("propagates")
 
 Propagate::Propagate(const MiiString& l)
-  : Label(l), propa_name_("") {
+  : Label(l), bus_id_(0x00), propa_name_("") {
   PropagateManager::instance()->add(this);
 }
 
 bool Propagate::init() {
   MiiString __p;
   Label::split_label(label_, __p, propa_name_);
+  MiiCfgReader::instance()->get_value(getLabel(), "bus", bus_id_);
   return true;
 }
 
