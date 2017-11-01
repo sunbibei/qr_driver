@@ -108,7 +108,7 @@ void PropagateManager::updateWrite() {
   }
 }
 
-bool PropagateManager::readPackets(std::vector<Packet>& pkts) {
+bool PropagateManager::readPackets(MiiVector<Packet>& pkts) {
   MUTEX_TRY_LOCK(lock_4_recv_)
   if (!pkts_queue_4_recv_.empty()) {
     for (const auto& pkt : pkts_queue_4_recv_)
@@ -120,7 +120,7 @@ bool PropagateManager::readPackets(std::vector<Packet>& pkts) {
   return true;
 }
 
-bool PropagateManager::writePackets(const std::vector<Packet>& pkts) {
+bool PropagateManager::writePackets(const MiiVector<Packet>& pkts) {
   MUTEX_TRY_LOCK(lock_4_send_)
   if (!pkts.empty()) {
     for (const auto& pkt : pkts)

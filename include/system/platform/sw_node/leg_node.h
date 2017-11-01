@@ -21,7 +21,7 @@ public:
   virtual ~LegNode();
 
   virtual void handleMsg(const Packet&)          override;
-  virtual bool generateCmd(std::vector<Packet>&) override;
+  virtual bool generateCmd(MiiVector<Packet>&) override;
 
 protected:
   void updateFromBuf(const unsigned char*);

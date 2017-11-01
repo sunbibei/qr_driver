@@ -24,6 +24,7 @@ namespace middleware {
 #endif*/
 
 struct Packet {
+  unsigned char bus_id;
   unsigned char node_id;
   unsigned char msg_id;
   unsigned char size;
@@ -46,7 +47,9 @@ to Host  1| X|    NODE ID|        MSG ID|
 #define MII_MSG_TEMPLATE_TO_GROUP     (0x0200u)
 #define MII_MSG_TEMPLATE_TO_HOST      (0x0400u)
 
-///! The utils of process message
+////////////////////////////////////////////////////////
+///! The UTILS for operating message
+////////////////////////////////////////////////////////
 // Judge the type of message
 #define MII_MSG_IS_TO_HOST(msg)       (((msg) & (0x0400u)) == (0x0400u))
 #define MII_MSG_IS_TO_NODE(msg)       (((msg) & (0x0600u)) == (0x0000u))
@@ -75,15 +78,24 @@ to Host  1| X|    NODE ID|        MSG ID|
 #define MII_MSG_FILL_MSG_ID(msg, msg_id) \
     __MII_MSG_FILL_TO_MSG(msg, MII_MSG_EXTRACT_NODE_ID(msg), msg_id)
 
-///! define the msg id
+
+////////////////////////////////////////////////////////
+///! define the message id
+////////////////////////////////////////////////////////
+///! null
 #define MII_MSG_HEARTBEAT_MSG     (0x01u)
 ///! Return joint position and touchdown data from leg node
 #define MII_MSG_HEARTBEAT_MSG_1   (0x02u)
 
-///!
+///! null
 #define MII_MSG_COMMON_DATA       (0x10u)
-///! The joint command
+///! The joint position command
 #define MII_MSG_COMMON_DATA_1     (0x11u)
+///! The joint velocity command
+#define MII_MSG_COMMON_DATA_2     (0x12u)
+
+
+
 
 ////////////////////////////////////////////////////////////////////////
 ///////////////// The IMU communication protocol by the USB

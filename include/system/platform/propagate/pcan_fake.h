@@ -8,11 +8,11 @@
 #ifndef INCLUDE_SYSTEM_PLATFORM_PROPAGATE_PCAN_FAKE_H_
 #define INCLUDE_SYSTEM_PLATFORM_PROPAGATE_PCAN_FAKE_H_
 
-#include <system/platform/propagate/pcan.h>
+#include <system/platform/propagate/arm_pcan.h>
 
 namespace middleware {
 
-class PcanChannelFake: public PcanChannel {
+class PcanChannelFake: public ArmPcan {
 public:
   PcanChannelFake(const MiiString& l = "pcan");
   ~PcanChannelFake();

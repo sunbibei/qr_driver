@@ -18,22 +18,30 @@
 
 namespace middleware {
 
-class PcanChannel: public Propagate {
+class PcanPropagate: public Propagate {
 public:
-  PcanChannel(const MiiString& l = "pcan");
-  ~PcanChannel();
+  PcanPropagate(const MiiString& l = "pcan");
+  virtual ~PcanPropagate();
   virtual bool init() override;
 
   virtual bool start() override;
   virtual void stop()  override;
 
-  virtual bool write(const class Packet&) override;
-  virtual bool read (class Packet&)       override;
+  /*virtual bool write(const class Packet&) = 0;
+  virtual bool read (class Packet&)       = 0;*/
 
 protected:
-  TPCANMsg     send_msg_;
-  TPCANMsg     recv_msg_;
   bool         connected_;
+
+  struct PcanConfig {
+    TPCANHandle   channel;
+    TPCANBaudrate baud_rate;
+    TPCANType     type;
+    DWORD         port;
+    WORD          interrupt;
+  } pcan_config_;
+
+  TPCANStatus tmp_pcan_status_;
 };
 
 } /* namespace qr_driver */

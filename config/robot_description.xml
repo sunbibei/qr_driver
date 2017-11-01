@@ -40,10 +40,10 @@
 		<!--pcan_fake auto_inst="middleware::PcanChannelFake"
 			output="/home/bibei/output" repeat="true" input="/home/bibei/input"
 			channel="0x51" baud="500" type="0" port="0" interrupt="0" /-->
-		<pcan auto_inst="middleware::PcanChannel" bus="0x01"
-			channel="0x51" baud="500" type="0" port="0" interrupt="0" />
-		<usb auto_inst="middleware::USBChannel" bus="0x02"
-			channel="/dev/ttyUSB0" baud="9600" imu_node="0x06" />
+		<pcan auto_inst="middleware::ArmPcan" bus="0x01"
+			channel="0x51" baud="500" type="0"  port="0" interrupt="0" />
+		<usb auto_inst="middleware::ImuUsb"   bus="0x02"
+			channel="/dev/ttyUSB0" baud="9600"  node_id="0x06" />
 		<motor_proxy auto_inst="middleware::MotorProxy" bus="0x03"
 			channel="qr.propagates.pcan" />
 

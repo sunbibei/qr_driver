@@ -12,32 +12,29 @@
 
 namespace middleware {
 
-class USBChannel: public Propagate {
+class UsbPropagate: public Propagate {
 public:
-  USBChannel(const MiiString& l = "usb");
+  UsbPropagate(const MiiString& l = "usb");
   virtual bool init() override;
 
-  virtual ~USBChannel();
+  virtual ~UsbPropagate();
 
 public:
   virtual bool start() override;
   virtual void stop()  override;
 
-  virtual bool write(const Packet&);
-  virtual bool read (class Packet&) override;
+  /*virtual bool write(const Packet&) override;
+  virtual bool read (class Packet&) override;*/
 
 protected:
   bool  opened_;
-  int   imu_fd_;
-  int   read_status_;
+  int   usb_fd_;
+  unsigned char node_id_;
 
-  char*       read_buf_;
-  // pointer helper
-  char*       buf_top_;
-  char*       buf_btm_;
-  const char* BUF_EOF_;
-
-  unsigned char imu_node_id_;
+  struct UsbConfig {
+    MiiString file_name;
+    int       baud_rate;
+  } usb_config_;
 };
 
 } /* namespace middleware */

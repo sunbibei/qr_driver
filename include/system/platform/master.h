@@ -25,8 +25,12 @@ public:
    */
   bool run();
 protected:
-  // tick method
+  // @Deprecated Method, tick method
   void tick();
+  // read operator of every tick
+  void tick_r();
+  // write operator of every tick
+  void tick_w();
   // The interval time between twice RW.(in ms)
   std::chrono::milliseconds  tick_interval_;
   bool                       thread_alive_;
@@ -35,7 +39,8 @@ protected:
   class SWNodeManager*       sw_node_manager_;
 
 private:
-  MiiVector<Packet> packets_;
+  MiiVector<Packet> queue_4_w_;
+  MiiVector<Packet> queue_4_r_;
 };
 
 } /* namespace middleware */

@@ -17,6 +17,8 @@
 
 namespace middleware {
 
+const size_t JNT_CMD_DATA_SIZE = 6;
+
 // angle = \frac{360 \pi \alpha}{180*4096} C - \frac{\pi}{18000}\alpha*\beta
 // so, the ABS(scale) = \frac{360 \pi \alpha}{180*4096} = \frac{360\pi}{180*4096}
 // offset = - \frac{\pi}{18000}\alpha*\beta = -0.000174528*\beta
@@ -29,7 +31,6 @@ LegNode::LegNode(const MiiString& __l)
   : SWNode(__l), leg_(LegType::UNKNOWN_LEG), td_(nullptr) {
   for (auto& c : jnt_cmds_)
     c = nullptr;
-
   for (auto& c : jnt_mods_)
     c = nullptr;
 }
@@ -38,9 +39,7 @@ LegNode::~LegNode() {
   for (auto& jnt : jnts_by_type_) {
     jnt = nullptr;
   }
-
   td_ = nullptr;
-
   for (auto& p : jnt_params_) {
     delete p;
     p = nullptr;
@@ -103,10 +102,6 @@ void LegNode::updateFromBuf(const unsigned char* __p) {
   for (const auto& type : {JntType::KNEE, JntType::HIP, JntType::YAW}) {
     memcpy(&count, __p + offset, sizeof(count));
 
-    /*pos = 3600 * (double)count / 4096 * 10;
-    pos = jnt_params_[type]->base * (pos - jnt_params_[type]->offset);
-    pos = pos * 314.15926 / 180;
-    pos = pos / 10000;*/
     // angle = \frac{360 \pi \alpha}{180*4096} C - \frac{\pi}{18000}\alpha*\beta
     // so, the ABS(scale) = \frac{360 \pi \alpha}{180*4096} = \frac{360\pi}{180*4096}
     // offset = - \frac{\pi}{18000}\alpha*\beta = -0.000174528*\beta
@@ -136,25 +131,24 @@ void LegNode::handleMsg(const Packet& pkt) {
   }
 }
 
-bool LegNode::generateCmd(std::vector<Packet>& pkts) {
+bool LegNode::generateCmd(MiiVector<Packet>& pkts) {
   int offset  = 0;
   short count = 0;
   bool is_any_valid = false;
-  Packet cmd{node_id_, MII_MSG_COMMON_DATA_1, 6, {0}};
-  memset(cmd.data, INVALID_BYTE, 8 * sizeof(unsigned char));
+  Packet cmd{INVALID_BYTE, node_id_, MII_MSG_COMMON_DATA_1, JNT_CMD_DATA_SIZE, {0}};
 
+  // TODO Judge the mode of command
+  // switch (*jnt_mods_[])
   for (const auto& type : {JntType::KNEE, JntType::HIP, JntType::YAW}) {
     if (jnts_by_type_[type]->new_command_) {
       is_any_valid = true;
-      // double tmp = *(jnt_cmds_[type]) / jnt_params_[type]->scale;
-      // count = tmp - jnt_params_[type]->offset / jnt_params_[type]->scale ;
       count = (*jnt_cmds_[type] - jnt_params_[type]->offset) / jnt_params_[type]->scale;
       memcpy(cmd.data + offset, &count, sizeof(count));
       jnts_by_type_[type]->new_command_ = false;
-    }/* else {
+    } else {
       cmd.data[offset]     = INVALID_BYTE;
       cmd.data[offset + 1] = INVALID_BYTE;
-    }*/
+    }
     offset += 2; // Each count stand two bytes.
   }
   

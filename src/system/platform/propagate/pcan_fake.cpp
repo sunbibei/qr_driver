@@ -40,7 +40,7 @@ bool PcanChannelFake::init() {
   g_time_t = new time_t;
   g_tm_    = new tm;
 
-  return PcanChannel::init();
+  return PcanPropagate::init();
 }
 
 PcanChannelFake::~PcanChannelFake() {
