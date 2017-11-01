@@ -29,11 +29,16 @@ PcanPropagate::~PcanPropagate() {
 bool PcanPropagate::init() {
   if (!Propagate::init()) return false;
 
-  MiiCfgReader::instance()->get_value(getLabel(), "channel",   pcan_config_.channel);
-  MiiCfgReader::instance()->get_value(getLabel(), "baud_rate", pcan_config_.baud_rate);
-  MiiCfgReader::instance()->get_value(getLabel(), "type",      pcan_config_.type);
-  MiiCfgReader::instance()->get_value(getLabel(), "port",      pcan_config_.port);
-  MiiCfgReader::instance()->get_value(getLabel(), "interrupt", pcan_config_.interrupt);
+  auto& cfg = MiiCfgReader::instance();
+
+  unsigned char c = PCAN_USBBUS1;
+  cfg->get_value(getLabel(), "channel",   c);
+  pcan_config_.channel = c;
+
+  cfg->get_value(getLabel(), "baud_rate", pcan_config_.baud_rate);
+  cfg->get_value(getLabel(), "type",      pcan_config_.type);
+  cfg->get_value(getLabel(), "port",      pcan_config_.port);
+  cfg->get_value(getLabel(), "interrupt", pcan_config_.interrupt);
   return true;
 }
 
