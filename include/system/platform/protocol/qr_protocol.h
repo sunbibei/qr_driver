@@ -23,6 +23,8 @@ namespace middleware {
 #define BYTE unsigned char
 #endif*/
 
+const unsigned char MAX_NODE_NUM = 0x10u;
+
 struct Packet {
   unsigned char bus_id;
   unsigned char node_id;
@@ -91,9 +93,15 @@ to Host  1| X|    NODE ID|        MSG ID|
 #define MII_MSG_COMMON_DATA       (0x10u)
 ///! The joint position command
 #define MII_MSG_COMMON_DATA_1     (0x11u)
-///! The joint velocity command
-#define MII_MSG_COMMON_DATA_2     (0x12u)
 
+///! The motor command id, offer the interface to control motor directly.
+#define MII_MSG_MOTOR_RESERVE     (0x20u)
+///! The motor position command
+#define MII_MSG_MOTOR_POSITION    (0x21u)
+///! The motor velocity command
+#define MII_MSG_MOTOR_VELOCITY    (0x22u)
+///! The motor torque command
+#define MII_MSG_MOTOR_TORQUE      (0x23u)
 
 
 

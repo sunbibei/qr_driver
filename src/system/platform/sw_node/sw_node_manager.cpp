@@ -28,7 +28,7 @@ bool SWNodeManager::init() {
 
   LOG_DEBUG << "Start to order the hw_unit, in total " << res_list_.size();
   // We have any idea about the maxium id, so we use the maxium value about unsigned char.
-  hw_list_by_id_.resize((unsigned char)0xFF);
+  hw_list_by_id_.resize(MAX_NODE_NUM);
   hw_list_by_cmd_.reserve(res_list_.size());
 
   for (auto hw : res_list_) {
