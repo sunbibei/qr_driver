@@ -73,6 +73,7 @@ set(SYS_FLATFORM_FILES  ${SRC_SYS_FOUNDATION}/label.cpp
                         ${SRC_SYS_PLATFORM}/propagate/pcan_fake.cpp
                         ${SRC_SYS_PLATFORM}/propagate/pcan.cpp
                         ${SRC_SYS_PLATFORM}/propagate/arm_pcan.cpp
+                        ${SRC_SYS_PLATFORM}/propagate/motor_pcan.cpp
                         ${SRC_SYS_PLATFORM}/propagate/usb.cpp
                         ${SRC_SYS_PLATFORM}/propagate/imu_usb.cpp
                         

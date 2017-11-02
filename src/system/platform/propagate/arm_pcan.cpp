@@ -108,6 +108,7 @@ bool ArmPcan::read(Packet& pkt) {
       (int)recv_msg_.DATA[4], (int)recv_msg_.DATA[5],
       (int)recv_msg_.DATA[6], (int)recv_msg_.DATA[7]);
 
+  pkt.bus_id  = bus_id_;
   pkt.node_id = MII_MSG_EXTRACT_NODE_ID(recv_msg_.ID);
   pkt.msg_id  = MII_MSG_EXTRACT_MSG_ID(recv_msg_.ID);
   pkt.size    = recv_msg_.LEN;
