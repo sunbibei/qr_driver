@@ -67,8 +67,8 @@ bool ArmPcan::read(Packet& pkt) {
 
   while (PCAN_ERROR_OK != (tmp_pcan_status_ = CAN_Read(pcan_config_.channel, &recv_msg_, NULL))) {
     if (++counter <= MAX_COUNT) {
-      LOG_DEBUG << "read again!(" << counter << "/"
-          << MAX_COUNT << "), error code: " << tmp_pcan_status_;
+      //LOG_DEBUG << "read again!(" << counter << "/"
+      //    << MAX_COUNT << "), error code: " << tmp_pcan_status_;
       usleep(5000);
     } else {
       LOG_ERROR << "The pcan channel has read fail!";

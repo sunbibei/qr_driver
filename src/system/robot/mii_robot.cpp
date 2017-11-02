@@ -24,11 +24,7 @@ namespace middleware {
 
 
 void MiiRobot::auto_inst(const MiiString& __p, const MiiString& __type) {
-  LOG_DEBUG << "MiiRobot::auto_inst(" << __p << ", " << __type << ")";
-
-  if (AutoInstanceor::instance()->make_instance(__p, __type)) {
-    LOG_DEBUG << "Create instance(" << __type << " " << __p << ")";
-  } else {
+  if (!AutoInstanceor::instance()->make_instance(__p, __type)) {
     LOG_WARNING << "Create instance(" << __type << " " << __p << ") fail!";
   }
 }

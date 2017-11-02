@@ -3,7 +3,7 @@
 
   <!-- Prepare resources for user aims to control the robot -->
 	<!-- All of the hardwares list here, and it will be automatic instance -->
-	<resources attr="resources">
+	<res attr="resources">
 		<fl>
 			<yaw  auto_inst="middleware::Joint" leg="fl" jnt="yaw"  name="fl_yaw"  />
 			<hip  auto_inst="middleware::Joint" leg="fl" jnt="hip"  name="fl_hip"  />
@@ -32,11 +32,11 @@
 			<td   auto_inst="middleware::ForceSensor" leg="hr"                     />
 		</hr>
 		<imu    auto_inst="middleware::ImuSensor" />
-	</resources>
+	</res>
 
 	<!-- About propagates, it will be automatic instance and addtion to PropagatesManager -->
 	<!-- These objects as follow communication between the real robot directly -->
-	<propagates attr="propagates" >
+	<propa attr="propagates" >
 		<!--pcan_fake auto_inst="middleware::PcanChannelFake"
 			output="/home/bibei/output" repeat="true" input="/home/bibei/input"
 			channel="0x51" baud="500" type="0" port="0" interrupt="0" /-->
@@ -44,10 +44,7 @@
 			channel="0x51" baud="500" type="0"  port="0" interrupt="0" />
 		<usb auto_inst="middleware::ImuUsb"   bus="0x02"
 			channel="/dev/ttyUSB0" baud="9600"  node_id="0x06" />
-		<motor_proxy auto_inst="middleware::MotorProxy" bus="0x03"
-			channel="qr.propagates.pcan" />
-
-	</propagates>
+	</propa>
 
 	<!-- Got the packet message from PropagateManager and update the information of hardware -->
 	<!-- All of the nodes will be managed by HwManager which contains propagates-->
@@ -56,41 +53,41 @@
 			<node auto_inst="middleware::LegNode" leg="fl" node_id="0x02" >
 				<!-- ABS(scale) = \frac{360 \pi \alpha}{180*4096} = \frac{360\pi}{180*4096} -->
 				<!-- offset = - \frac{\pi}{18000}\alpha*\beta = -0.000174528*\beta -->
-				<joint_0     jnt="yaw"  label="qr.resources.fl.yaw"  scale="1"  offset="16200" />
-				<joint_1     jnt="hip"  label="qr.resources.fl.hip"  scale="-1" offset="23034" />
-				<joint_2     jnt="knee" label="qr.resources.fl.knee" scale="1"  offset="25180" />
-				<touchdown              label="qr.resources.fl.td" />
+				<joint_0     jnt="yaw"  label="qr.res.fl.yaw"  scale="1"  offset="16200" />
+				<joint_1     jnt="hip"  label="qr.res.fl.hip"  scale="-1" offset="23034" />
+				<joint_2     jnt="knee" label="qr.res.fl.knee" scale="1"  offset="25180" />
+				<touchdown              label="qr.res.fl.td" />
 			</node>
 		</lf>
 
 		<hl>
 			<node auto_inst="middleware::LegNode" leg="hl" node_id="0x03" >
-				<joint_0     jnt="yaw"  label="qr.resources.hl.yaw"  scale="-1" offset="19176" />
-				<joint_1     jnt="hip"  label="qr.resources.hl.hip"  scale="-1" offset="5316" />
-				<joint_2     jnt="knee" label="qr.resources.hl.knee" scale="1"  offset="3940" />
-				<touchdown              label="qr.resources.hl.td" />
+				<joint_0     jnt="yaw"  label="qr.res.hl.yaw"  scale="-1" offset="19176" />
+				<joint_1     jnt="hip"  label="qr.res.hl.hip"  scale="-1" offset="5316" />
+				<joint_2     jnt="knee" label="qr.res.hl.knee" scale="1"  offset="3940" />
+				<touchdown              label="qr.res.hl.td" />
 			</node>
 		</hl>
 
 		<fr>
 			<node auto_inst="middleware::LegNode" leg="fr" node_id="0x04" >
-				<joint_0     jnt="yaw"  label="qr.resources.fr.yaw"  scale="1"  offset="18146" />
-				<joint_1     jnt="hip"  label="qr.resources.fr.hip"  scale="1"  offset="2346"  />
-				<joint_2     jnt="knee" label="qr.resources.fr.knee" scale="-1" offset="15590"  />
-				<touchdown              label="qr.resources.fr.td" />
+				<joint_0     jnt="yaw"  label="qr.res.fr.yaw"  scale="1"  offset="18146" />
+				<joint_1     jnt="hip"  label="qr.res.fr.hip"  scale="1"  offset="2346"  />
+				<joint_2     jnt="knee" label="qr.res.fr.knee" scale="-1" offset="15590"  />
+				<touchdown              label="qr.res.fr.td" />
 			</node>
 		</fr>
 
 		<hr>
 			<node auto_inst="middleware::LegNode" leg="hr" node_id="0x05" >
-				<joint_0     jnt="yaw"  label="qr.resources.hr.yaw"  scale="-1" offset="15824"  />
-				<joint_1     jnt="hip"  label="qr.resources.hr.hip"  scale="1"  offset="19744" />
-				<joint_2     jnt="knee" label="qr.resources.hr.knee" scale="-1" offset="28050"   />
-				<touchdown              label="qr.resources.hr.td" />
+				<joint_0     jnt="yaw"  label="qr.res.hr.yaw"  scale="-1" offset="15824"  />
+				<joint_1     jnt="hip"  label="qr.res.hr.hip"  scale="1"  offset="19744" />
+				<joint_2     jnt="knee" label="qr.res.hr.knee" scale="-1" offset="28050"   />
+				<touchdown              label="qr.res.hr.td" />
 			</node>
 		</hr>
 
-		<imu_node auto_inst="middleware::ImuNode" node_id="0x06" label="qr.resources.imu"  />
+		<imu_node auto_inst="middleware::ImuNode" node_id="0x06" label="qr.res.imu"  />
 		<!-- power_node auto_inst="middleware::Power" node_id="0x08"  /-->
 	</nodes>
 
@@ -98,22 +95,22 @@
 	<wrapper>
 		<!-- The necessary parameters are asked by MiiRobot -->
 		<robot>
-			<joints     labels="qr.resources.fl.yaw qr.resources.fl.hip qr.resources.fl.knee
-												  qr.resources.hl.yaw qr.resources.hl.hip qr.resources.hl.knee
-												  qr.resources.fr.yaw qr.resources.fr.hip qr.resources.fr.knee
-												  qr.resources.hr.yaw qr.resources.hr.hip qr.resources.hr.knee" />
+			<joints     labels="qr.res.fl.yaw qr.res.fl.hip qr.res.fl.knee
+												  qr.res.hl.yaw qr.res.hl.hip qr.res.hl.knee
+												  qr.res.fr.yaw qr.res.fr.hip qr.res.fr.knee
+												  qr.res.hr.yaw qr.res.hr.hip qr.res.hr.knee" />
 
-			<touchdowns labels="qr.resources.fl.td qr.resources.hl.td
-												  qr.resources.fr.td qr.resources.hr.td" />
-			<imu        labels="qr.resources.imu" />
+			<touchdowns labels="qr.res.fl.td qr.res.hl.td
+												  qr.res.fr.td qr.res.hr.td" />
+			<imu        labels="qr.res.imu" />
 		</robot>
 		<!-- The necessary parameters are asked by RosWrapper -->
 		<roswrapper>
-			<touchdown_0 label="qr.resources.fl.td" name="fl_td" frame_id="fl_foot" />
-			<touchdown_1 label="qr.resources.fr.td" name="fr_td" frame_id="fr_foot" />
-			<touchdown_2 label="qr.resources.hl.td" name="hl_td" frame_id="hl_foot" />
-			<touchdown_3 label="qr.resources.hr.td" name="hr_td" frame_id="hr_foot" />
-			<imu         label="qr.resources.imu"   name="imu"   frame_id="body" />
+			<touchdown_0 label="qr.res.fl.td" name="fl_td" frame_id="fl_foot" />
+			<touchdown_1 label="qr.res.fr.td" name="fr_td" frame_id="fr_foot" />
+			<touchdown_2 label="qr.res.hl.td" name="hl_td" frame_id="hl_foot" />
+			<touchdown_3 label="qr.res.hr.td" name="hr_td" frame_id="hr_foot" />
+			<imu         label="qr.res.imu"   name="imu"   frame_id="body" />
 		</roswrapper>
 	</wrapper>
 

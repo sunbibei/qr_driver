@@ -96,14 +96,14 @@ bool RosWrapper::start() {
       ros_ctrl_duration_ = std::chrono::milliseconds((int)(1000.0 / frequency));
 
     ThreadPool::instance()->add(ROS_CTRL_THREAD, &RosWrapper::rosControlLoop, this);
-  } else {
-    double frequency = 50.0;
-    ros::param::get("~rt_frequency", frequency);
-    if (frequency > 0)
-      rt_duration_ = std::chrono::milliseconds((int)(1000.0 / frequency));
-
-    ThreadPool::instance()->add(RT_PUB_THREAD, &RosWrapper::publishRTMsg, this);
   }
+  
+  double frequency = 50.0;
+  ros::param::get("~rt_frequency", frequency);
+  if (frequency > 0)
+    rt_duration_ = std::chrono::milliseconds((int)(1000.0 / frequency));
+
+  ThreadPool::instance()->add(RT_PUB_THREAD, &RosWrapper::publishRTMsg, this);
 
   // For debug
 #ifdef DEBUG_TOPIC
