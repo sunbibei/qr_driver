@@ -115,7 +115,7 @@ enum JntType {
   N_JNTS = 3
 };
 
-#define _DEBUG_INFO_FLAG (false)
+#define _DEBUG_INFO_FLAG (true)
 
 #ifndef USING_STD_IO
 #define LOG_DEBUG     if (_DEBUG_INFO_FLAG) LOG(WARNING)  << "\t"

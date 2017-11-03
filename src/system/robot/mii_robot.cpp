@@ -39,7 +39,7 @@ MiiRobot::MiiRobot(const MiiString& __tag)
  * This method creates the part of singleton.
  */
 void MiiRobot::create_system_instance() {
-  LOG_DEBUG << "==========MiiRobot::create_system_instance==========";
+  // LOG_DEBUG << "<<==========MiiRobot::create_system_instance==========";
 
   if (nullptr == ThreadPool::create_instance())
     LOG_WARNING << "Create the singleton 'ThreadPool' has failed.";
@@ -50,7 +50,7 @@ void MiiRobot::create_system_instance() {
   if (nullptr == Master::create_instance())
     LOG_WARNING << "Create the singleton 'HwManager' has failed.";
 
-  LOG_DEBUG << "==========MiiRobot::create_system_instance==========";
+  // LOG_DEBUG << "==========MiiRobot::create_system_instance==========>>";
   // The PropagateManager does not instance.
   // if (nullptr == PropagateManager::create_instance())
   //   LOG_WARNING << "Create the singleton 'HwManager' has failed.";
@@ -58,7 +58,6 @@ void MiiRobot::create_system_instance() {
 
 bool MiiRobot::init() {
   create_system_instance();
-  LOG_DEBUG << "The all of the singleton have created successful.";
 
   auto cfg = MiiCfgReader::instance();
   if (nullptr == cfg) {
@@ -85,7 +84,7 @@ bool MiiRobot::init() {
 }
 
 MiiRobot::~MiiRobot() {
-  LOG_DEBUG << "The deconstructor of MiiRobot is starting to work.";
+  // LOG_DEBUG << "The deconstructor of MiiRobot is starting to work.";
   Master::destroy_instance();
   JointManager::destroy_instance();
   ThreadPool::destroy_instance();
@@ -93,15 +92,15 @@ MiiRobot::~MiiRobot() {
   // destroy the auto_instancor.
   AutoInstanceor::destroy_instance();
 
-  LOG_DEBUG << "The deconstructor of MiiRobot almost finished.";
+  // LOG_DEBUG << "The deconstructor of MiiRobot almost finished.";
   Label::printfEveryInstance();
 }
 
 
 bool MiiRobot::start() {
-  LOG_DEBUG << "==========MiiRobot::start==========";
+  // LOG_DEBUG << "<<==========MiiRobot::start==========";
   bool ret = (master_->run() && ThreadPool::instance()->start());
-  LOG_DEBUG << "==========MiiRobot::start==========";
+  // LOG_DEBUG << "==========MiiRobot::start==========>>";
   return ret;
 }
 

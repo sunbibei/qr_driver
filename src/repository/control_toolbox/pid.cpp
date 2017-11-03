@@ -96,7 +96,7 @@ Pid::Pid(const MiiString& prefix)
   auto cfg = MiiCfgReader::instance();
 
   MiiVector<double> tmp_vec;
-  cfg->get_value(prefix, "gains", tmp_vec);
+  cfg->get_value_fatal(prefix, "gains", tmp_vec);
   if (3 == tmp_vec.size()) {
     gains_->p_gain_ = tmp_vec[0];
     gains_->i_gain_ = tmp_vec[1];

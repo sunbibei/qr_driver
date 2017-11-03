@@ -58,8 +58,8 @@ bool LegNode::init() {
   MiiString tmp_str;
   while(cfg->get_value(tag, "label", tmp_str)) {
     Joint* jnt = Label::getHardwareByName<Joint>(tmp_str);
-    LOG_DEBUG << getLabel() << "'s joint_" << count
-        << ": " << tmp_str << ",\t" << jnt;
+    // LOG_DEBUG << getLabel() << "'s joint_" << count
+    //     << ": " << tmp_str << ",\t" << jnt;
     if (nullptr == jnt) {
       LOG_WARNING << "Can't get joint '" << tmp_str
           << "' pointer from LabelSystem.";
@@ -85,7 +85,7 @@ bool LegNode::init() {
   tag = Label::make_label(getLabel(), "touchdown");
   if ((cfg->get_value(tag, "label", tmp_str))
       && (td_ = Label::getHardwareByName<ForceSensor>(tmp_str))) {
-    LOG_DEBUG << getLabel() << "'s TD: " << td_->getLabel() << "\t" << td_;
+    // LOG_DEBUG << getLabel() << "'s TD: " << td_->getLabel() << "\t" << td_;
     return true;
   } else {
     LOG_WARNING << "The touchdown parameter is not found.";

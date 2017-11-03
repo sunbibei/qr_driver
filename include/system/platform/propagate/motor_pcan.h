@@ -33,9 +33,9 @@ private:
 
 protected:
   std::atomic_bool           new_target_;
-  bool                       pid_alive_;
+  bool                       pid_hijack_;
   MiiVector<unsigned char>   node_ids_;
-  MiiVector<MiiVector<Pid>>  pids_;
+  MiiVector<MiiVector<Pid*>> pids_;
 
   short X_[MAX_NODE_NUM][JntType::N_JNTS];
   short U_[MAX_NODE_NUM][JntType::N_JNTS];

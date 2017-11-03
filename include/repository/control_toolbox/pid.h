@@ -15,6 +15,7 @@ namespace middleware {
 class Pid {
 public:
   Pid(const MiiString& prefix);
+  Pid();
   virtual ~Pid();
 
 public:

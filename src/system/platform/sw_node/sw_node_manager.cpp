@@ -40,14 +40,14 @@ bool SWNodeManager::init() {
   }
 
   if (_DEBUG_INFO_FLAG) {
-    LOG_WARNING << "=====================================================";
+    LOG_WARNING << "+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+";
     LOG_WARNING << "\tNAME\t\tADDR\t\tNODE_ID\tCMD";
     for (auto hw : res_list_) {
       LOG_INFO << hw->getLabel() << "\t" << hw << "\t0x"
           << std::setw(2) << std::setfill('0') << std::hex << (int)hw->node_id_
           << "\t" << (hw->requireCmdDeliver()?"YES":"NO");
     }
-    LOG_WARNING << "=====================================================";
+    LOG_WARNING << "+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+";
   }
 
   return true;

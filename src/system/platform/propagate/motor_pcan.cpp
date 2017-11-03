@@ -14,14 +14,15 @@ const MiiString FAKE_PID_THREAD = "fake-pid";
 
 
 MotorPcan::MotorPcan(const MiiString& l)
-  : ArmPcan(l), new_target_(false), pid_alive_(false) {
-  pids_.reserve(MAX_NODE_NUM);
+  : ArmPcan(l), new_target_(false), pid_hijack_(false) {
+  pids_.resize(MAX_NODE_NUM);
   for (auto& pid : pids_)
-    pid.reserve(JntType::N_JNTS);
+    pid.resize(JntType::N_JNTS);
 }
 
 bool MotorPcan::init() {
   if (!ArmPcan::init()) return false;
+  MiiCfgReader::instance()->get_value(getLabel(), "hijack", pid_hijack_);
 
   int count = 0;
   unsigned char node_id = INVALID_BYTE;
@@ -30,12 +31,15 @@ bool MotorPcan::init() {
     auto_inst_pid(tag);
     tag = Label::make_label(getLabel(), "pid_" + std::to_string(++count));
   }
-
   return true;
 }
 
 MotorPcan::~MotorPcan() {
-  ;
+  for (auto& pids : pids_)
+    for (auto& pid : pids)
+      delete pid;
+
+  pids_.clear();
 }
 
 bool MotorPcan::write(const Packet& pkt) {
@@ -50,8 +54,7 @@ bool MotorPcan::write(const Packet& pkt) {
     }
   }
 
-  return true;
-  // return ArmPcan::write(pkt);
+  return (pid_hijack_) ? true : ArmPcan::write(pkt);
 }
 
 bool MotorPcan::read(Packet& pkt) {
@@ -70,9 +73,11 @@ bool MotorPcan::read(Packet& pkt) {
   curr_update_t_ = std::chrono::high_resolution_clock::now();
   dt_ = std::chrono::duration_cast<std::chrono::seconds>(
       curr_update_t_ - last_update_t_);
-  updatePID(pkt.node_id);
+
+  if (pid_hijack_) updatePID(pkt.node_id);
 
   last_update_t_ = curr_update_t_;
+
   return true;
 }
 
@@ -81,7 +86,7 @@ void MotorPcan::updatePID(unsigned char node_id) {
 
   int offset = 0;
   for (const auto& type : {JntType::KNEE, JntType::HIP, JntType::YAW}) {
-    U_[node_id][type] = pids_[node_id][type].computeCommand(
+    U_[node_id][type] = pids_[node_id][type]->computeCommand(
         T_[node_id][type] - X_[node_id][type], dt_.count());
 
     memcpy(pkt.data + offset, U_[node_id] + type, sizeof(short));
@@ -101,8 +106,7 @@ void MotorPcan::auto_inst_pid(const MiiString& __p) {
   if (!is_insert) node_ids_.push_back(node_id);
   JntType jnt = JntType::UNKNOWN_JNT;
   cfg->get_value_fatal(__p, "jnt", jnt);
-
-  pids_[node_id][jnt] = Pid(__p);
+  pids_[node_id][jnt] = new Pid(__p);
 }
 
 } /* namespace middleware */

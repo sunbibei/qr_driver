@@ -29,12 +29,12 @@ RosWrapper* RosWrapper::create_instance(const MiiString& __tag) {
 RosWrapper::RosWrapper(const MiiString& __tag)
   : MiiRobot(Label::make_label(__tag, "robot")), root_tag_(__tag), alive_(false),
     rt_duration_(1000/50), ros_ctrl_duration_(1000/100), use_ros_control_(false) {
-  LOG_DEBUG << "Enter the roswrapper construction";
+  // LOG_DEBUG << "Enter the roswrapper construction";
   // google::InitGoogleLogging("qr_driver");
   // google::SetLogDestination(google::GLOG_INFO, "/path/to/log/INFO_");
   FLAGS_colorlogtostderr = true;
   // google::FlushLogFiles(google::GLOG_INFO);
-  LOG_DEBUG << "Leave the roswrapper construction";
+  // LOG_DEBUG << "Leave the roswrapper construction";
   ; // Nothing to do here, all of variables initialize in the method @start()
 }
 
@@ -48,7 +48,7 @@ RosWrapper::~RosWrapper() {
 }
 
 void RosWrapper::create_system_instance() {
-  LOG_DEBUG << "==========RosWrapper::create_system_instance==========";
+  // LOG_DEBUG << "<<==========RosWrapper::create_system_instance==========";
   MiiString str;
   // if (nh_.getParam("configure", cfg)) {
   if (!ros::param::get("~configure", str)) {
@@ -66,12 +66,12 @@ void RosWrapper::create_system_instance() {
   if (nullptr == AutoInstanceor::create_instance(str))
     LOG_WARNING << "Create the singleton 'AutoInstanceor' has failed.";
 
-  LOG_DEBUG << "==========RosWrapper::create_system_instance==========";
+  // LOG_DEBUG << "==========RosWrapper::create_system_instance==========>>";
   MiiRobot::create_system_instance();
 }
 
 bool RosWrapper::start() {
-  LOG_DEBUG << "==========RosWrapper::start==========";
+  // LOG_DEBUG << "<<==========RosWrapper::start==========";
   if (!init()) LOG_FATAL << "Robot initializes fail!";
   else LOG_INFO << "Robot initialization has completed.";
   bool debug = false;
@@ -111,7 +111,7 @@ bool RosWrapper::start() {
       &RosWrapper::cbForDebug, this);
 #endif
   bool ret = MiiRobot::start();
-  LOG_DEBUG << "==========RosWrapper::start==========";
+  // LOG_DEBUG << "==========RosWrapper::start==========>>";
   return ret;
 }
 

@@ -49,6 +49,7 @@ set(SRC_SYS_UTILS       ${SRC_SYS}/utils)
 set(SRC_REP             ${SRC_ROOT}/repository)
 set(SRC_REP_RES         ${SRC_REP}/resource)
 set(SRC_REP_EST         ${SRC_REP}/estimator)
+set(SRC_REP_BOX         ${SRC_REP}/control_toolbox)
 
 set(SRC_APP             ${SRC_ROOT}/apps)
 
@@ -63,11 +64,14 @@ set(SYS_FLATFORM_FILES  ${SRC_SYS_FOUNDATION}/label.cpp
                         ${SRC_REP_RES}/joint_manager.cpp
 
                         ${SRC_REP_EST}/touchdown_estimator.cpp
+
+                        ${SRC_REP_BOX}/pid.cpp
                         
                         ${SRC_SYS_PLATFORM}/sw_node/sw_node_manager.cpp
                         ${SRC_SYS_PLATFORM}/sw_node/sw_node.cpp
                         ${SRC_SYS_PLATFORM}/sw_node/leg_node.cpp
                         ${SRC_SYS_PLATFORM}/sw_node/imu_node.cpp
+
                         ${SRC_SYS_PLATFORM}/propagate/propagate_manager.cpp
                         ${SRC_SYS_PLATFORM}/propagate/propagate.cpp
                         ${SRC_SYS_PLATFORM}/propagate/pcan_fake.cpp

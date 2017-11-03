@@ -47,19 +47,20 @@ bool PropagateManager::run() {
     LOG_WARNING << "Call PropagateManager::run() twice!";
     return false;
   }
-  LOG_DEBUG << "==========PropagateManager::run==========";
+  // LOG_DEBUG << "<<==========PropagateManager::run==========";
 
   for (auto& c : res_list_) {
     propa_list_by_bus_[c->bus_id_] = c;
   }
 
   if (_DEBUG_INFO_FLAG) {
-    LOG_WARNING << "The list of Propagate: ";
-    LOG_WARNING << "=====================================================";
+    LOG_WARNING << "+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+";
+    LOG_WARNING << "The list of Propagate, size = " << res_list_.size();
+    LOG_WARNING << "-----------------------------------------------------";
     for (size_t i = 0; i < res_list_.size(); ++i)
       LOG_INFO << i + 1 << ": " << res_list_[i]->propa_name_ << "\t"
           << res_list_[i]->getLabel() << "\t" << res_list_[i];
-    LOG_WARNING << "=====================================================";
+    LOG_WARNING << "+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+";
   }
   for (auto c : res_list_) {
     // for (auto c = begin(); c != end(); ++c) {
