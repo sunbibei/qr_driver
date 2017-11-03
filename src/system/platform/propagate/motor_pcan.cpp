@@ -51,6 +51,8 @@ bool MotorPcan::write(const Packet& pkt) {
 
       memcpy(&(T_[pkt.node_id][type]), pkt.data + offset, sizeof(short));
       offset += sizeof(short);
+
+      pids_[pkt.node_id][type]->setTarget(T_[pkt.node_id][type]);
     }
   }
 
@@ -70,14 +72,8 @@ bool MotorPcan::read(Packet& pkt) {
       offset += sizeof(short);
     }
   }
-  curr_update_t_ = std::chrono::high_resolution_clock::now();
-  dt_ = std::chrono::duration_cast<std::chrono::seconds>(
-      curr_update_t_ - last_update_t_);
 
   if (pid_hijack_) updatePID(pkt.node_id);
-
-  last_update_t_ = curr_update_t_;
-
   return true;
 }
 
@@ -86,8 +82,7 @@ void MotorPcan::updatePID(unsigned char node_id) {
 
   int offset = 0;
   for (const auto& type : {JntType::KNEE, JntType::HIP, JntType::YAW}) {
-    U_[node_id][type] = pids_[node_id][type]->computeCommand(
-        T_[node_id][type] - X_[node_id][type], dt_.count());
+    U_[node_id][type] = pids_[node_id][type]->compute(X_[node_id][type]);
 
     memcpy(pkt.data + offset, U_[node_id] + type, sizeof(short));
     offset += sizeof(short);

@@ -9,6 +9,7 @@
 #define INCLUDE_REPOSITORY_CONTROL_TOOLBOX_PID_H_
 
 #include "system/foundation/utf.h"
+#include <chrono>
 
 namespace middleware {
 
@@ -27,6 +28,8 @@ public:
    */
   void setPid(double Kp, double Ki, double Kd);
 
+  void setTarget(double);
+
   /*!
    * @brief Set the PID error and compute the PID command with nonuniform time
    * step size. The derivative error is computed from the change in the error
@@ -37,19 +40,27 @@ public:
    *
    * @returns PID command
    */
-  double computeCommand(double error, double dt);
+  double compute(double error);
 
 protected:
   /*!
    * The gain of PID controller read from the configure file under the @prefix
    * tag when the constructor been called. The content of configure as follow:
-   * TODO
+   * <pid_0  gains="Kp Ki Kd" limits = "iMin iMax error_threshold" />
+   * <pid_0  node_id="0x02" leg="fl" jnt="yaw"  gains="1.20 0.10 0.10" limits="0 200 10" />
    */
   class Gains*  gains_;
   ///! This structure saves the variety of errors.
   class Errors* errors_;
+  ///! The target value
+  double target_;
   ///! The threshold value.
   double epsilon_;
+
+  ///! time control
+  std::chrono::high_resolution_clock::time_point curr_update_t_;
+  std::chrono::high_resolution_clock::time_point last_update_t_;
+  std::chrono::seconds dt_;
 };
 
 } /* namespace middleware */

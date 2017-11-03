@@ -40,11 +40,6 @@ protected:
   short X_[MAX_NODE_NUM][JntType::N_JNTS];
   short U_[MAX_NODE_NUM][JntType::N_JNTS];
   short T_[MAX_NODE_NUM][JntType::N_JNTS];
-
-  // time control
-  std::chrono::high_resolution_clock::time_point curr_update_t_;
-  std::chrono::high_resolution_clock::time_point last_update_t_;
-  std::chrono::seconds dt_;
 };
 
 } /* namespace middleware */

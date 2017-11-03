@@ -12,6 +12,8 @@
 
 namespace middleware {
 
+const double INVALID_TARGET = 0xFFFFFFFFl;
+
 inline const double& __clamp(const double& a, const double& b, const double& c) {
     return std::min(std::max(b, a), c);
 }
@@ -92,7 +94,8 @@ inline double operator*(const Errors& e, const Gains& k) {
 }
 
 Pid::Pid(const MiiString& prefix)
-  : gains_(new Gains), errors_(new Errors), epsilon_(0.0) {
+  : gains_(new Gains), errors_(new Errors),
+    target_(INVALID_TARGET), epsilon_(0.0) {
   auto cfg = MiiCfgReader::instance();
 
   MiiVector<double> tmp_vec;
@@ -123,16 +126,25 @@ Pid::~Pid() {
   }
 }
 
-double Pid::computeCommand(double error, double dt) {
-  if (dt <= 0.0 || std::isnan(error) || std::isinf(error))
+void Pid::setTarget(double target) {
+  target_ = target;
+}
+
+double Pid::compute(double _x) {
+  if (INVALID_TARGET == target_ || std::isnan(_x) || std::isinf(_x))
     return 0.0;
-  if (std::abs(error) < epsilon_) {
+  if (std::abs(target_ - _x) < epsilon_) {
     errors_->clear();
+    target_ = INVALID_TARGET;
     return 0.0;
   }
-  // Update the variety of error
-  if (!errors_->update(error, dt)) return 0.0;
 
+  curr_update_t_ = std::chrono::high_resolution_clock::now();
+  dt_ = std::chrono::duration_cast<std::chrono::seconds>(
+      curr_update_t_ - last_update_t_);
+  // Update the variety of error
+  if (!errors_->update(target_ - _x, dt_.count())) return 0.0;
+  last_update_t_ = curr_update_t_;
   return (*gains_) * (*errors_);
 }
 
