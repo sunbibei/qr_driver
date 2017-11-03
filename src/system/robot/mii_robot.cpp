@@ -93,7 +93,7 @@ MiiRobot::~MiiRobot() {
   AutoInstanceor::destroy_instance();
 
   // LOG_DEBUG << "The deconstructor of MiiRobot almost finished.";
-  Label::printfEveryInstance();
+  // Label::printfEveryInstance();
 }
 
 

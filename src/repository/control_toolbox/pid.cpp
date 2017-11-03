@@ -96,7 +96,7 @@ inline double operator*(const Errors& e, const Gains& k) {
 Pid::Pid(const MiiString& prefix)
   : gains_(new Gains), errors_(new Errors),
     target_(INVALID_TARGET), epsilon_(0.0),
-    first_compute_(true) {
+    first_compute_(true), dt_(0.0) {
   auto cfg = MiiCfgReader::instance();
 
   MiiVector<double> tmp_vec;
@@ -131,7 +131,7 @@ void Pid::setTarget(double target) {
   target_ = target;
 }
 
-bool Pid::compute(double _x, double& _u) {
+bool Pid::compute(short _x, short& _u) {
   if (INVALID_TARGET == target_ || std::isnan(_x) || std::isinf(_x))
     return false;
   if (std::abs(target_ - _x) < epsilon_) {
@@ -142,14 +142,11 @@ bool Pid::compute(double _x, double& _u) {
   }
 
   curr_update_t_ = std::chrono::high_resolution_clock::now();
-  if (first_compute_) {
-    last_update_t_ = curr_update_t_;
-    first_compute_ = false;
-  }
-  dt_ = std::chrono::duration_cast<std::chrono::seconds>(
-      curr_update_t_ - last_update_t_);
+  dt_ = ((first_compute_) ? (0) : (std::chrono::duration_cast<std::chrono::nanoseconds>(
+      curr_update_t_ - last_update_t_).count() / std::nano::den));
+  first_compute_ = false;
   // Update the variety of error
-  _u =  (errors_->update(target_ - _x, dt_.count())) ? 
+  _u =  (errors_->update(target_ - _x, dt_)) ?
         ((*gains_) * (*errors_)) : 0.0;
   last_update_t_ = curr_update_t_;
   return true;

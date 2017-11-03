@@ -39,7 +39,7 @@ public:
    *
    * @returns PID command
    */
-  bool compute(double _x, double& _u);
+  bool compute(short _x, short& _u);
 
 protected:
   /*!
@@ -61,7 +61,7 @@ protected:
   ///! time control
   std::chrono::high_resolution_clock::time_point curr_update_t_;
   std::chrono::high_resolution_clock::time_point last_update_t_;
-  std::chrono::seconds dt_;
+  double dt_;
 };
 
 } /* namespace middleware */
