@@ -14,7 +14,7 @@ const MiiString FAKE_PID_THREAD = "fake-pid";
 
 
 MotorPcan::MotorPcan(const MiiString& l)
-  : ArmPcan(l), new_target_(false), pid_hijack_(false) {
+  : ArmPcan(l), new_command_(false), pid_hijack_(false) {
   pids_.resize(MAX_NODE_NUM);
   for (auto& pid : pids_)
     pid.resize(JntType::N_JNTS);
@@ -82,12 +82,14 @@ void MotorPcan::updatePID(unsigned char node_id) {
 
   int offset = 0;
   for (const auto& type : {JntType::KNEE, JntType::HIP, JntType::YAW}) {
-    U_[node_id][type] = pids_[node_id][type]->compute(X_[node_id][type]);
-
-    memcpy(pkt.data + offset, U_[node_id] + type, sizeof(short));
+    if (pids_[node_id][type]->compute(X_[node_id][type], U_[node_id][type])) {
+      memcpy(pkt.data + offset, U_[node_id] + type, sizeof(short));
+      new_command_ = true;
+    }
+    
     offset += sizeof(short);
   }
-  ArmPcan::write(pkt);
+  if (new_command_) ArmPcan::write(pkt);
 }
 
 void MotorPcan::auto_inst_pid(const MiiString& __p) {

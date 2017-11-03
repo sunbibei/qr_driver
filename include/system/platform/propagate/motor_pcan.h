@@ -32,7 +32,7 @@ private:
   void auto_inst_pid(const MiiString&);
 
 protected:
-  std::atomic_bool           new_target_;
+  bool                       new_command_;
   bool                       pid_hijack_;
   MiiVector<unsigned char>   node_ids_;
   MiiVector<MiiVector<Pid*>> pids_;

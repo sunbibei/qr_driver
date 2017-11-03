@@ -16,7 +16,6 @@ namespace middleware {
 class Pid {
 public:
   Pid(const MiiString& prefix);
-  Pid();
   virtual ~Pid();
 
 public:
@@ -35,12 +34,12 @@ public:
    * step size. The derivative error is computed from the change in the error
    * and the timestep \c dt.
    *
-   * @param error  Error since last call (error = target - state)
-   * @param dt     Change in time since last call (in s)
+   * @param _x  State since last call
+   * @param _u  Command
    *
    * @returns PID command
    */
-  double compute(double error);
+  bool compute(double _x, double& _u);
 
 protected:
   /*!
@@ -56,6 +55,8 @@ protected:
   double target_;
   ///! The threshold value.
   double epsilon_;
+  ///! the first compute
+  bool   first_compute_;
 
   ///! time control
   std::chrono::high_resolution_clock::time_point curr_update_t_;
