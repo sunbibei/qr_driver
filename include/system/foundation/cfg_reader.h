@@ -25,7 +25,7 @@ public:
    * @param __attr_val The value of __attr under the __p tag.
    */
   typedef void (*Callback)(const MiiString& __p, const MiiString& __attr_val);
-  void registerCallbackAndExcute(const MiiString& __attr, Callback);
+  void registerCallbackAndExcute(const MiiString& __attr, Callback, const MiiString& __prefix = "");
 
 public:
   /**

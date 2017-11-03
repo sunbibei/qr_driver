@@ -82,27 +82,36 @@ to Host  1| X|    NODE ID|        MSG ID|
 
 
 ////////////////////////////////////////////////////////
-///! define the message id
+///! define the message id, define by octal
 ////////////////////////////////////////////////////////
+#define MII_MSG_HEARTBEAT_RESERVE (000u)
 ///! null
-#define MII_MSG_HEARTBEAT_MSG     (0x01u)
+#define MII_MSG_HEARTBEAT_MSG     (001u)
 ///! Return joint position and touchdown data from leg node
-#define MII_MSG_HEARTBEAT_MSG_1   (0x02u)
+#define MII_MSG_HEARTBEAT_MSG_1   (002u)
 
 ///! null
-#define MII_MSG_COMMON_DATA       (0x10u)
+#define MII_MSG_COMMON_RESERVE    (010u)
 ///! The joint position command
-#define MII_MSG_COMMON_DATA_1     (0x11u)
+#define MII_MSG_COMMON_DATA_1     (011u)
 
 ///! The motor command id, offer the interface to control motor directly.
-#define MII_MSG_MOTOR_RESERVE     (0x20u)
+#define MII_MSG_MOTOR_RESERVE     (020u)
 ///! The motor position command
-#define MII_MSG_MOTOR_POSITION    (0x21u)
+#define MII_MSG_MOTOR_CMD_1       (021u)
 ///! The motor velocity command
-#define MII_MSG_MOTOR_VELOCITY    (0x22u)
+#define MII_MSG_MOTOR_CMD_2       (022u)
 ///! The motor torque command
-#define MII_MSG_MOTOR_TORQUE      (0x23u)
+#define MII_MSG_MOTOR_CMD_3       (023u)
 
+///! The debug command id, offer the interface to control arm through the user PC.
+#define MII_MSG_DEBUG_RESERVE     (030u)
+///!
+#define MII_MSG_DEBUG_SIGNAL_1    (031u)
+///!
+#define MII_MSG_DEBUG_SIGNAL_2    (032u)
+///!
+#define MII_MSG_DEBUG_SIGNAL_3    (033u)
 
 
 ////////////////////////////////////////////////////////////////////////
@@ -169,7 +178,7 @@ to Host  0x55 | UP_ID|                 DATA             | SUM
 
 #define MII_USB_DOWN_BAUD(b) MII_USB_DOWN_BAUD_##b
 
-} /* namespace quadruped_robot_driver */
+} /* end namespace middleware */
 
 
 /**
@@ -183,49 +192,97 @@ to Host  0x55 | UP_ID|                 DATA             | SUM
  using namespace middleware;
 
  int main(int argc, char* argv[]) {
-  int count = 0;
-  unsigned int id = MII_MSG_FILL_TO_HOST_MSG(0x02, 0x01);
-  printf("%d: id: 0x%02X, toHost: 0x%02X, node id: 0x%02X, msg id: 0x%02X\n",
-      count++, id, MII_MSG_IS_TO_HOST(id), MII_MSG_EXTRACT_NODE_ID(id),
-      MII_MSG_EXTRACT_MSG_ID(id));
-  // 0: id: 0x441, toHost: 0x01, node id: 0x02, msg id: 0x01
+   int count = 0;
+   unsigned int id = MII_MSG_FILL_TO_HOST_MSG(0x02, 0x01);
+   printf("%d: id: 0x%02X, toHost: 0x%02X, node id: 0x%02X, msg id: 0x%02X\n",
+       count++, id, MII_MSG_IS_TO_HOST(id), MII_MSG_EXTRACT_NODE_ID(id),
+       MII_MSG_EXTRACT_MSG_ID(id));
+   // 0: id: 0x441, toHost: 0x01, node id: 0x02, msg id: 0x01
 
-  id = MII_MSG_FILL_NODE_ID(id, 0x0A);
-  printf("%d: id: 0x%02X, toHost: 0x%02X, node id: 0x%02X, msg id: 0x%02X\n",
-      count++, id, MII_MSG_IS_TO_HOST(id), MII_MSG_EXTRACT_NODE_ID(id),
-      MII_MSG_EXTRACT_MSG_ID(id));
-  // 1: id: 0x541, toHost: 0x01, node id: 0x0A, msg id: 0x01
+   id = MII_MSG_FILL_NODE_ID(id, 0x0A);
+   printf("%d: id: 0x%02X, toHost: 0x%02X, node id: 0x%02X, msg id: 0x%02X\n",
+       count++, id, MII_MSG_IS_TO_HOST(id), MII_MSG_EXTRACT_NODE_ID(id),
+       MII_MSG_EXTRACT_MSG_ID(id));
+   // 1: id: 0x541, toHost: 0x01, node id: 0x0A, msg id: 0x01
 
-  id = MII_MSG_FILL_MSG_ID(id, 0x1F);
-  printf("%d: id: 0x%02X, toHost: 0x%02X, node id: 0x%02X, msg id: 0x%02X\n",
-      count++, id, MII_MSG_IS_TO_HOST(id), MII_MSG_EXTRACT_NODE_ID(id),
-      MII_MSG_EXTRACT_MSG_ID(id));
-  // 2: id: 0x55F, toHost: 0x01, node id: 0x0A, msg id: 0x1F
+   id = MII_MSG_FILL_MSG_ID(id, 0x1F);
+   printf("%d: id: 0x%02X, toHost: 0x%02X, node id: 0x%02X, msg id: 0x%02X\n",
+       count++, id, MII_MSG_IS_TO_HOST(id), MII_MSG_EXTRACT_NODE_ID(id),
+       MII_MSG_EXTRACT_MSG_ID(id));
+   // 2: id: 0x55F, toHost: 0x01, node id: 0x0A, msg id: 0x1F
 
-  id = MII_MSG_FILL_TO_NODE_MSG(0x0F, 0x11);
-  printf("%d: id: 0x%02X, toHost: 0x%02X, node id: 0x%02X, msg id: 0x%02X\n",
-      count++, id, MII_MSG_IS_TO_HOST(id), MII_MSG_EXTRACT_NODE_ID(id),
-      MII_MSG_EXTRACT_MSG_ID(id));
-  // 3: id: 0x1F1, toHost: 0x00, node id: 0x0F, msg id: 0x11
+   id = MII_MSG_FILL_TO_NODE_MSG(0x0F, 0x11);
+   printf("%d: id: 0x%02X, toHost: 0x%02X, node id: 0x%02X, msg id: 0x%02X\n",
+       count++, id, MII_MSG_IS_TO_HOST(id), MII_MSG_EXTRACT_NODE_ID(id),
+       MII_MSG_EXTRACT_MSG_ID(id));
+   // 3: id: 0x1F1, toHost: 0x00, node id: 0x0F, msg id: 0x11
 
-  id = MII_MSG_FILL_TO_GROUP_MSG(0x05, 0xAF);
-  printf("%d: id: 0x%02X, toHost: 0x%02X, node id: 0x%02X, msg id: 0x%02X\n",
-      count++, id, MII_MSG_IS_TO_HOST(id), MII_MSG_EXTRACT_NODE_ID(id),
-      MII_MSG_EXTRACT_MSG_ID(id));
-  // 4: id: 0x2AF, toHost: 0x00, node id: 0x05, msg id: 0x0F
+   id = MII_MSG_FILL_TO_GROUP_MSG(0x05, 0xAF);
+   printf("%d: id: 0x%02X, toHost: 0x%02X, node id: 0x%02X, msg id: 0x%02X\n",
+       count++, id, MII_MSG_IS_TO_HOST(id), MII_MSG_EXTRACT_NODE_ID(id),
+       MII_MSG_EXTRACT_MSG_ID(id));
+   // 4: id: 0x2AF, toHost: 0x00, node id: 0x05, msg id: 0x0F
 
-  id = MII_MSG_FILL_NODE_ID(id, 0x0A);
-  printf("%d: id: 0x%02X, toHost: 0x%02X, node id: 0x%02X, msg id: 0x%02X\n",
-      count++, id, MII_MSG_IS_TO_HOST(id), MII_MSG_EXTRACT_NODE_ID(id),
-      MII_MSG_EXTRACT_MSG_ID(id));
-  // 5: id: 0x34F, toHost: 0x00, node id: 0x0A, msg id: 0x0F
+   id = MII_MSG_FILL_NODE_ID(id, 0x0A);
+   printf("%d: id: 0x%02X, toHost: 0x%02X, node id: 0x%02X, msg id: 0x%02X\n",
+       count++, id, MII_MSG_IS_TO_HOST(id), MII_MSG_EXTRACT_NODE_ID(id),
+       MII_MSG_EXTRACT_MSG_ID(id));
+   // 5: id: 0x34F, toHost: 0x00, node id: 0x0A, msg id: 0x0F
 
-  id = MII_MSG_FILL_MSG_ID(id, 0xFF);
-  printf("%d: id: 0x%02X, toHost: 0x%02X, node id: 0x%02X, msg id: 0x%02X\n",
-      count++, id, MII_MSG_IS_TO_HOST(id), MII_MSG_EXTRACT_NODE_ID(id),
-      MII_MSG_EXTRACT_MSG_ID(id));
-  // 6: id: 0x35F, toHost: 0x00, node id: 0x0A, msg id: 0x1F
-  return 0;
+   id = MII_MSG_FILL_MSG_ID(id, 0xFF);
+   printf("%d: id: 0x%02X, toHost: 0x%02X, node id: 0x%02X, msg id: 0x%02X\n",
+       count++, id, MII_MSG_IS_TO_HOST(id), MII_MSG_EXTRACT_NODE_ID(id),
+       MII_MSG_EXTRACT_MSG_ID(id));
+   // 6: id: 0x35F, toHost: 0x00, node id: 0x0A, msg id: 0x1F
+
+   id = MII_MSG_FILL_MSG_ID(id, MII_MSG_MOTOR_CMD_1);
+   printf("%d: id: 0x%02X, toHost: 0x%02X, node id: 0x%02X, msg id: 0x%02X\n",
+       count++, id, MII_MSG_IS_TO_HOST(id), MII_MSG_EXTRACT_NODE_ID(id),
+       MII_MSG_EXTRACT_MSG_ID(id));
+   // 7: id: 0x351, toHost: 0x00, node id: 0x0A, msg id: 0x11
+
+   id = MII_MSG_FILL_MSG_ID(id, MII_MSG_MOTOR_CMD_3);
+   printf("%d: id: 0x%02X, toHost: 0x%02X, node id: 0x%02X, msg id: 0x%02X\n",
+       count++, id, MII_MSG_IS_TO_HOST(id), MII_MSG_EXTRACT_NODE_ID(id),
+       MII_MSG_EXTRACT_MSG_ID(id));
+   // 8: id: 0x353, toHost: 0x00, node id: 0x0A, msg id: 0x13
+
+   id = MII_MSG_FILL_MSG_ID(id, MII_MSG_DEBUG_RESERVE);
+   printf("%d: id: 0x%02X, toHost: 0x%02X, node id: 0x%02X, msg id: 0x%02X\n",
+       count++, id, MII_MSG_IS_TO_HOST(id), MII_MSG_EXTRACT_NODE_ID(id),
+       MII_MSG_EXTRACT_MSG_ID(id));
+   // 9: id: 0x358, toHost: 0x00, node id: 0x0A, msg id: 0x18
+
+   id = MII_MSG_FILL_MSG_ID(id, MII_MSG_DEBUG_SIGNAL_2);
+   printf("%d: id: 0x%02X, toHost: 0x%02X, node id: 0x%02X, msg id: 0x%02X\n",
+       count++, id, MII_MSG_IS_TO_HOST(id), MII_MSG_EXTRACT_NODE_ID(id),
+       MII_MSG_EXTRACT_MSG_ID(id));
+   // 10: id: 0x35A, toHost: 0x00, node id: 0x0A, msg id: 0x1A
+
+   id = MII_MSG_FILL_MSG_ID(id, MII_MSG_HEARTBEAT_RESERVE);
+   printf("%d: id: 0x%02X, toHost: 0x%02X, node id: 0x%02X, msg id: 0x%02X\n",
+       count++, id, MII_MSG_IS_TO_HOST(id), MII_MSG_EXTRACT_NODE_ID(id),
+       MII_MSG_EXTRACT_MSG_ID(id));
+   // 11: id: 0x340, toHost: 0x00, node id: 0x0A, msg id: 0x00
+
+   id = MII_MSG_FILL_MSG_ID(id, MII_MSG_HEARTBEAT_MSG);
+   printf("%d: id: 0x%02X, toHost: 0x%02X, node id: 0x%02X, msg id: 0x%02X\n",
+       count++, id, MII_MSG_IS_TO_HOST(id), MII_MSG_EXTRACT_NODE_ID(id),
+       MII_MSG_EXTRACT_MSG_ID(id));
+   // 12: id: 0x341, toHost: 0x00, node id: 0x0A, msg id: 0x01
+
+   id = MII_MSG_FILL_MSG_ID(id, MII_MSG_COMMON_RESERVE);
+   printf("%d: id: 0x%02X, toHost: 0x%02X, node id: 0x%02X, msg id: 0x%02X\n",
+       count++, id, MII_MSG_IS_TO_HOST(id), MII_MSG_EXTRACT_NODE_ID(id),
+       MII_MSG_EXTRACT_MSG_ID(id));
+   // 13: id: 0x348, toHost: 0x00, node id: 0x0A, msg id: 0x08
+
+   id = MII_MSG_FILL_MSG_ID(id, MII_MSG_COMMON_DATA_1);
+   printf("%d: id: 0x%02X, toHost: 0x%02X, node id: 0x%02X, msg id: 0x%02X\n",
+       count++, id, MII_MSG_IS_TO_HOST(id), MII_MSG_EXTRACT_NODE_ID(id),
+       MII_MSG_EXTRACT_MSG_ID(id));
+   // 14: id: 0x349, toHost: 0x00, node id: 0x0A, msg id: 0x09
+   return 0;
  }
 #endif
 

@@ -30,7 +30,6 @@ bool PcanPropagate::init() {
   if (!Propagate::init()) return false;
 
   auto cfg = MiiCfgReader::instance();
-
   unsigned char c = PCAN_USBBUS1;
   cfg->get_value(getLabel(), "channel",   c);
   pcan_config_.channel = c;

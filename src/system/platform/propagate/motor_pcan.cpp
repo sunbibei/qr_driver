@@ -6,27 +6,31 @@
  */
 
 #include <system/platform/propagate/motor_pcan.h>
+#include "system/foundation/cfg_reader.h"
 
 namespace middleware {
 
+const MiiString FAKE_PID_THREAD = "fake-pid";
+
+
 MotorPcan::MotorPcan(const MiiString& l)
-  : ArmPcan(l) {
-  ;
+  : ArmPcan(l), new_target_(false), pid_alive_(false) {
+  pids_.reserve(MAX_NODE_NUM);
+  for (auto& pid : pids_)
+    pid.reserve(JntType::N_JNTS);
 }
 
 bool MotorPcan::init() {
-  /*if (!Propagate::init()) return false;
+  if (!ArmPcan::init()) return false;
 
-  auto& cfg = MiiCfgReader::instance();
+  int count = 0;
+  unsigned char node_id = INVALID_BYTE;
+  MiiString tag = Label::make_label(getLabel(), "pid_" + std::to_string(count));
+  while(MiiCfgReader::instance()->get_value(tag, "node_id", node_id)) {
+    auto_inst_pid(tag);
+    tag = Label::make_label(getLabel(), "pid_" + std::to_string(++count));
+  }
 
-  unsigned char c = PCAN_USBBUS1;
-  cfg->get_value(getLabel(), "channel",   c);
-  pcan_config_.channel = c;
-
-  cfg->get_value(getLabel(), "baud_rate", pcan_config_.baud_rate);
-  cfg->get_value(getLabel(), "type",      pcan_config_.type);
-  cfg->get_value(getLabel(), "port",      pcan_config_.port);
-  cfg->get_value(getLabel(), "interrupt", pcan_config_.interrupt);*/
   return true;
 }
 
@@ -46,7 +50,8 @@ bool MotorPcan::write(const Packet& pkt) {
     }
   }
 
-  return ArmPcan::write(pkt);
+  return true;
+  // return ArmPcan::write(pkt);
 }
 
 bool MotorPcan::read(Packet& pkt) {
@@ -58,12 +63,46 @@ bool MotorPcan::read(Packet& pkt) {
     memcpy(&(X_[pkt.node_id][JntType::YAW]),  pkt.data + 4, sizeof(short));*/
     int offset = 0;
     for (const auto& type : {JntType::KNEE, JntType::HIP, JntType::YAW}) {
-        memcpy(&(X_[pkt.node_id][type]), pkt.data + offset, sizeof(short));
-        offset += sizeof(short);
+      memcpy(&(X_[pkt.node_id][type]), pkt.data + offset, sizeof(short));
+      offset += sizeof(short);
     }
   }
+  curr_update_t_ = std::chrono::high_resolution_clock::now();
+  dt_ = std::chrono::duration_cast<std::chrono::seconds>(
+      curr_update_t_ - last_update_t_);
+  updatePID(pkt.node_id);
 
+  last_update_t_ = curr_update_t_;
   return true;
+}
+
+void MotorPcan::updatePID(unsigned char node_id) {
+  Packet pkt = {bus_id_, node_id, MII_MSG_MOTOR_CMD_2, 6, {0}};
+
+  int offset = 0;
+  for (const auto& type : {JntType::KNEE, JntType::HIP, JntType::YAW}) {
+    U_[node_id][type] = pids_[node_id][type].computeCommand(
+        T_[node_id][type] - X_[node_id][type], dt_.count());
+
+    memcpy(pkt.data + offset, U_[node_id] + type, sizeof(short));
+    offset += sizeof(short);
+  }
+  ArmPcan::write(pkt);
+}
+
+void MotorPcan::auto_inst_pid(const MiiString& __p) {
+  unsigned char node_id = INVALID_BYTE;
+  auto cfg = MiiCfgReader::instance();
+  cfg->get_value_fatal(__p, "node_id", node_id);
+  bool is_insert = false;
+  for (const auto& id : node_ids_) {
+    if (id == node_id) is_insert = true;
+  }
+  if (!is_insert) node_ids_.push_back(node_id);
+  JntType jnt = JntType::UNKNOWN_JNT;
+  cfg->get_value_fatal(__p, "jnt", jnt);
+
+  pids_[node_id][jnt] = Pid(__p);
 }
 
 } /* namespace middleware */

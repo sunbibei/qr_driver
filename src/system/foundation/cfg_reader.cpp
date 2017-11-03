@@ -113,7 +113,35 @@ void findAttr(TiXmlElement* __curr, const MiiString& __p,
   }
 }
 
-void MiiCfgReader::registerCallbackAndExcute(const MiiString& attr, Callback cb) {
+TiXmlElement* findTag(TiXmlElement* __prefix, const MiiString& tag) {
+  if (nullptr == __prefix) return nullptr;
+
+  for (auto __tag = __prefix->FirstChildElement();
+      nullptr != __tag; __tag = __tag->NextSiblingElement())
+    return ((0 == tag.compare(__tag->Value())) ? __tag : findTag(__tag, tag));
+
+  return nullptr;
+}
+
+TiXmlElement* findLabel(TiXmlElement* __root, MiiString __label) {
+  MiiString __l;
+  Label::split_label(__label, __label, __l);
+  if (0 != __l.compare(__root->Value())) return nullptr;
+
+  while (Label::null != __label) {
+    Label::split_label(__label, __label, __l);
+    __root = __root->FirstChildElement(__l);
+    if (!__root) return nullptr;
+  }
+
+  return __root;
+}
+
+void MiiCfgReader::registerCallbackAndExcute(const MiiString& attr, Callback cb,
+    const MiiString& __prefix) {
+  auto root = root_;
+  if (__prefix.empty()) root = root_;
+  else root = findLabel(root, __prefix);
   if (nullptr != root_->Attribute(attr.c_str()))
     cb(Label::null, root_->Value());
 

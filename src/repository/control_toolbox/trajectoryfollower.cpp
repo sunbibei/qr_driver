@@ -8,7 +8,7 @@
 
 #include <repository/resource/joint.h>
 #include <system/foundation/label.h>
-#include <system/utils/trajectoryfollower.h>
+#include <repository/control_toolbox/trajectoryfollower.h>
 
 #include <thread>
 

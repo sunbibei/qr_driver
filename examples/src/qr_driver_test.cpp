@@ -82,7 +82,7 @@ void QrDriverTestController::update(const ros::Time&, const ros::Duration&) {
                                 0.2453, -2.3457, 2.24567,
                                 -2.3542, 1.1324, -1.5789,
                                 1.2457, -0.4681, -2.3546};
-  for (int i = 0; i < joint_handles_.size(); ++i) {
+  for (size_t i = 0; i < joint_handles_.size(); ++i) {
     // printf("%04f ", j.getPosition());
     joint_handles_[i].setCommand(init_value[i] + 0.0001*i);
   }
