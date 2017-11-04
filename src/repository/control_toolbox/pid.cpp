@@ -145,7 +145,7 @@ bool Pid::compute(short _x, short& _u) {
   }
 
   curr_update_t_ = std::chrono::high_resolution_clock::now();
-  dt_ = ((first_compute_) ? (0) : (std::chrono::duration_cast<std::chrono::microseconds>(
+  dt_ = ((first_compute_) ? (0) : (std::chrono::duration_cast<std::chrono::milliseconds>(
       curr_update_t_ - last_update_t_).count()/* / std::nano::den*/));
   first_compute_ = false;
   // Update the variety of error
