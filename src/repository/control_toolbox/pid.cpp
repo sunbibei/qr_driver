@@ -12,7 +12,7 @@
 
 namespace middleware {
 
-const double INVALID_TARGET = 0xFFFFFFFFl;
+const short INVALID_TARGET = 0x8888;
 
 inline const double& __clamp(const double& a, const double& b, const double& c) {
     return std::min(std::max(b, a), c);
@@ -129,7 +129,7 @@ Pid::~Pid() {
   }
 }
 
-void Pid::setTarget(double target) {
+void Pid::setTarget(short target) {
   target_ = target;
 }
 
@@ -138,14 +138,15 @@ bool Pid::compute(short _x, short& _u) {
     return false;
   if (std::abs(target_ - _x) < epsilon_) {
     errors_->clear();
-    target_ = INVALID_TARGET;
-    _u = 0.0;
+    first_compute_ = true;
+    target_        = INVALID_TARGET;
+    _u             = 0.0;
     return true;
   }
 
   curr_update_t_ = std::chrono::high_resolution_clock::now();
-  dt_ = ((first_compute_) ? (0) : (std::chrono::duration_cast<std::chrono::nanoseconds>(
-      curr_update_t_ - last_update_t_).count() / std::nano::den));
+  dt_ = ((first_compute_) ? (0) : (std::chrono::duration_cast<std::chrono::microseconds>(
+      curr_update_t_ - last_update_t_).count()/* / std::nano::den*/));
   first_compute_ = false;
   // Update the variety of error
   _u =  (errors_->update(target_ - _x, dt_)) ?
@@ -153,9 +154,10 @@ bool Pid::compute(short _x, short& _u) {
   last_update_t_ = curr_update_t_;
 
   if (true)
-    printf("%1.20f %1.20f %1.20f %1.20f %1.20f %1.20f %1.20f",
-        gains_->p_gain_, gains_->i_gain_, gains_->d_gain_,
-        errors_->p_error_, errors_->i_error_, errors_->d_error_, _u);
+    printf("%1.2f %1.2f %1.2f %04.1f %1.2f %1.2f %1.2f %04d %04d %04d\n",
+        gains_->p_gain_, gains_->i_gain_, gains_->d_gain_, dt_,
+        errors_->p_error_, errors_->i_error_, errors_->d_error_,
+        target_, _x, _u);
 
   return true;
 }

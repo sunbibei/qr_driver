@@ -27,7 +27,7 @@ public:
    */
   void setPid(double Kp, double Ki, double Kd);
 
-  void setTarget(double);
+  void setTarget(short);
 
   /*!
    * @brief Set the PID error and compute the PID command with nonuniform time
@@ -52,11 +52,11 @@ protected:
   ///! This structure saves the variety of errors.
   class Errors* errors_;
   ///! The target value
-  double target_;
+  short target_;
   ///! The threshold value.
-  double epsilon_;
+  short epsilon_;
   ///! the first compute
-  bool   first_compute_;
+  bool  first_compute_;
 
   ///! time control
   std::chrono::high_resolution_clock::time_point curr_update_t_;
