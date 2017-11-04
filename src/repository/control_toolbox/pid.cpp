@@ -151,6 +151,12 @@ bool Pid::compute(short _x, short& _u) {
   _u =  (errors_->update(target_ - _x, dt_)) ?
         ((*gains_) * (*errors_)) : 0.0;
   last_update_t_ = curr_update_t_;
+
+  if (true)
+    printf("%1.20f %1.20f %1.20f %1.20f %1.20f %1.20f %1.20f",
+        gains_->p_gain_, gains_->i_gain_, gains_->d_gain_,
+        errors_->p_error_, errors_->i_error_, errors_->d_error_, _u);
+
   return true;
 }
 
