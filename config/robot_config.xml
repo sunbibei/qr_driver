@@ -41,7 +41,7 @@
 			output="/home/bibei/output" repeat="true" input="/home/bibei/input"
 			channel="0x51" baud="500" type="0" port="0" interrupt="0" /-->
 		<pcan auto_inst="middleware::MotorPcan" bus="0x01"
-			channel="0x51" baud="500" type="0"  port="0" interrupt="0" hijack="false" >
+			channel="0x51" baud="500" type="0"  port="0" interrupt="0" hijack="true" >
 			<!-- gains="Kp Ki Kd" limits = "iMin iMax error_threshold" -->
 			<pid_0  node_id="0x02" leg="fl" jnt="yaw"  gains="1.20 0.10 0.10" limits="0 200 10" antiwindup="true" />
 			<pid_1  node_id="0x02" leg="fl" jnt="hip"  gains="1.40 0.01 0.10" limits="0 200 10" antiwindup="true" />
