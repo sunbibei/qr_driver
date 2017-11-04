@@ -42,7 +42,7 @@ struct Gains {
 struct Errors {
   Errors()
   : p_error_last_(0), p_error_(0), i_error_(0), d_error_(0),
-    i_max_(0), i_min_(0), clamp_(false), tmp_d_error_(0) { }
+    i_max_(0), i_min_(0), antiwindup_(false), tmp_d_error_(0) { }
   ///! Save position state for derivative state calculation.
   double p_error_last_;
   ///! Position error.
@@ -55,8 +55,8 @@ struct Errors {
   double i_max_;
   ///! Minimum allowable integral error.
   double i_min_;
-  ///!
-  bool   clamp_;
+  ///! Antiwindup
+  bool   antiwindup_;
   ///! The update interface, e = target - state
   bool update(double e, double dt) {
     // Calculate the derivative error
@@ -68,7 +68,7 @@ struct Errors {
     p_error_last_ = p_error_;
     // Calculate the integral of the position error
     i_error_ += dt * p_error_;
-    if (clamp_) i_error_ = __clamp(i_error_, i_min_, i_max_);
+    if (antiwindup_) i_error_ = __clamp(i_error_, i_min_, i_max_);
     return true;
   }
 
@@ -95,7 +95,7 @@ inline double operator*(const Errors& e, const Gains& k) {
 
 Pid::Pid(const MiiString& prefix)
   : gains_(new Gains), errors_(new Errors),
-    target_(INVALID_TARGET), epsilon_(0.0),
+    target_(INVALID_TARGET), epsilon_(10),
     first_compute_(true), dt_(0.0) {
   auto cfg = MiiCfgReader::instance();
 
@@ -108,12 +108,14 @@ Pid::Pid(const MiiString& prefix)
   }
 
   tmp_vec.clear();
-  errors_->clamp_ = cfg->get_value(prefix, "limits", tmp_vec);
+  cfg->get_value(prefix, "limits", tmp_vec);
   if (3 == tmp_vec.size()) {
     errors_->i_min_ = tmp_vec[0];
     errors_->i_max_ = tmp_vec[1];
     epsilon_        = tmp_vec[2];
   }
+
+  cfg->get_value(prefix, "antiwindup", errors_->antiwindup_);
 }
 
 Pid::~Pid() {
