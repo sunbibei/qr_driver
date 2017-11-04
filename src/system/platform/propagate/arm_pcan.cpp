@@ -38,7 +38,7 @@ bool ArmPcan::write(const Packet& pkt) {
       (int)send_msg_.DATA[2], (int)send_msg_.DATA[3],
       (int)send_msg_.DATA[4], (int)send_msg_.DATA[5],
       (int)send_msg_.DATA[6], (int)send_msg_.DATA[7]);
-  return true;
+  // return true;
 
   // try to 10 times
   for (int counter = 0; counter < MAX_COUNT; ++counter) {
