@@ -109,13 +109,17 @@ Pid::Pid(const MiiString& prefix)
 
   tmp_vec.clear();
   cfg->get_value(prefix, "limits", tmp_vec);
-  if (3 == tmp_vec.size()) {
+  if (5 == tmp_vec.size()) {
     errors_->i_min_ = tmp_vec[0];
     errors_->i_max_ = tmp_vec[1];
-    epsilon_        = tmp_vec[2];
+    cmd_min_        = tmp_vec[2];
+    cmd_max_        = tmp_vec[3];
+    epsilon_        = tmp_vec[4];
   }
 
   cfg->get_value(prefix, "antiwindup", errors_->antiwindup_);
+  MiiString tmp;
+  Label::split_label(prefix, tmp, name_);
 }
 
 Pid::~Pid() {
@@ -131,19 +135,32 @@ Pid::~Pid() {
 
 void Pid::setTarget(short target) {
   target_ = target;
+  t0_     = std::chrono::high_resolution_clock::now();
 }
 
 bool Pid::compute(short _x, short& _u) {
+  if (0 != name_.compare("pid_1")) return false;
+
   if (INVALID_TARGET == target_ || std::isnan(_x) || std::isinf(_x))
     return false;
-  if (std::abs(target_ - _x) < epsilon_) {
+  if (std::abs(target_ - _x) <= epsilon_) {
+    if (!first_compute_) {
+      t1_ = std::chrono::high_resolution_clock::now();
+      printf("%s - elapse(ms): %d error: %d\n", name_.c_str(),
+        std::chrono::duration_cast<std::chrono::milliseconds>(
+        t1_ - t0_).count(), std::abs(target_ - _x));
+      t0_ = t1_;
+    }
+
     errors_->clear();
     first_compute_ = true;
-    target_        = INVALID_TARGET;
+    // target_        = INVALID_TARGET;
     _u             = 0.0;
+    printf("%s - %04d %04d %04d %04d\n",
+         name_.c_str(), target_, _x, target_ - _x, _u);
     return true;
   }
-
+ 
   curr_update_t_ = std::chrono::high_resolution_clock::now();
   dt_ = ((first_compute_) ? (0) : (std::chrono::duration_cast<std::chrono::milliseconds>(
       curr_update_t_ - last_update_t_).count()/* / std::nano::den*/));
@@ -151,11 +168,12 @@ bool Pid::compute(short _x, short& _u) {
   // Update the variety of error
   _u =  (errors_->update(target_ - _x, dt_)) ?
         ((*gains_) * (*errors_)) : 0.0;
+  _u =  __clamp(_u, cmd_min_, cmd_max_);
   last_update_t_ = curr_update_t_;
 
   if (true)
-    printf("%1.2f %1.2f %1.2f %04.1f %1.2f %1.2f %1.2f %04d %04d %04d\n",
-        gains_->p_gain_, gains_->i_gain_, gains_->d_gain_, dt_,
+    printf("%s - %1.2f %1.2f %1.2f %04.1f %4.2f %4.2f %1.2f %04d %04d %04d\n",
+        name_.c_str(), gains_->p_gain_, gains_->i_gain_, gains_->d_gain_, dt_,
         errors_->p_error_, errors_->i_error_, errors_->d_error_,
         target_, _x, _u);
 

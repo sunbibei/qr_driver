@@ -35,7 +35,7 @@ public:
    * and the timestep \c dt.
    *
    * @param _x  State since last call
-   * @param _u  Command
+   * @param _u  Command, range from -5000 to 5000
    *
    * @returns PID command
    */
@@ -51,6 +51,10 @@ protected:
   class Gains*  gains_;
   ///! This structure saves the variety of errors.
   class Errors* errors_;
+  ///! The minum of command
+  short cmd_min_;
+  ///! The maxum of command
+  short cmd_max_;
   ///! The target value
   short target_;
   ///! The threshold value.
@@ -62,6 +66,12 @@ protected:
   std::chrono::high_resolution_clock::time_point curr_update_t_;
   std::chrono::high_resolution_clock::time_point last_update_t_;
   double dt_;
+
+  ///!
+  MiiString name_;
+
+  std::chrono::high_resolution_clock::time_point t0_;
+  std::chrono::high_resolution_clock::time_point t1_;
 };
 
 } /* namespace middleware */
