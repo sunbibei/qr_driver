@@ -136,34 +136,36 @@ Pid::~Pid() {
 void Pid::setTarget(short target) {
   target_ = target;
   t0_     = std::chrono::high_resolution_clock::now();
+  errors_->clear();
+  first_compute_ = true;
 }
 
 bool Pid::compute(short _x, short& _u) {
-  if (0 != name_.compare("pid_2")) return false;
+  // if (0 != name_.compare("pid_11")) return false;
 
   if (INVALID_TARGET == target_ || std::isnan(_x) || std::isinf(_x))
     return false;
   if (std::abs(target_ - _x) <= epsilon_) {
-    if (!first_compute_) {
+    /*if (!first_compute_) {
       t1_ = std::chrono::high_resolution_clock::now();
       printf("%s - elapse(ms): %d error: %d\n", name_.c_str(),
         std::chrono::duration_cast<std::chrono::milliseconds>(
         t1_ - t0_).count(), std::abs(target_ - _x));
-      t0_ = t1_;
-    }
+      // t0_ = t1_;
+    }*/
 
-    errors_->clear();
     first_compute_ = true;
     // target_        = INVALID_TARGET;
     _u             = 0.0;
-    printf("%s - %04d %04d %04d\n",
-         name_.c_str(), target_, _x, target_ - _x);
+    //printf("%s - %04d %04d %04d\n",
+    //     name_.c_str(), target_, _x, target_ - _x);
     return true;
   }
  
   curr_update_t_ = std::chrono::high_resolution_clock::now();
   dt_ = ((first_compute_) ? (0) : (std::chrono::duration_cast<std::chrono::milliseconds>(
-      curr_update_t_ - last_update_t_).count()/* / std::nano::den*/));
+      curr_update_t_ - last_update_t_).count()/1000.0/* / std::nano::den*/));
+  // dt_ /= 1000.0;
   first_compute_ = false;
   // Update the variety of error
   _u =  (errors_->update(target_ - _x, dt_)) ?
@@ -171,8 +173,8 @@ bool Pid::compute(short _x, short& _u) {
   _u =  __clamp(_u, cmd_min_, cmd_max_);
   last_update_t_ = curr_update_t_;
 
-  if (true)
-    printf("%s - %04.1f %4.2f %4.2f %1.2f %04d %04d %04d\n",
+  if (_u && true)
+    printf("%s - %01.3f %4.2f %4.2f %1.2f %04d %04d %04d\n",
         name_.c_str(), dt_,
         errors_->p_error_, errors_->i_error_, errors_->d_error_,
         target_, _x, _u);

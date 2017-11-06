@@ -28,7 +28,7 @@
 		<hr>
 			<yaw  auto_inst="middleware::Joint" leg="hr" jnt="yaw"  name="hr_yaw"  limits_c="1594 2076" limits="-0.301551 0.184721" />
 			<hip  auto_inst="middleware::Joint" leg="hr" jnt="hip"  name="hr_hip"  limits_c="1657 2424" limits="-0.779919 0.149673" />
-			<knee auto_inst="middleware::Joint" leg="hr" jnt="knee" name="hr_knee" limits_c="2036 2812" limits="1.64975 0.710949" />
+			<knee auto_inst="middleware::Joint" leg="hr" jnt="knee" name="hr_knee" limits_c="2036 2812" limits="0.710949 1.64975" />
 			<td   auto_inst="middleware::ForceSensor" leg="hr"                     />
 		</hr>
 		<imu    auto_inst="middleware::ImuSensor" />
@@ -41,20 +41,20 @@
 			output="/home/bibei/output" repeat="true" input="/home/bibei/input"
 			channel="0x51" baud="500" type="0" port="0" interrupt="0" /-->
 		<pcan auto_inst="middleware::MotorPcan" bus="0x01"
-			channel="0x51" baud="500" type="0"  port="0" interrupt="0" hijack="true" >
+			channel="0x51" baud="500" type="0"  port="0" interrupt="0" hijack="false" >
 			<!-- gains="Kp Ki Kd" limits = "iMin iMax error_threshold" -->
-			<pid_0  node_id="0x02" leg="fl" jnt="yaw"  gains="-20 -1 -0.10" limits="-2000 2000 -5000 5000 5" antiwindup="true" />
-			<pid_1  node_id="0x02" leg="fl" jnt="hip"  gains="20 0.1 10" limits="-2000 2000 -5000 5000 5" antiwindup="true" />
-			<pid_2  node_id="0x02" leg="fl" jnt="knee" gains="0.55 0.00 0.00" limits="-2000 2000 -5000 5000 5" antiwindup="true" />
-			<pid_3  node_id="0x03" leg="hl" jnt="yaw"  gains="1.20 0.10 0.10" limits="-2000 2000 -5000 5000 5" antiwindup="true" />
-			<pid_4  node_id="0x03" leg="hl" jnt="hip"  gains="1.40 0.01 0.10" limits="-2000 2000 -5000 5000 5" antiwindup="true" />
-			<pid_5  node_id="0x03" leg="hl" jnt="knee" gains="0.55 0.00 0.00" limits="-2000 2000 -5000 5000 5" antiwindup="true" />
-			<pid_6  node_id="0x04" leg="fr" jnt="yaw"  gains="1.20 0.10 0.10" limits="-2000 2000 -5000 5000 5" antiwindup="true" />
-			<pid_7  node_id="0x04" leg="fr" jnt="hip"  gains="1.40 0.01 0.10" limits="-2000 2000 -5000 5000 5" antiwindup="true" />
-			<pid_8  node_id="0x04" leg="fr" jnt="knee" gains="0.55 0.00 0.00" limits="-2000 2000 -5000 5000 5" antiwindup="true" />
-			<pid_9  node_id="0x05" leg="hr" jnt="yaw"  gains="1.20 0.10 0.10" limits="-2000 2000 -5000 5000 5" antiwindup="true" />
-			<pid_10 node_id="0x05" leg="hr" jnt="hip"  gains="1.40 0.01 0.10" limits="-2000 2000 -5000 5000 5" antiwindup="true" />
-			<pid_11 node_id="0x05" leg="hr" jnt="knee" gains="0.55 0.00 0.00" limits="-2000 2000 -5000 5000 5" antiwindup="true" />
+			<pid_0  node_id="0x02" leg="fl" jnt="yaw"  gains="-50 -1.00 0.01" limits="-200 200 -3000 3000 5" antiwindup="true" /> <!-- 620 -->
+			<pid_1  node_id="0x02" leg="fl" jnt="hip"  gains="50 1.00 0.01" limits="-200 200 -3000 3000 7" antiwindup="true" /> <!-- 650 -->
+			<pid_2  node_id="0x02" leg="fl" jnt="knee" gains="50 1.00 0.01" limits="-200 200 -3000 3000 10" antiwindup="true" /> <!-- 500 -->
+			<pid_3  node_id="0x03" leg="hl" jnt="yaw"  gains="50 1.00 0.01" limits="-200 200 -3000 3000 8" antiwindup="true" /> <!-- 584 -->
+			<pid_4  node_id="0x03" leg="hl" jnt="hip"  gains="-50 -1.00 -0.01" limits="-200 200 -3000 3000 7" antiwindup="true" /> <!-- 661 -->
+			<pid_5  node_id="0x03" leg="hl" jnt="knee" gains="-50 -1.00 -0.01" limits="-200 200 -3000 3000 8" antiwindup="true" /> <!-- 564 -->
+			<pid_6  node_id="0x04" leg="fr" jnt="yaw"  gains="50 1.00 0.01" limits="-200 200 -3000 3000 7" antiwindup="true" /> <!-- 550 -->
+			<pid_7  node_id="0x04" leg="fr" jnt="hip"  gains="-50 -1.00 -0.01" limits="-200 200 -3000 3000 5" antiwindup="true" /> <!-- 660 -->
+			<pid_8  node_id="0x04" leg="fr" jnt="knee" gains="-50 -1.00 -0.01" limits="-200 200 -3000 3000 5" antiwindup="true" /> <!-- 576 -->
+			<pid_9  node_id="0x05" leg="hr" jnt="yaw"  gains="-50 -1.00 -0.01" limits="-200 200 -3000 3000 7" antiwindup="true" /> <!-- 571 -->
+			<pid_10 node_id="0x05" leg="hr" jnt="hip"  gains="50 1.00 0.01" limits="-200 200 -3000 3000 7" antiwindup="true" /> <!-- 664 -->
+			<pid_11 node_id="0x05" leg="hr" jnt="knee" gains="50 1.00 0.01" limits="-200 200 -3000 3000 5" antiwindup="true" /> <!-- 606 -->
 		</pcan>
 
 		<usb auto_inst="middleware::ImuUsb"   bus="0x02"

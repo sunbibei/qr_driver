@@ -172,7 +172,7 @@ void RosWrapper::halt() {
 void RosWrapper::cbForDebug(const std_msgs::Int32ConstPtr& msg) {
   for (auto& jnt : *jnt_manager_) {
     // LOG_DEBUG << "Joint " << jnt->joint_name() << " adds the command " << msg->data;
-    jnt->updateJointCommand(msg->data/10000.0);
+    jnt->updateJointCommand(msg->data);
   }
   // 实现方式0
   /*LOG_INFO << "test write style 0";

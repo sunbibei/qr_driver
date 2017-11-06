@@ -73,6 +73,7 @@ bool Joint::init() {
         << "The attribute of limits should be equal to two(min, max).";
     joint_command_ = new JointCommand(-100, 100);
   }
+  LOG_DEBUG << getLabel() << ": " << limits[0] << " " << limits[1];
   joint_command_ = ((limits[0] > limits[1]) ?
       (new JointCommand(limits[1], limits[0]))
     : (new JointCommand(limits[0], limits[1])));
@@ -138,6 +139,8 @@ void Joint::updateJointCommand(double v) {
   joint_command_->command_ = boost::algorithm::clamp(v,
                                   joint_command_->MIN_POS_,
                                   joint_command_->MAX_POS_);
+  LOG_DEBUG << "update joint(" << jnt_name_ << ") command: "
+            << joint_command_->command_;
   new_command_ = true;
 }
 
@@ -146,11 +149,8 @@ void Joint::updateJointCommand(JntCmdType mode) {
 }
 
 void Joint::updateJointCommand(double v, JntCmdType t) {
-  joint_command_->mode_    = t;
-  joint_command_->command_ = boost::algorithm::clamp(v,
-                                  joint_command_->MIN_POS_,
-                                  joint_command_->MAX_POS_);
-  new_command_ = true;
+  updateJointCommand(t);
+  updateJointCommand(v);
 }
 
 double Joint::joint_command() {
