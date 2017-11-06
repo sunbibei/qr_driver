@@ -15,6 +15,8 @@
 #include <system/platform/protocol/qr_protocol.h>
 #include <system/foundation/utf.h>
 
+#include <boost/algorithm/clamp.hpp>
+
 namespace middleware {
 struct JointState {
   JointState(double pos = 0, double vel = 0, double s = 0, double o = 0)
@@ -32,9 +34,9 @@ struct JointState {
 struct JointCommand {
   double     command_;
   JntCmdType mode_;
-  const short MIN_POS_;
-  const short MAX_POS_;
-  JointCommand(short min, short max, double cmd = 0, JntCmdType mode = JntCmdType::POS)
+  const double MIN_POS_;
+  const double MAX_POS_;
+  JointCommand(double min, double max, double cmd = 0, JntCmdType mode = JntCmdType::POS)
     : /*id_(0), */command_(cmd), mode_(mode),
     MIN_POS_(min), MAX_POS_(max) { };
 };
@@ -64,13 +66,18 @@ bool Joint::init() {
   cfg->get_value_fatal(getLabel(), "leg",  leg_type_);
   cfg->get_value_fatal(getLabel(), "name", jnt_name_);
 
-  MiiVector<short> limits;
+  MiiVector<double> limits;
   cfg->get_value_fatal(getLabel(), "limits", limits);
-  joint_state_   = new JointState();
-  joint_command_
-  = ((limits[0] > limits[1]) ? (new JointCommand(limits[1], limits[0]))
+  if (limits.size() < 2) {
+    LOG_WARNING << "The attribute of " << getLabel() << " is wrong!"
+        << "The attribute of limits should be equal to two(min, max).";
+    joint_command_ = new JointCommand(-100, 100);
+  }
+  joint_command_ = ((limits[0] > limits[1]) ?
+      (new JointCommand(limits[1], limits[0]))
     : (new JointCommand(limits[0], limits[1])));
 
+  joint_state_   = new JointState();
   JointManager::instance()->add(this);
   return true;
 }
@@ -127,7 +134,10 @@ const double* Joint::joint_torque_const_pointer() {
 
 // About joint command
 void Joint::updateJointCommand(double v) {
-  joint_command_->command_ = v;
+  // joint_command_->command_ = v;
+  joint_command_->command_ = boost::algorithm::clamp(v,
+                                  joint_command_->MIN_POS_,
+                                  joint_command_->MAX_POS_);
   new_command_ = true;
 }
 
@@ -137,7 +147,9 @@ void Joint::updateJointCommand(JntCmdType mode) {
 
 void Joint::updateJointCommand(double v, JntCmdType t) {
   joint_command_->mode_    = t;
-  joint_command_->command_ = v;
+  joint_command_->command_ = boost::algorithm::clamp(v,
+                                  joint_command_->MIN_POS_,
+                                  joint_command_->MAX_POS_);
   new_command_ = true;
 }
 

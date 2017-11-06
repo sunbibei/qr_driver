@@ -1,23 +1,23 @@
 #ifndef __USER_H
 #define __USER_H
 
-// °å×Ó¶¨ÒåUSE_°å×Ó_BOARD
+// ï¿½ï¿½ï¿½Ó¶ï¿½ï¿½ï¿½USE_ï¿½ï¿½ï¿½ï¿½_BOARD
 #define USE_LEFT_BACK_BOARD
-//RF ¶¨Òå
-// ×ø±ê×ª»»¶¨Òå
+//RF ï¿½ï¿½ï¿½ï¿½
+// ï¿½ï¿½ï¿½ï¿½×ªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 #define yawBaseOff_RF 18146  //18126  //17540
 #define hipBaseOff_RF 2346  //3706
 #define kneeBaseOff_RF 15590  //900
-// ×ø±ê×ª»»·ûºÅ¶¨Òå£¬Õý¸º
+// ï¿½ï¿½ï¿½ï¿½×ªï¿½ï¿½ï¿½ï¿½ï¿½Å¶ï¿½ï¿½å£¬ï¿½ï¿½ï¿½ï¿½
 #define yawBaseSym_RF 1  //-1
 #define hipBaseSym_RF 1
 #define kneeBaseSym_RF -1
-// µç»ú×ªÏò·ûºÅ¶¨Òå£¬Õý¸º
+// ï¿½ï¿½ï¿½×ªï¿½ï¿½ï¿½ï¿½Å¶ï¿½ï¿½å£¬ï¿½ï¿½ï¿½ï¿½
 #define yawSpeedSym_RF 1  //-1
 #define hipSpeedSym_RF -1
 #define kneeSpeedSym_RF -1
 
-//LF ¶¨Òå
+//LF ï¿½ï¿½ï¿½ï¿½
 #define yawBaseOff_LF 16200  //15724  //4398
 #define hipBaseOff_LF 23034   //10994
 #define kneeBaseOff_LF 24577 //25180  //33560  //23645 
@@ -29,7 +29,7 @@
 #define yawSpeedSym_LF -1
 #define hipSpeedSym_LF 1
 #define kneeSpeedSym_LF 1 
-//RB ¶¨Òå
+//RB ï¿½ï¿½ï¿½ï¿½
 #define yawBaseOff_RB 15824  //17055  //17483   //17055
 #define hipBaseOff_RB 19744  //30364  //30894  //8069
 #define kneeBaseOff_RB 28050   //27860  //12335 
@@ -41,7 +41,7 @@
 #define yawSpeedSym_RB -1
 #define hipSpeedSym_RB 1
 #define kneeSpeedSym_RB 1 
-//LB ¶¨Òå
+//LB ï¿½ï¿½ï¿½ï¿½
 #define yawBaseOff_LB 19176  //19203  //18620 //+800
 #define hipBaseOff_LB 5800 //5316  //5996  //5691	//+100
 #define kneeBaseOff_LB 3916  //3740  //9030 //8770  //+465
@@ -97,7 +97,7 @@
 #define HEADER_BOARD_ID      	0X06
 #define TAIL_BOARD_ID			0X07
 
-// °å×ÓÇÐ»»¶¨Òå
+// ï¿½ï¿½ï¿½ï¿½ï¿½Ð»ï¿½ï¿½ï¿½ï¿½ï¿½
 #ifdef USE_RIGHT_BACK_BOARD
 	#define FILTER_ID	RIGHT_BACK_BOARD_ID
 	
@@ -192,6 +192,66 @@
 	#define Yaw_Maxangle Yaw_Maxangle_RF
 	#define Yaw_Minangle Yaw_Minangle_RF
 	
+#endif
+
+#ifdef TEST_ANGLE_
+double fun_0(int scale, int offset, short c) {
+  double pos = 0;
+  pos = 3600 * (double)c / 4096 * 10;
+  pos = scale * (pos - offset);
+  pos = pos * 314.15926 / 180;
+  pos = pos / 10000;
+
+  return pos;
+}
+
+int main() {
+  std::cout << "FL:\n"
+      << "YAW:\t"
+      << fun_0(yawBaseSym_LF, yawBaseOff_LF, Yaw_Minangle_LF) << " "
+      << fun_0(yawBaseSym_LF, yawBaseOff_LF, Yaw_Maxangle_LF) << "\n"
+      << "HIP:\t"
+      << fun_0(hipBaseSym_LF, hipBaseOff_LF, Hip_Minangle_LF) << " "
+      << fun_0(hipBaseSym_LF, hipBaseOff_LF, Hip_Maxangle_LF) << "\n"
+      << "KNE:\t"
+      << fun_0(kneeBaseSym_LF, kneeBaseOff_LF, Knee_Minangle_LF) << " "
+      << fun_0(kneeBaseSym_LF, kneeBaseOff_LF, Knee_Maxangle_LF) << "\n"<< std::endl;
+
+  std::cout << "HL:\n"
+      << "YAW:\t"
+      << fun_0(yawBaseSym_LB, yawBaseOff_LB, Yaw_Minangle_LB) << " "
+      << fun_0(yawBaseSym_LB, yawBaseOff_LB, Yaw_Maxangle_LB) << "\n"
+      << "HIP:\t"
+      << fun_0(hipBaseSym_LB, hipBaseOff_LB, Hip_Minangle_LB) << " "
+      << fun_0(hipBaseSym_LB, hipBaseOff_LB, Hip_Maxangle_LB) << "\n"
+      << "KNE:\t"
+      << fun_0(kneeBaseSym_LB, kneeBaseOff_LB, Knee_Minangle_LB) << " "
+      << fun_0(kneeBaseSym_LB, kneeBaseOff_LB, Knee_Maxangle_LB) << "\n"<< std::endl;
+
+  std::cout << "FR:\n"
+      << "YAW:\t"
+      << fun_0(yawBaseSym_RF, yawBaseOff_RF, Yaw_Minangle_RF) << " "
+      << fun_0(yawBaseSym_RF, yawBaseOff_RF, Yaw_Maxangle_RF) << "\n"
+      << "HIP:\t"
+      << fun_0(hipBaseSym_RF, hipBaseOff_RF, Hip_Minangle_RF) << " "
+      << fun_0(hipBaseSym_RF, hipBaseOff_RF, Hip_Maxangle_RF) << "\n"
+      << "KNE:\t"
+      << fun_0(kneeBaseSym_RF, kneeBaseOff_RF, Knee_Minangle_RF) << " "
+      << fun_0(kneeBaseSym_RF, kneeBaseOff_RF, Knee_Maxangle_RF) << "\n"<< std::endl;
+
+  std::cout << "HR:\n"
+      << "YAW:\t"
+      << fun_0(yawBaseSym_RB, yawBaseOff_RB, Yaw_Minangle_RB) << " "
+      << fun_0(yawBaseSym_RB, yawBaseOff_RB, Yaw_Maxangle_RB) << "\n"
+      << "HIP:\t"
+      << fun_0(hipBaseSym_RB, hipBaseOff_RB, Hip_Minangle_RB) << " "
+      << fun_0(hipBaseSym_RB, hipBaseOff_RB, Hip_Maxangle_RB) << "\n"
+      << "KNE:\t"
+      << fun_0(kneeBaseSym_RB, kneeBaseOff_RB, Knee_Minangle_RB) << " "
+      << fun_0(kneeBaseSym_RB, kneeBaseOff_RB, Knee_Maxangle_RB) << "\n"<< std::endl;
+
+  return 0;
+}
 #endif
 
 #endif
