@@ -139,7 +139,7 @@ void Pid::setTarget(short target) {
 }
 
 bool Pid::compute(short _x, short& _u) {
-  if (0 != name_.compare("pid_1")) return false;
+  if (0 != name_.compare("pid_2")) return false;
 
   if (INVALID_TARGET == target_ || std::isnan(_x) || std::isinf(_x))
     return false;
@@ -156,8 +156,8 @@ bool Pid::compute(short _x, short& _u) {
     first_compute_ = true;
     // target_        = INVALID_TARGET;
     _u             = 0.0;
-    printf("%s - %04d %04d %04d %04d\n",
-         name_.c_str(), target_, _x, target_ - _x, _u);
+    printf("%s - %04d %04d %04d\n",
+         name_.c_str(), target_, _x, target_ - _x);
     return true;
   }
  
@@ -172,8 +172,8 @@ bool Pid::compute(short _x, short& _u) {
   last_update_t_ = curr_update_t_;
 
   if (true)
-    printf("%s - %1.2f %1.2f %1.2f %04.1f %4.2f %4.2f %1.2f %04d %04d %04d\n",
-        name_.c_str(), gains_->p_gain_, gains_->i_gain_, gains_->d_gain_, dt_,
+    printf("%s - %04.1f %4.2f %4.2f %1.2f %04d %04d %04d\n",
+        name_.c_str(), dt_,
         errors_->p_error_, errors_->i_error_, errors_->d_error_,
         target_, _x, _u);
 

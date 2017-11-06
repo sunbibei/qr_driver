@@ -32,14 +32,17 @@ struct JointState {
 struct JointCommand {
   double     command_;
   JntCmdType mode_;
-  JointCommand(double cmd = 0, JntCmdType mode = JntCmdType::POS)
-    : /*id_(0), */command_(cmd), mode_(mode) { };
+  const short MIN_POS_;
+  const short MAX_POS_;
+  JointCommand(short min, short max, double cmd = 0, JntCmdType mode = JntCmdType::POS)
+    : /*id_(0), */command_(cmd), mode_(mode),
+    MIN_POS_(min), MAX_POS_(max) { };
 };
 
 Joint::Joint(const MiiString& l)
   : Label(l), new_command_(false), jnt_type_(JntType::UNKNOWN_JNT),
     leg_type_(LegType::UNKNOWN_LEG),  /*msg_id_(INVALID_BYTE),*/
-    joint_state_(new JointState), joint_command_(new JointCommand) {
+    joint_state_(nullptr), joint_command_(nullptr) {
   // The code as follow should be here.
   // JointManager::instance()->add(this);
 }
@@ -61,13 +64,20 @@ bool Joint::init() {
   cfg->get_value_fatal(getLabel(), "leg",  leg_type_);
   cfg->get_value_fatal(getLabel(), "name", jnt_name_);
 
+  MiiVector<short> limits;
+  cfg->get_value_fatal(getLabel(), "limits", limits);
+  joint_state_   = new JointState();
+  joint_command_
+  = ((limits[0] > limits[1]) ? (new JointCommand(limits[1], limits[0]))
+    : (new JointCommand(limits[0], limits[1])));
+
   JointManager::instance()->add(this);
   return true;
 }
 
 const MiiString& Joint::joint_name() const { return jnt_name_; }
-const JntType& Joint::joint_type() const { return jnt_type_; }
-const LegType& Joint::owner_type()   const { return leg_type_; }
+const JntType&   Joint::joint_type() const { return jnt_type_; }
+const LegType&   Joint::owner_type() const { return leg_type_; }
 
 void Joint::updateJointPosition(double pos) {
   auto t0 = std::chrono::high_resolution_clock::now();
