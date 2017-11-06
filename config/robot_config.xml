@@ -5,30 +5,30 @@
 	<!-- All of the hardwares list here, and it will be automatic instance -->
 	<res attr="resources">
 		<fl>
-			<yaw  auto_inst="middleware::Joint" leg="fl" jnt="yaw"  name="fl_yaw" limits_c="1590 2060" />
-			<hip  auto_inst="middleware::Joint" leg="fl" jnt="hip"  name="fl_hip" limits_c="2035 2780" />
-			<knee auto_inst="middleware::Joint" leg="fl" jnt="knee" name="fl_knee" limits_c="1690 2430" />
+			<yaw  auto_inst="middleware::Joint" leg="fl" jnt="yaw"  name="fl_yaw" limits_c="1590 2060" limits="" />
+			<hip  auto_inst="middleware::Joint" leg="fl" jnt="hip"  name="fl_hip" limits_c="2035 2780" limits="" />
+			<knee auto_inst="middleware::Joint" leg="fl" jnt="knee" name="fl_knee" limits_c="1690 2430" limits="" />
 			<td   auto_inst="middleware::ForceSensor" leg="fl"                     />
 		</fl>
 
 		<hl>
-			<yaw  auto_inst="middleware::Joint" leg="hl" jnt="yaw"  name="hl_yaw"  limits_c="1912 2400" />
-			<hip  auto_inst="middleware::Joint" leg="hl" jnt="hip"  name="hl_hip"  limits_c="160 1212" />
-			<knee auto_inst="middleware::Joint" leg="hl" jnt="knee" name="hl_knee" limits_c="802 1585" />
+			<yaw  auto_inst="middleware::Joint" leg="hl" jnt="yaw"  name="hl_yaw"  limits_c="1912 2400" limits="" />
+			<hip  auto_inst="middleware::Joint" leg="hl" jnt="hip"  name="hl_hip"  limits_c="160 1212" limits="" />
+			<knee auto_inst="middleware::Joint" leg="hl" jnt="knee" name="hl_knee" limits_c="802 1585" limits="" />
 			<td   auto_inst="middleware::ForceSensor" leg="hl"                     />
 		</hl>
 
 		<fr>
-			<yaw  auto_inst="middleware::Joint" leg="fr" jnt="yaw"  name="fr_yaw"  limits_c="1768 2252" />
-			<hip  auto_inst="middleware::Joint" leg="fr" jnt="hip"  name="fr_hip"  limits_c="48 831" />
-			<knee auto_inst="middleware::Joint" leg="fr" jnt="knee" name="fr_knee" limits_c="2910 2192" />
+			<yaw  auto_inst="middleware::Joint" leg="fr" jnt="yaw"  name="fr_yaw"  limits_c="1768 2252" limits="" />
+			<hip  auto_inst="middleware::Joint" leg="fr" jnt="hip"  name="fr_hip"  limits_c="48 831" limits="" />
+			<knee auto_inst="middleware::Joint" leg="fr" jnt="knee" name="fr_knee" limits_c="2910 2192" limits="" />
 			<td   auto_inst="middleware::ForceSensor" leg="fr"                     />
 		</fr>
 
 		<hr>
-			<yaw  auto_inst="middleware::Joint" leg="hr" jnt="yaw"  name="hr_yaw"  limits_c="1594 2076" />
-			<hip  auto_inst="middleware::Joint" leg="hr" jnt="hip"  name="hr_hip"  limits_c="1657 2424" />
-			<knee auto_inst="middleware::Joint" leg="hr" jnt="knee" name="hr_knee" limits_c="2036 2812" />
+			<yaw  auto_inst="middleware::Joint" leg="hr" jnt="yaw"  name="hr_yaw"  limits_c="1594 2076" limits="" />
+			<hip  auto_inst="middleware::Joint" leg="hr" jnt="hip"  name="hr_hip"  limits_c="1657 2424" limits="" />
+			<knee auto_inst="middleware::Joint" leg="hr" jnt="knee" name="hr_knee" limits_c="2036 2812" limits="" />
 			<td   auto_inst="middleware::ForceSensor" leg="hr"                     />
 		</hr>
 		<imu    auto_inst="middleware::ImuSensor" />
