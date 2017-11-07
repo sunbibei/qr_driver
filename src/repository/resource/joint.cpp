@@ -139,8 +139,8 @@ void Joint::updateJointCommand(double v) {
   joint_command_->command_ = boost::algorithm::clamp(v,
                                   joint_command_->MIN_POS_,
                                   joint_command_->MAX_POS_);
-  LOG_DEBUG << "update joint(" << jnt_name_ << ") command: "
-            << joint_command_->command_;
+  // LOG_DEBUG << "update joint(" << jnt_name_ << ") command: "
+  //           << joint_command_->command_;
   new_command_ = true;
 }
 

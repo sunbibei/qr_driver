@@ -141,7 +141,7 @@ void Pid::setTarget(short target) {
 }
 
 bool Pid::compute(short _x, short& _u) {
-  // if (0 != name_.compare("pid_11")) return false;
+  // if (0 != name_.compare("pid_0")) return false;
 
   if (INVALID_TARGET == target_ || std::isnan(_x) || std::isinf(_x))
     return false;
@@ -150,7 +150,7 @@ bool Pid::compute(short _x, short& _u) {
       t1_ = std::chrono::high_resolution_clock::now();
       printf("%s - elapse(ms): %d error: %d\n", name_.c_str(),
         std::chrono::duration_cast<std::chrono::milliseconds>(
-        t1_ - t0_).count(), std::abs(target_ - _x));
+        t1_ - t0_).count(), target_ - _x);
       // t0_ = t1_;
     }*/
 
@@ -173,7 +173,7 @@ bool Pid::compute(short _x, short& _u) {
   _u =  __clamp(_u, cmd_min_, cmd_max_);
   last_update_t_ = curr_update_t_;
 
-  if (_u && true)
+  if (_u && false)
     printf("%s - %01.3f %4.2f %4.2f %1.2f %04d %04d %04d\n",
         name_.c_str(), dt_,
         errors_->p_error_, errors_->i_error_, errors_->d_error_,

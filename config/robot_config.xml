@@ -43,18 +43,18 @@
 		<pcan auto_inst="middleware::MotorPcan" bus="0x01"
 			channel="0x51" baud="500" type="0"  port="0" interrupt="0" hijack="false" >
 			<!-- gains="Kp Ki Kd" limits = "iMin iMax error_threshold" -->
-			<pid_0  node_id="0x02" leg="fl" jnt="yaw"  gains="-50 -1.00 0.01" limits="-200 200 -3000 3000 5" antiwindup="true" /> <!-- 620 -->
+			<pid_0  node_id="0x02" leg="fl" jnt="yaw"  gains="-30 -1.00 0.01" limits="-200 200 -3000 3000 7" antiwindup="true" /> <!-- 620 -->
 			<pid_1  node_id="0x02" leg="fl" jnt="hip"  gains="50 1.00 0.01" limits="-200 200 -3000 3000 7" antiwindup="true" /> <!-- 650 -->
-			<pid_2  node_id="0x02" leg="fl" jnt="knee" gains="50 1.00 0.01" limits="-200 200 -3000 3000 10" antiwindup="true" /> <!-- 500 -->
-			<pid_3  node_id="0x03" leg="hl" jnt="yaw"  gains="50 1.00 0.01" limits="-200 200 -3000 3000 8" antiwindup="true" /> <!-- 584 -->
-			<pid_4  node_id="0x03" leg="hl" jnt="hip"  gains="-50 -1.00 -0.01" limits="-200 200 -3000 3000 7" antiwindup="true" /> <!-- 661 -->
+			<pid_2  node_id="0x02" leg="fl" jnt="knee" gains="30 0.50 0.01" limits="-200 200 -3000 3000 10" antiwindup="true" /> <!-- 500 -->
+			<pid_3  node_id="0x03" leg="hl" jnt="yaw"  gains="50 1.00 0.01" limits="-200 200 -3000 3000 10" antiwindup="true" /> <!-- 584 -->
+			<pid_4  node_id="0x03" leg="hl" jnt="hip"  gains="-30 -1.00 -0.01" limits="-200 200 -3000 3000 7" antiwindup="true" /> <!-- 661 -->
 			<pid_5  node_id="0x03" leg="hl" jnt="knee" gains="-50 -1.00 -0.01" limits="-200 200 -3000 3000 8" antiwindup="true" /> <!-- 564 -->
 			<pid_6  node_id="0x04" leg="fr" jnt="yaw"  gains="50 1.00 0.01" limits="-200 200 -3000 3000 7" antiwindup="true" /> <!-- 550 -->
-			<pid_7  node_id="0x04" leg="fr" jnt="hip"  gains="-50 -1.00 -0.01" limits="-200 200 -3000 3000 5" antiwindup="true" /> <!-- 660 -->
-			<pid_8  node_id="0x04" leg="fr" jnt="knee" gains="-50 -1.00 -0.01" limits="-200 200 -3000 3000 5" antiwindup="true" /> <!-- 576 -->
+			<pid_7  node_id="0x04" leg="fr" jnt="hip"  gains="-40 -1.00 -0.01" limits="-200 200 -3000 3000 5" antiwindup="true" /> <!-- 660 -->
+			<pid_8  node_id="0x04" leg="fr" jnt="knee" gains="-45 -1.00 -0.01" limits="-200 200 -3000 3000 10" antiwindup="true" /> <!-- 576 -->
 			<pid_9  node_id="0x05" leg="hr" jnt="yaw"  gains="-50 -1.00 -0.01" limits="-200 200 -3000 3000 7" antiwindup="true" /> <!-- 571 -->
 			<pid_10 node_id="0x05" leg="hr" jnt="hip"  gains="50 1.00 0.01" limits="-200 200 -3000 3000 7" antiwindup="true" /> <!-- 664 -->
-			<pid_11 node_id="0x05" leg="hr" jnt="knee" gains="50 1.00 0.01" limits="-200 200 -3000 3000 5" antiwindup="true" /> <!-- 606 -->
+			<pid_11 node_id="0x05" leg="hr" jnt="knee" gains="40 1.00 0.01" limits="-200 200 -3000 3000 7" antiwindup="true" /> <!-- 606 -->
 		</pcan>
 
 		<usb auto_inst="middleware::ImuUsb"   bus="0x02"
