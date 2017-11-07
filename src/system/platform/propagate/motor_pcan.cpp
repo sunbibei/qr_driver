@@ -82,7 +82,7 @@ void MotorPcan::updatePID(unsigned char node_id) {
 
   int offset = 0;
   for (const auto& type : {JntType::KNEE, JntType::HIP, JntType::YAW}) {
-    if (pids_[node_id][type]->compute(X_[node_id][type], U_[node_id][type])) {
+    if (pids_[node_id][type]->control(X_[node_id][type], U_[node_id][type])) {
       memcpy(pkt.data + offset, U_[node_id] + type, sizeof(short));
       new_command_ = true;
     }

@@ -8,12 +8,18 @@
 #include <apps/ros_robothw.h>
 #include <apps/ros_wrapper.h>
 #include <repository/resource/joint_manager.h>
+#include <repository/resource/imu_sensor.h>
+#include <repository/resource/force_sensor.h>
 #include "system/foundation/auto_instanceor.h"
 #include "system/foundation/cfg_reader.h"
 #include "system/platform/thread/threadpool.h"
 
+#include <std_msgs/Int32MultiArray.h>
+#include <sensor_msgs/JointState.h>
+#include <sensor_msgs/Imu.h>
+
 #define ROS_CTRL_THREAD ("ros_control")
-#define RT_PUB_THREAD   ("rt_publish")
+#define RT_PUB_THREAD   ("rt_publisher")
 
 SINGLETON_IMPL_NO_CREATE(RosWrapper)
 
@@ -115,20 +121,82 @@ bool RosWrapper::start() {
   return ret;
 }
 
+inline void __fill_jnt_data(sensor_msgs::JointState& to, JointManager* from) {
+  to.position.clear();
+  to.velocity.clear();
+  to.effort.clear();
+  for (const auto& jnt : *from) {
+    to.position.push_back(jnt->joint_position());
+    to.velocity.push_back(jnt->joint_velocity());
+    to.effort.push_back(jnt->joint_torque());
+  }
+  to.header.stamp = ros::Time::now();
+}
+
+inline void __fill_imu_data(sensor_msgs::Imu& to, ImuSensor* from) {
+  to.orientation.x = from->orientation_const_pointer()[0];
+  to.orientation.y = from->orientation_const_pointer()[1];
+  to.orientation.z = from->orientation_const_pointer()[2];
+  to.orientation.w = from->orientation_const_pointer()[3];
+  for (size_t i = 0; i < to.orientation_covariance.size(); ++i)
+    to.orientation_covariance[i] = from->orientation_covariance_const_pointer()[i];
+
+  to.angular_velocity.x = from->angular_velocity_const_pointer()[0];
+  to.angular_velocity.y = from->angular_velocity_const_pointer()[1];
+  to.angular_velocity.z = from->angular_velocity_const_pointer()[2];
+  for (size_t i = 0; i < to.angular_velocity_covariance.size(); ++i)
+    to.angular_velocity_covariance[i] = from->angular_velocity_covariance_const_pointer()[i];
+
+  to.linear_acceleration.x = from->linear_acceleration_const_pointer()[0];
+  to.linear_acceleration.y = from->linear_acceleration_const_pointer()[1];
+  to.linear_acceleration.z = from->linear_acceleration_const_pointer()[2];
+  for (size_t i = 0; i < to.linear_acceleration_covariance.size(); ++i)
+    to.linear_acceleration_covariance[i] = from->linear_acceleration_covariance_const_pointer()[i];
+
+  to.header.stamp = ros::Time::now();
+}
+
+inline void __fill_force_data(std_msgs::Int32MultiArray& to, MiiVector<ForceSensor*>& from) {
+  for (const LegType& leg : {LegType::FL, LegType::FR, LegType::HL, LegType::HR})
+    to.data[leg] = from[leg]->force_data();
+}
+
 void RosWrapper::publishRTMsg() {
-  ros::Publisher joint_pub
-    = nh_.advertise<sensor_msgs::JointState>("joint_states", 1);
-  sensor_msgs::JointState __msg;
-  getJointNames(__msg.name);
+  ros::Publisher jnt_puber
+      = nh_.advertise<sensor_msgs::JointState>("joint_states", 1);
+  ros::Publisher imu_puber
+      = nh_.advertise<sensor_msgs::Imu>("imu", 1);
+  ros::Publisher force_puber
+      = nh_.advertise<std_msgs::Int32MultiArray>("foot_forces", 1);
+  sensor_msgs::JointState   __jnt_msg;
+  sensor_msgs::Imu          __imu_msg;
+  std_msgs::Int32MultiArray __f_msg;
+  getJointNames(__jnt_msg.name);
+
+  __imu_msg.header.frame_id = "imu";
+
+  __f_msg.layout.data_offset = 0;
+  __f_msg.layout.dim.resize(1);
+  __f_msg.layout.dim[0].label  = "foot";
+  __f_msg.layout.dim[0].size   = 4;
+  __f_msg.layout.dim[0].stride = 1;
 
   TIMER_INIT
   while (alive_ && ros::ok()) {
-    getJointPositions(__msg.position);
-    getJointVelocities(__msg.velocity);
-    getJointTorques(__msg.effort);
-    __msg.header.stamp = ros::Time::now();
+    if (jnt_puber.getNumSubscribers()) {
+      __fill_jnt_data(__jnt_msg, jnt_manager_);
+      jnt_puber.publish(__jnt_msg);
+    }
+    if (imu_puber.getNumSubscribers()) {
+      __fill_imu_data(__imu_msg, imu_sensor_);
+      imu_puber.publish(__imu_msg);
+    }
 
-    joint_pub.publish(__msg);
+    if (force_puber.getNumSubscribers()) {
+      __fill_force_data(__f_msg, td_list_by_type_);
+      force_puber.publish(__f_msg);
+    }
+
     TIMER_CONTROL(rt_duration_)
   }
 

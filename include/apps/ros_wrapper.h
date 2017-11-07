@@ -10,12 +10,7 @@
 
 #include <chrono>
 #include <ros/ros.h>
-#include <sensor_msgs/JointState.h>
 #include <std_msgs/Int32.h>
-#include <actionlib/server/action_server.h>
-#include <trajectory_msgs/JointTrajectory.h>
-#include <actionlib/server/server_goal_handle.h>
-#include <control_msgs/FollowJointTrajectoryAction.h>
 #include <controller_manager/controller_manager.h>
 
 #include "system/robot/mii_robot.h"
@@ -36,7 +31,7 @@ public:
   void halt();
 
 private:
-  // 发布实时消息， 例如"/joint_states"
+  // 发布实时消息， 例如"/joint_states", "imu", "foot_force"
   void publishRTMsg();
   void rosControlLoop();
   // 测试消息回调函数

@@ -8,14 +8,39 @@
 #include <repository/control_toolbox/pid.h>
 #include <system/foundation/cfg_reader.h>
 
+#include <boost/algorithm/clamp.hpp>
+#include <fstream>
 #include <cmath>
 
 namespace middleware {
 
 const short INVALID_TARGET = 0x8888;
 
-inline const double& __clamp(const double& a, const double& b, const double& c) {
-    return std::min(std::max(b, a), c);
+// Output file description for debug
+const size_t BUF_RESERVE_SIZE = 1024;
+bool                   __g_debug;
+std::ofstream          __g_ofd;
+std::vector<short>     __g_u_buf;
+std::vector<short>     __g_x_buf;
+std::vector<double>    __g_t_buf;
+
+inline void __save_everything_to_file() {
+  if ((!__g_debug) || !__g_ofd.is_open()) return;
+  for (size_t i = 0; i < __g_t_buf.size(); ++i)
+    __g_ofd << __g_t_buf[i] << " " << __g_x_buf[i] << " " << __g_u_buf[i] << std::endl;
+  __g_ofd << std::endl;
+
+  LOG_DEBUG << "It has saved everything into the local file.";
+  __g_u_buf.clear();
+  __g_x_buf.clear();
+  __g_t_buf.clear();
+}
+
+inline void __save_data_into_buf(double dt, short _x, short _u) {
+  if ((!__g_debug) || !__g_ofd.is_open()) return;
+  __g_t_buf << dt;
+  __g_x_buf << _x;
+  __g_u_buf << _u;
 }
 
 struct Gains {
@@ -59,6 +84,7 @@ struct Errors {
   bool   antiwindup_;
   ///! The update interface, e = target - state
   bool update(double e, double dt) {
+    if (!dt) return false;
     // Calculate the derivative error
     tmp_d_error_  = (e - p_error_last_) / dt;
     if (std::isnan(tmp_d_error_) || std::isinf(tmp_d_error_))
@@ -68,7 +94,7 @@ struct Errors {
     p_error_last_ = p_error_;
     // Calculate the integral of the position error
     i_error_ += dt * p_error_;
-    if (antiwindup_) i_error_ = __clamp(i_error_, i_min_, i_max_);
+    if (antiwindup_) i_error_ = boost::algorithm::clamp(i_error_, i_min_, i_max_);
     return true;
   }
 
@@ -120,6 +146,19 @@ Pid::Pid(const MiiString& prefix)
   cfg->get_value(prefix, "antiwindup", errors_->antiwindup_);
   MiiString tmp;
   Label::split_label(prefix, tmp, name_);
+
+  __g_debug = false;
+  if (cfg->get_value(prefix, "debug", __g_debug) && __g_debug) {
+    MiiString path = ".";
+    cfg->get_value(prefix, "path", path);
+    __g_ofd.open(path + "/" + name_
+        + "_" + std::to_string(gains_->p_gain_)
+        + "_" + std::to_string(gains_->i_gain_)
+        + "_" + std::to_string(gains_->d_gain_));
+
+    __g_x_buf.reserve(BUF_RESERVE_SIZE);
+    __g_u_buf.reserve(BUF_RESERVE_SIZE);
+  }
 }
 
 Pid::~Pid() {
@@ -140,11 +179,31 @@ void Pid::setTarget(short target) {
   first_compute_ = true;
 }
 
+bool Pid::control(short _x, short& _u) {
+  if (INVALID_TARGET == target_ || std::isnan(_x) || std::isinf(_x))
+      return false;
+  // The system has not went to stabilization.
+  if (!stability(_x, _u)) {
+    // compute the command
+    if (compute(_x, _u))
+      // safety control
+      safety_control(_x, _u);
+    else
+      return false;
+  }
+  __save_data_into_buf(dt_, _x, _u);
+  return true;
+}
+
+// TODO
+bool Pid::stability(short _x, short& _u) {
+  return (std::abs(target_ - _x) <= epsilon_);
+}
+
+// TODO
 bool Pid::compute(short _x, short& _u) {
   // if (0 != name_.compare("pid_0")) return false;
 
-  if (INVALID_TARGET == target_ || std::isnan(_x) || std::isinf(_x))
-    return false;
   if (std::abs(target_ - _x) <= epsilon_) {
     /*if (!first_compute_) {
       t1_ = std::chrono::high_resolution_clock::now();
@@ -164,13 +223,14 @@ bool Pid::compute(short _x, short& _u) {
  
   curr_update_t_ = std::chrono::high_resolution_clock::now();
   dt_ = ((first_compute_) ? (0) : (std::chrono::duration_cast<std::chrono::milliseconds>(
-      curr_update_t_ - last_update_t_).count()/1000.0/* / std::nano::den*/));
+      curr_update_t_ - last_update_t_).count()/* / std::nano::den*/));
   // dt_ /= 1000.0;
   first_compute_ = false;
   // Update the variety of error
-  _u =  (errors_->update(target_ - _x, dt_)) ?
+  ///! dt (in ms) convert to in s.
+  _u =  (errors_->update(target_ - _x, dt_/1000.0)) ?
         ((*gains_) * (*errors_)) : 0.0;
-  _u =  __clamp(_u, cmd_min_, cmd_max_);
+  _u =  boost::algorithm::clamp(_u, cmd_min_, cmd_max_);
   last_update_t_ = curr_update_t_;
 
   if (_u && false)
@@ -180,6 +240,11 @@ bool Pid::compute(short _x, short& _u) {
         target_, _x, _u);
 
   return true;
+}
+
+// TODO
+void Pid::safety_control(short _x, short& _u) {
+  return;
 }
 
 } /* namespace middleware */

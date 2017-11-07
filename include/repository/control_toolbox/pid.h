@@ -37,11 +37,28 @@ public:
    * @param _x  State since last call
    * @param _u  Command, range from -5000 to 5000
    *
-   * @returns PID command
+   * @returns whether is a valid command value or not.
+   */
+  bool control(short _x, short& _u);
+
+protected:
+  /*!
+   * @brief This method will judge whether is stable or not.
+   * @returns True if the system is stable, or return false.
+   */
+  bool stability(short _x, short& _u);
+
+  /*!
+   * @brief This method will compute the command through PID
+   * @returns True if everything is OK, or return false.
    */
   bool compute(short _x, short& _u);
 
-protected:
+  /*!
+   * @brief This method should be sure the safety of the controlled system.
+   */
+  void safety_control(short _x, short& _u);
+
   /*!
    * The gain of PID controller read from the configure file under the @prefix
    * tag when the constructor been called. The content of configure as follow:
@@ -67,9 +84,9 @@ protected:
   std::chrono::high_resolution_clock::time_point last_update_t_;
   double dt_;
 
-  ///!
+  ///! the name of PID controller
   MiiString name_;
-
+  ///! these variables for debug.
   std::chrono::high_resolution_clock::time_point t0_;
   std::chrono::high_resolution_clock::time_point t1_;
 };
