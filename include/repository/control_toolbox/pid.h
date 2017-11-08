@@ -52,13 +52,16 @@ protected:
    * @brief This method will compute the command through PID
    * @returns True if everything is OK, or return false.
    */
-  bool compute(short _x, short& _u);
+  void compute(short _x, short _e, short& _u);
 
   /*!
    * @brief This method should be sure the safety of the controlled system.
    */
   void safety_control(short _x, short& _u);
 
+protected:
+  ///! the name of PID controller
+  MiiString name_;
   /*!
    * The gain of PID controller read from the configure file under the @prefix
    * tag when the constructor been called. The content of configure as follow:
@@ -68,27 +71,12 @@ protected:
   class Gains*  gains_;
   ///! This structure saves the variety of errors.
   class Errors* errors_;
-  ///! The minum of command
-  short cmd_min_;
-  ///! The maxum of command
-  short cmd_max_;
-  ///! The target value
-  short target_;
-  ///! The threshold value.
-  short epsilon_;
-  ///! the first compute
-  bool  first_compute_;
-
-  ///! time control
-  std::chrono::high_resolution_clock::time_point curr_update_t_;
-  std::chrono::high_resolution_clock::time_point last_update_t_;
-  double dt_;
-
-  ///! the name of PID controller
-  MiiString name_;
-  ///! these variables for debug.
-  std::chrono::high_resolution_clock::time_point t0_;
-  std::chrono::high_resolution_clock::time_point t1_;
+  ///! This structure saves the variety of limit.
+  class Limits*      limits_;
+  ///! This structure saves the time control variety.
+  class TimeControl* time_control_;
+  ///! The stability classifier.
+  class Stability*   stability_;
 };
 
 } /* namespace middleware */
