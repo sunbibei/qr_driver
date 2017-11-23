@@ -61,6 +61,7 @@ set(SYS_FOUDATION_FILES ${SRC_SYS_FOUNDATION}/label.cpp
 # Files define.
 set(SYS_FLATFORM_FILES  ${SRC_REP_RES}/imu_sensor.cpp
                         ${SRC_REP_RES}/joint.cpp
+                        ${SRC_REP_RES}/power.cpp
                         ${SRC_REP_RES}/force_sensor.cpp
                         ${SRC_REP_RES}/joint_manager.cpp
 
@@ -72,6 +73,7 @@ set(SYS_FLATFORM_FILES  ${SRC_REP_RES}/imu_sensor.cpp
                         ${SRC_SYS_PLATFORM}/sw_node/sw_node.cpp
                         ${SRC_SYS_PLATFORM}/sw_node/leg_node.cpp
                         ${SRC_SYS_PLATFORM}/sw_node/imu_node.cpp
+                        ${SRC_SYS_PLATFORM}/sw_node/power_node.cpp
 
                         ${SRC_SYS_PLATFORM}/propagate/propagate_manager.cpp
                         ${SRC_SYS_PLATFORM}/propagate/propagate.cpp
