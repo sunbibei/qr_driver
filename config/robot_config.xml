@@ -93,7 +93,7 @@
 		</pcan>
 
 		<usb auto_inst="middleware::ImuUsb"   bus="0x02"
-			channel="/dev/ttyUSB0" baud="9600"  node_id="0x06" />
+			channel="/dev/ttyUSB0" baud="115200"  node_id="0x06" />
 	</propa>
 
 	<!-- Got the packet message from PropagateManager and update the information of hardware -->

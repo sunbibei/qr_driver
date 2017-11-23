@@ -157,8 +157,10 @@ inline void __fill_imu_data(sensor_msgs::Imu& to, ImuSensor* from) {
 }
 
 inline void __fill_force_data(std_msgs::Int32MultiArray& to, MiiVector<ForceSensor*>& from) {
-  for (const LegType& leg : {LegType::FL, LegType::FR, LegType::HL, LegType::HR})
+  for (const LegType& leg : {LegType::FL, LegType::FR, LegType::HL, LegType::HR}) {
+    // LOG_DEBUG << "enter: " << leg << " " << to.data.size() << " " << from.size();// << " " << from[leg];
     to.data[leg] = from[leg]->force_data();
+  }
 }
 
 void RosWrapper::publishRTMsg() {
@@ -175,11 +177,15 @@ void RosWrapper::publishRTMsg() {
 
   __imu_msg.header.frame_id = "imu";
 
+  __f_msg.data.resize(4);
   __f_msg.layout.data_offset = 0;
-  __f_msg.layout.dim.resize(1);
-  __f_msg.layout.dim[0].label  = "foot";
-  __f_msg.layout.dim[0].size   = 4;
-  __f_msg.layout.dim[0].stride = 1;
+  for (const MiiString& l : {"fl", "fr", "hl", "hr"}) {
+    std_msgs::MultiArrayDimension dim;
+    dim.label = "foot_" + l;
+    dim.size  = 1;
+    dim.stride= 1;
+    __f_msg.layout.dim.push_back(dim);
+  }
 
   TIMER_INIT
   while (alive_ && ros::ok()) {

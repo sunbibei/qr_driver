@@ -87,7 +87,7 @@ void QrDriverTestController::update(const ros::Time&, const ros::Duration&) {
     joint_handles_[i].setCommand(init_value[i] + 0.0001*i);
   }
   std::cout << std::endl;
-  return;
+  // return;
 
   std::cout << "JointStates: ";
   for (const auto& j : joint_handles_) {

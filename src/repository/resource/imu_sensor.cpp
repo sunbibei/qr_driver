@@ -38,6 +38,12 @@ bool ImuSensor::init() {
   imu_data_->angular_velocity_covariance    = new double[3*3]; // a row major 3x3 matrix about (x,y,z)
   imu_data_->linear_acceleration            = new double[3];   // a triplet (x,y,z)
   imu_data_->linear_acceleration_covariance = new double[3*3]; // a row major 3x3 matrix about (x,y,z)
+  memset(imu_data_->orientation,                    0x00, 4 *   sizeof(double));
+  memset(imu_data_->orientation_covariance,         0x00, 3*3 * sizeof(double));
+  memset(imu_data_->angular_velocity,               0x00, 3 *   sizeof(double));
+  memset(imu_data_->angular_velocity_covariance,    0x00, 3*3 * sizeof(double));
+  memset(imu_data_->linear_acceleration,            0x00, 3 *   sizeof(double));
+  memset(imu_data_->linear_acceleration_covariance, 0x00, 3*3 * sizeof(double));
   return true;
 }
 
@@ -98,7 +104,7 @@ ImuSensor::~ImuSensor() {
 
 ///! The interface for ImuNode
 void ImuSensor::updateLinearAcc(double x, double y, double z) {
-  LOG_WARNING << "ACC: " << x << " " << y << " " << z << std::endl;
+  // LOG_WARNING << "ACC: " << x << " " << y << " " << z << std::endl;
   imu_data_->linear_acceleration[0] = x;
   imu_data_->linear_acceleration[1] = y;
   imu_data_->linear_acceleration[2] = z;
@@ -113,7 +119,7 @@ void ImuSensor::updateOrientation(double x, double y, double z, double w) {
 }
 
 void ImuSensor::updateAngVel(double x, double y, double z) {
-  LOG_WARNING << "AngVel: " << x << " " << y << " " << z << std::endl;
+  // LOG_WARNING << "AngVel: " << x << " " << y << " " << z << std::endl;
   imu_data_->angular_velocity[0] = x;
   imu_data_->angular_velocity[1] = y;
   imu_data_->angular_velocity[2] = z;

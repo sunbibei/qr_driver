@@ -41,6 +41,7 @@ bool ImuUsb::read(Packet& pkt) {
     // LOG_FIRST_N(WARNING, 10000) << "The USB has not been launched, or initialized fail.";
     return false;
   }
+  pkt.bus_id  = bus_id_;
   pkt.node_id = node_id_;
 
   while (true) { // loop until parse an message or read error!
@@ -57,14 +58,15 @@ bool ImuUsb::read(Packet& pkt) {
       pkt.msg_id = *offset++;
       pkt.size   = USB_UP_MESSAGE_DATA_SIZE;
       memcpy(pkt.data, offset, USB_UP_MESSAGE_DATA_SIZE);
-      offset += (USB_UP_MESSAGE_DATA_SIZE + 1); // one byte sum and then is the new data, so plus one
+      // one byte sum and then is the new data, so plus one
+      offset  += (USB_UP_MESSAGE_DATA_SIZE + 1);
       buf_btm_ = offset;
-      // printf("0x%02X : 0x%02X : 0x%02X : 0x%02X\n", read_buf_, buf_btm_, buf_top_, BUF_EOF_);
+      // printf("1. 0x%02X : 0x%02X : 0x%02X : 0x%02X\n", read_buf_, buf_btm_, buf_top_, BUF_EOF_);
       return true;
     } // end while (offset < buf_top_)
 
-
-    // printf("0x%02X 0x%02X 0x%02X 0x%02X\n", read_buf_, buf_btm_, buf_top_, BUF_EOF_);
+    // buf_btm_ = offset;
+    // printf("2. 0x%02X 0x%02X 0x%02X 0x%02X\n", read_buf_, buf_btm_, buf_top_, BUF_EOF_);
     if ((BUF_EOF_ - buf_top_) < 2*USB_UP_MESSAGE_SIZE) {
       int __size = buf_top_ - buf_btm_;
       memcpy(read_buf_, buf_btm_, __size);
@@ -75,8 +77,8 @@ bool ImuUsb::read(Packet& pkt) {
     read_status_ = ::read(usb_fd_, buf_top_, BUF_EOF_ - buf_top_);
     if (read_status_ <= 0) return false;
     buf_top_ += read_status_;
-    // printf("READ: %d, 0x%02X vs 0x%02X\n", read_status_, buf_btm_, buf_top_);
-  }
+    // printf("3: %d, 0x%02X vs 0x%02X\n", read_status_, buf_btm_, buf_top_);
+  } // end while(true)
 }
 
 bool ImuUsb::write(const Packet&) { return false; }

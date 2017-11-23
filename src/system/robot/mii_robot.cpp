@@ -77,6 +77,17 @@ bool MiiRobot::init() {
 
   jnt_manager_ = JointManager::instance();
 
+  MiiVector<MiiString> vec_str;
+  cfg->get_value_fatal(Label::make_label(prefix_tag_, "touchdowns"), "labels", vec_str);
+  td_list_by_type_.resize(vec_str.size());
+  for (const auto& td : vec_str) {
+    ForceSensor* p_td = Label::getHardwareByName<ForceSensor>(td);
+    if (nullptr != p_td) {
+      td_list_.push_back(p_td);
+      td_list_by_type_[p_td->leg_type()] = p_td;
+    }
+  }
+
   MiiString imu_name;
   cfg->get_value_fatal(Label::make_label(prefix_tag_, "imu"), "labels", imu_name);
   imu_sensor_  = Label::getHardwareByName<ImuSensor>(imu_name);
