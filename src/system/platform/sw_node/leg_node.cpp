@@ -159,4 +159,4 @@ bool LegNode::generateCmd(MiiVector<Packet>& pkts) {
 } /* namespace middleware */
 
 #include <class_loader/class_loader_register_macro.h>
-CLASS_LOADER_REGISTER_CLASS(middleware::LegNode, middleware::Label)
+CLASS_LOADER_REGISTER_CLASS(middleware::LegNode, Label)

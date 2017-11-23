@@ -53,12 +53,13 @@ set(SRC_REP_BOX         ${SRC_REP}/control_toolbox)
 
 set(SRC_APP             ${SRC_ROOT}/apps)
 
-# Files define.
-set(SYS_FLATFORM_FILES  ${SRC_SYS_FOUNDATION}/label.cpp
+set(SYS_FOUDATION_FILES ${SRC_SYS_FOUNDATION}/label.cpp
                         ${SRC_SYS_FOUNDATION}/auto_instanceor.cpp
                         ${SRC_SYS_FOUNDATION}/cfg_reader.cpp
+)
 
-                        ${SRC_REP_RES}/imu_sensor.cpp
+# Files define.
+set(SYS_FLATFORM_FILES  ${SRC_REP_RES}/imu_sensor.cpp
                         ${SRC_REP_RES}/joint.cpp
                         ${SRC_REP_RES}/force_sensor.cpp
                         ${SRC_REP_RES}/joint_manager.cpp
@@ -98,6 +99,10 @@ set(EX_FILES            ${SRC_EXAMPLES}/qr_driver_test.cpp
 )
 
 ## Declare a C++ library
+add_library(${PROJECT_NAME}_foundation
+  ${SYS_FOUDATION_FILES}
+)
+
 add_library(${PROJECT_NAME}_sys_platform
   ${SYS_FLATFORM_FILES}
 )
@@ -116,15 +121,20 @@ add_executable(${PROJECT_NAME}
 )
 
 ## Specify libraries to link a library or executable target against
-target_link_libraries(${PROJECT_NAME}_sys_robot
+target_link_libraries(${PROJECT_NAME}_foundation
   ${catkin_LIBRARIES}
-  ${PROJECT_NAME}_sys_platform
+  glog
 )
 
 target_link_libraries(${PROJECT_NAME}_sys_platform
   ${catkin_LIBRARIES}
-  glog
+  ${PROJECT_NAME}_foundation
   pcanbasic
+)
+
+target_link_libraries(${PROJECT_NAME}_sys_robot
+  ${catkin_LIBRARIES}
+  ${PROJECT_NAME}_sys_platform
 )
 
 target_link_libraries(${PROJECT_NAME}_test_lib
@@ -140,10 +150,11 @@ target_link_libraries(${PROJECT_NAME}
 ## Install ##
 #############
 
-install(DIRECTORY include/middleware/
+install(DIRECTORY include/
   DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION})
 
-install(TARGETS ${PROJECT_NAME}_sys_platform
+install(TARGETS ${PROJECT_NAME}_foundation
+                ${PROJECT_NAME}_sys_platform
                 ${PROJECT_NAME}_sys_robot
                 ${PROJECT_NAME}
   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
@@ -151,7 +162,7 @@ install(TARGETS ${PROJECT_NAME}_sys_platform
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
-foreach(dir images launch config)
+foreach(dir include images launch config)
   install(DIRECTORY ${dir}/
     DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/${dir})
 endforeach(dir)

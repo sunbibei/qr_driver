@@ -13,7 +13,8 @@
 #include <class_loader/class_loader.h>
 #include <system/foundation/label.h>
 
-namespace middleware {
+// Cancel the namespace middleware
+// namespace middleware {
 
 class AutoInstanceor {
   SINGLETON_DECLARE(AutoInstanceor, const MiiString&)
@@ -34,6 +35,6 @@ protected:
   class_loader::ClassLoader*                class_loader_;
 };
 
-} /* namespace middleware */
+//} /* namespace middleware */
 
 #endif /* INCLUDE_SYSTEM_UTILS_AUTO_INSTANCEOR_H_ */

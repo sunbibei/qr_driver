@@ -8,7 +8,8 @@
 #include <system/foundation/utf.h>
 #include "system/foundation/auto_instanceor.h"
 
-namespace middleware {
+// Cancel the namespace middleware
+// namespace middleware {
 
 // std::map<MiiString, Label::LabelPtr> AutoInstanceor::s_inst_table_;
 SINGLETON_IMPL_NO_CREATE(AutoInstanceor)
@@ -88,4 +89,4 @@ bool AutoInstanceor::make_instance(const MiiString& __p, const MiiString& __type
   }
 }
 
-} /* namespace middleware */
+//} /* namespace middleware */

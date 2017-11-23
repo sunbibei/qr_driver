@@ -8,7 +8,8 @@
 #include "system/foundation/cfg_reader.h"
 #include <boost/algorithm/string.hpp>
 
-namespace middleware {
+// Cancel the namespace middleware
+// namespace middleware {
 
 bool __recurse_get_value(TiXmlElement* __ele, std::vector<MiiString> __path,
                       const MiiString& attr, const char** __val) {
@@ -71,13 +72,15 @@ SINGLETON_IMPL_NO_CREATE(MiiCfgReader)
 MiiCfgReader* MiiCfgReader::create_instance(const MiiString& file) {
   if (nullptr == instance_) {
     xml_doc = new TiXmlDocument();
-    /* if (!xml_doc->LoadFile(file)) {
+    if (!xml_doc->LoadFile(file)) {
       LOG_FATAL << "Could not found the " << file
           << ", did you forget define the file?";
-      return false;
-    }*/
+      return nullptr;
+    }
 
-    xml_doc->Parse(file.c_str());
+    /*if (!xml_doc->Parse(file.c_str())) {
+      LOG_FATAL << "Could not parse the configure file content.";
+    }*/
     instance_ = new MiiCfgReader(file);
   } else {
     LOG_WARNING << "This method 'MiiCfgReader::create_instance' is called twice!";
@@ -249,4 +252,4 @@ bool MiiCfgReader::get_value(const MiiString& p, const MiiString& attr, MiiVecto
   return true;
 }
 
-} /* namespace middleware */
+//} /* namespace middleware */

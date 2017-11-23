@@ -70,7 +70,7 @@ void RosWrapper::create_system_instance() {
   }
   LOG_DEBUG << str;
   if (nullptr == AutoInstanceor::create_instance(str))
-    LOG_WARNING << "Create the singleton 'AutoInstanceor' has failed.";
+    LOG_FATAL << "Create the singleton 'AutoInstanceor' has failed.";
 
   // LOG_DEBUG << "==========RosWrapper::create_system_instance==========>>";
   MiiRobot::create_system_instance();

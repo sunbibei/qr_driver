@@ -84,5 +84,5 @@ bool ImuUsb::write(const Packet&) { return false; }
 } /* namespace middleware */
 
 #include <class_loader/class_loader_register_macro.h>
-CLASS_LOADER_REGISTER_CLASS(middleware::ImuUsb, middleware::Label)
+CLASS_LOADER_REGISTER_CLASS(middleware::ImuUsb, Label)
 CLASS_LOADER_REGISTER_CLASS(middleware::ImuUsb, middleware::Propagate)

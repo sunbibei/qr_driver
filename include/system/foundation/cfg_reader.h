@@ -13,7 +13,8 @@
 #include <vector>
 #include <tinyxml.h>
 
-namespace middleware {
+// Cancel the namespace middleware
+// namespace middleware {
 
 class MiiCfgReader final {
   SINGLETON_DECLARE(MiiCfgReader, const MiiString&)
@@ -122,6 +123,6 @@ void MiiCfgReader::get_value_fatal(const MiiString& p, const MiiString& attr, st
     LOG_FATAL << "CfgReader can't found the confiure '" << Label::make_label(p, attr) << "' in the configure file.";
 }
 
-} /* namespace middleware */
+//} /* namespace middleware */
 
 #endif /* INCLUDE_SYSTEM_UTILS_CFG_READER_H_ */
