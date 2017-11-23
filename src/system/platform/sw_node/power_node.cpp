@@ -35,19 +35,31 @@ PowerNode::~PowerNode() {
 }
 
 void PowerNode::handleMsg(const Packet& pkt) {
-  if (pkt.node_id != node_id_) {
+  if ((pkt.node_id != node_id_) || (pkt.size != 2)) {
     LOG_ERROR << "Wrong match id between Packet and Joint";
     return;
   }
 
-  switch (pkt.msg_id) {
+  short tmp;
+  memcpy(&tmp, pkt.data, sizeof(short));
+  power_info_->updatePowerInfo(pkt.msg_id, tmp/1000.0);
+
+  /*switch (pkt.msg_id) {
+  case MII_MSG_HEARTBEAT_MSG_1:
+    // parse the joint state and touchdown data
+    // updateFromBuf(pkt.data);
+    break;
+  case MII_MSG_HEARTBEAT_MSG_1:
+    // parse the joint state and touchdown data
+    // updateFromBuf(pkt.data);
+    break;
   case MII_MSG_HEARTBEAT_MSG_1:
     // parse the joint state and touchdown data
     // updateFromBuf(pkt.data);
     break;
   default:
     SWNode::handleMsg(pkt);
-  }
+  }*/
 }
 
 bool PowerNode::requireCmdDeliver() {

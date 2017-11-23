@@ -88,6 +88,7 @@ const double* Power::current_const_pointer(const LegType& leg) {
 void Power::updatePowerInfo(size_t w, double c) {
   if (w > MAX_CURR_TYPE_SIZE) return;
   power_infor_->currents_[w] = c;
+  LOG_DEBUG << "Update Power Infor: " << w << " - " << c;
 }
 
 } /* namespace middleware */

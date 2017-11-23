@@ -88,6 +88,17 @@ bool ArmPcan::read(Packet& pkt) {
   // when the odd message is coming.
   counter = 0;
   while (!MII_MSG_IS_TO_HOST(recv_msg_.ID)) {
+    // This is a compromise way that to compatible with the old protocol.
+    if ((recv_msg_.ID & 0xf0 >= 0x80) && (recv_msg_.ID & 0xf <= 0xB0)) {
+      pkt.bus_id  = bus_id_;
+      pkt.node_id = 0x07;
+      pkt.msg_id  = recv_msg_.ID & 0xf;
+      pkt.size    = 2;
+      memset(pkt.data, '\0', 8 * sizeof(char));
+      pkt.data[0] = recv_msg_.DATA[3];
+      pkt.data[1] = recv_msg_.DATA[4];
+      return true;
+    }
     if (++counter <= MAX_COUNT) {
       ;// LOG_EVERY_N(WARNING, 10) << "It read odd message"
       //     << ", and the host could not parse, read again... ...";

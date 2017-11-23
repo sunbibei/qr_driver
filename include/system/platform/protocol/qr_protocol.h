@@ -87,17 +87,22 @@ to Host  1| X|    NODE ID|        MSG ID|
 #define MII_MSG_HEARTBEAT_RESERVE (000u)
 ///! null
 #define MII_MSG_HEARTBEAT_MSG     (001u)
-///! Return joint position and touchdown data from leg node
+/*!
+ * In the Leg Node, joint position(in radian), td(in count)
+ *      00 01 02 03 04 05 06 07
+ *      knee | hip | yaw | td
+ * In the Power Node: (in A)
+ *      00 01 02 03 04 05 06 07
+ *       fl  |  fr |  hl |  hr
+ */
 #define MII_MSG_HEARTBEAT_MSG_1   (002u)
-
-///! This is power information as follow.
 ///! Return the current of power node 1
 #define MII_MSG_HEARTBEAT_MSG_2   (003u)
 ///! Return the current of power node 2
 #define MII_MSG_HEARTBEAT_MSG_3   (004u)
 ///! Return the current of power node 3
 #define MII_MSG_HEARTBEAT_MSG_4   (005u)
-///! Return the overall current of power node
+///! Return the overall current of power node,
 #define MII_MSG_HEARTBEAT_MSG_5   (006u)
 ///! Return the error information of power node
 #define MII_MSG_HEARTBEAT_MSG_6   (007u)
