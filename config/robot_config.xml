@@ -32,6 +32,12 @@
 			<td   auto_inst="middleware::ForceSensor" leg="hr"                     />
 		</hr>
 		<imu    auto_inst="middleware::ImuSensor" />
+		<power  auto_inst="middleware::Power" >
+			<map_0 leg="fl" node_id="1" sub_node_id="1" />
+			<map_0 leg="hl" node_id="2" sub_node_id="2" />
+			<map_0 leg="fr" node_id="3" sub_node_id="2" />
+			<map_0 leg="hr" node_id="1" sub_node_id="3" />
+		</power>
 	</res>
 
 	<!-- About propagates, it will be automatic instance and addtion to PropagatesManager -->
@@ -137,8 +143,8 @@
 			</node>
 		</hr>
 
-		<imu_node auto_inst="middleware::ImuNode" node_id="0x06" label="qr.res.imu"  />
-		<!-- power_node auto_inst="middleware::Power" node_id="0x08"  /-->
+		<imu_node   auto_inst="middleware::ImuNode"   node_id="0x06"  label="qr.res.imu"  />
+		<power_node auto_inst="middleware::PowerNode" node_id="0x08"  label="qr.res.power" />
 	</nodes>
 
 	<!-- User Layer -->

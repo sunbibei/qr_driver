@@ -7,7 +7,8 @@
 
 #include <system/foundation/label.h>
 
-namespace middleware {
+// Cancel the namespace middleware
+// namespace middleware {
 
 #define COMMA (".")
 
@@ -68,4 +69,4 @@ void Label::split_label(MiiString l, MiiString& p, MiiString& v) {
 
 bool Label::init() { return true; }
 
-} /* namespace middleware */
+// } /* namespace middleware */

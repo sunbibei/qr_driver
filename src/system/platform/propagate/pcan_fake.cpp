@@ -147,5 +147,5 @@ bool PcanChannelFake::read(Packet& pkt) {
 
 
 #include <class_loader/class_loader_register_macro.h>
-CLASS_LOADER_REGISTER_CLASS(middleware::PcanChannelFake, middleware::Label)
+CLASS_LOADER_REGISTER_CLASS(middleware::PcanChannelFake, Label)
 CLASS_LOADER_REGISTER_CLASS(middleware::PcanChannelFake, middleware::Propagate)

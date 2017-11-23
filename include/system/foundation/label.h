@@ -15,7 +15,8 @@
 #include <system/foundation/utf.h>
 
 
-namespace middleware {
+// Cancel the namespace middleware
+// namespace middleware {
 
 class Label {
   friend class AutoInstanceor;
@@ -100,6 +101,6 @@ _Hardware* Label::getHardwareByName(const MiiString& l) {
   return static_cast<_Hardware*>(hw->second.get());
 }
 
-} /* namespace middleware */
+// } /* namespace middleware */
 
 #endif /* INCLUDE_SYSTEM_RESOURCES_LABEL_H_ */

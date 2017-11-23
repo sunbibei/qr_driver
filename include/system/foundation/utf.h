@@ -19,14 +19,15 @@
 #include <map>
 // #include <iostream>
 
-namespace middleware {
+// cancel the namespace middleware
+// namespace middleware {
 #define TIMER_INIT \
     std::chrono::high_resolution_clock::time_point t0; \
     std::chrono::milliseconds sleep_time; \
     t0 = std::chrono::high_resolution_clock::now();
 
 #define TIMER_CONTROL(duration) \
-    sleep_time = duration - std::chrono::duration_cast<std::chrono::milliseconds>( \
+    sleep_time = std::chrono::milliseconds(duration) - std::chrono::duration_cast<std::chrono::milliseconds>( \
         std::chrono::high_resolution_clock::now() - t0); \
     if (sleep_time.count() > 0) { \
       std::this_thread::sleep_for(sleep_time); \
@@ -36,7 +37,7 @@ namespace middleware {
 #define SINGLETON_DECLARE(TYPE, ...) \
     protected: \
     TYPE(__VA_ARGS__); \
-    ~TYPE(); \
+    virtual ~TYPE(); \
     static TYPE* instance_; \
     public: \
     static TYPE* create_instance(__VA_ARGS__); \
@@ -88,6 +89,7 @@ using MiiVector =  std::vector<_Type>;
 template<class _Key, class _Value>
 using MiiMap    =  std::map<_Key, _Value>;
 
+// typedef std::string MiiString;
 using MiiString = std::string;
 
 enum JntCmdType {
@@ -130,7 +132,7 @@ enum JntType {
 #define LOG_ERROR     std::cout    << "\t"
 #define LOG_FATAL     std::cout    << "\t"
 #endif
-} /* namespace middleware */
+//} /* namespace middleware */
 
 
 

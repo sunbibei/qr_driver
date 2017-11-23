@@ -179,4 +179,4 @@ const JntCmdType* Joint::joint_command_mode_const_pointer() {
 } /* namespace middleware */
 
 #include <class_loader/class_loader_register_macro.h>
-CLASS_LOADER_REGISTER_CLASS(middleware::Joint, middleware::Label)
+CLASS_LOADER_REGISTER_CLASS(middleware::Joint, Label)
