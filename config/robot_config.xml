@@ -144,7 +144,7 @@
 		</hr>
 
 		<imu_node   auto_inst="middleware::ImuNode"   node_id="0x06"  label="qr.res.imu"  />
-		<power_node auto_inst="middleware::PowerNode" node_id="0x07"  label="qr.res.power" />
+		<power_node auto_inst="middleware::PowerNode" node_id="0x08"  label="qr.res.power" />
 	</nodes>
 
 	<!-- User Layer -->
