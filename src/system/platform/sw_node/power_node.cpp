@@ -67,3 +67,6 @@ bool PowerNode::requireCmdDeliver() {
 }
 
 } /* namespace middleware */
+
+#include <class_loader/class_loader_register_macro.h>
+CLASS_LOADER_REGISTER_CLASS(middleware::PowerNode, Label)

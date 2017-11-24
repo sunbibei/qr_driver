@@ -48,8 +48,12 @@ bool Power::init() {
     cfg->get_value(_l, "node_id", des.power_node);
     cfg->get_value(_l, "sub_node_id", des.power_sub_node);
     LEG_IDX_MAP.insert(std::make_pair(leg, des));
+
+    _l = Label::make_label(getLabel(), "map_" + std::to_string(++count));
   }
 
+  power_infor_ = new PowerInfor;
+  power_error_ = new PowerError;
   return true;
 }
 
@@ -88,7 +92,7 @@ const double* Power::current_const_pointer(const LegType& leg) {
 void Power::updatePowerInfo(size_t w, double c) {
   if (w > MAX_CURR_TYPE_SIZE) return;
   power_infor_->currents_[w] = c;
-  LOG_DEBUG << "Update Power Infor: " << w << " - " << c;
+  // if (w == 2) LOG_DEBUG << "Update Power InforXXX: " << w << " - " << c;
 }
 
 } /* namespace middleware */

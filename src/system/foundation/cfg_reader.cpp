@@ -72,15 +72,15 @@ SINGLETON_IMPL_NO_CREATE(MiiCfgReader)
 MiiCfgReader* MiiCfgReader::create_instance(const MiiString& file) {
   if (nullptr == instance_) {
     xml_doc = new TiXmlDocument();
-    if (!xml_doc->LoadFile(file)) {
+    /*if (!xml_doc->LoadFile(file)) {
       LOG_FATAL << "Could not found the " << file
           << ", did you forget define the file?";
       return nullptr;
-    }
-
-    /*if (!xml_doc->Parse(file.c_str())) {
-      LOG_FATAL << "Could not parse the configure file content.";
     }*/
+
+    if (!xml_doc->Parse(file.c_str())) {
+      LOG_FATAL << "Could not parse the configure file content.";
+    }
     instance_ = new MiiCfgReader(file);
   } else {
     LOG_WARNING << "This method 'MiiCfgReader::create_instance' is called twice!";
