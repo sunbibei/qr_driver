@@ -19,9 +19,6 @@ find_package(TinyXML REQUIRED)
 # Declare a catkin package
 catkin_package(
   LIBRARIES
-#[[    ${PROJECT_NAME}_parser
-    ${PROJECT_NAME}_loader
-    ${PROJECT_NAME}_loader_plugins]]
   INCLUDE_DIRS
     include
   DEPENDS
