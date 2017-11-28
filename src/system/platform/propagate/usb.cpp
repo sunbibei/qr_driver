@@ -7,7 +7,7 @@
 
 #include <system/platform/propagate/usb.h>
 
-#include "system/foundation/cfg_reader.h"
+#include "foundation/cfg_reader.h"
 
 #include <fcntl.h>
 #include <errno.h>

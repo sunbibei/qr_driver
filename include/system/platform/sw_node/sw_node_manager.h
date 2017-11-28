@@ -10,7 +10,8 @@
 
 #include <system/platform/internal/resource_manager.h>
 #include <system/platform/sw_node/sw_node.h>
-#include <system/foundation/utf.h>
+
+#include <foundation/utf.h>
 
 namespace middleware {
 

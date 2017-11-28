@@ -8,7 +8,7 @@
 #ifndef INCLUDE_SYSTEM_RESOURCES_TOUCHDOWN_H_
 #define INCLUDE_SYSTEM_RESOURCES_TOUCHDOWN_H_
 
-#include <system/foundation/label.h>
+#include <foundation/label.h>
 
 namespace middleware {
 

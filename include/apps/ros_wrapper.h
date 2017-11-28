@@ -31,10 +31,10 @@ public:
   void halt();
 
 private:
-  // 发布实时消息， 例如"/joint_states", "imu", "foot_force"
+  ///! This method publish the real-time message, e.g. "/joint_states", "imu", "foot_force"
   void publishRTMsg();
   void rosControlLoop();
-  // 测试消息回调函数
+  // Just for test
 #ifdef DEBUG_TOPIC
   void cbForDebug(const std_msgs::Int32ConstPtr&);
   ros::Subscriber cmd_sub_;

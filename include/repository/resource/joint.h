@@ -8,7 +8,7 @@
 #ifndef INCLUDE_SYSTEM_RESOURCES_JOINT_H_
 #define INCLUDE_SYSTEM_RESOURCES_JOINT_H_
 
-#include <system/foundation/label.h>
+#include <foundation/label.h>
 #include <atomic>
 
 namespace middleware {

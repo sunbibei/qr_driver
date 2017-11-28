@@ -9,13 +9,15 @@
 #include <repository/resource/imu_sensor.h>
 #include <repository/resource/joint.h>
 #include <repository/resource/joint_manager.h>
-#include <system/foundation/label.h>
+
 #include <system/platform/master.h>
 #include <system/platform/propagate/propagate_manager.h>
 #include "system/robot/mii_robot.h"
-#include "system/foundation/cfg_reader.h"
 #include "system/platform/thread/threadpool.h"
-#include "system/foundation/auto_instanceor.h"
+
+#include <foundation/label.h>
+#include "foundation/cfg_reader.h"
+#include "foundation/auto_instanceor.h"
 
 namespace middleware {
 

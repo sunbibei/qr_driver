@@ -10,8 +10,8 @@
 #include <repository/resource/joint_manager.h>
 #include <repository/resource/imu_sensor.h>
 #include <repository/resource/force_sensor.h>
-#include "system/foundation/auto_instanceor.h"
-#include "system/foundation/cfg_reader.h"
+#include "foundation/auto_instanceor.h"
+#include "foundation/cfg_reader.h"
 #include "system/platform/thread/threadpool.h"
 
 #include <std_msgs/Int32MultiArray.h>

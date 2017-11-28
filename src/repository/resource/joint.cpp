@@ -5,17 +5,17 @@
  *      Author: silence
  */
 
-#include "system/foundation/cfg_reader.h"
+#include "foundation/cfg_reader.h"
+#include <foundation/utf.h>
 
 #include <chrono>
 #include <tinyxml.h>
 #include <boost/algorithm/string.hpp>
+#include <boost/algorithm/clamp.hpp>
+
 #include <repository/resource/joint.h>
 #include <repository/resource/joint_manager.h>
 #include <system/platform/protocol/qr_protocol.h>
-#include <system/foundation/utf.h>
-
-#include <boost/algorithm/clamp.hpp>
 
 namespace middleware {
 struct JointState {

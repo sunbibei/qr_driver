@@ -9,7 +9,7 @@
 #define INCLUDE_MIDDLEWARE_PROPAGATE_PROPAGATE_H_
 
 #include <system/platform/protocol/qr_protocol.h>
-#include <system/foundation/label.h>
+#include <foundation/label.h>
 #include <vector>
 
 namespace middleware {

@@ -7,7 +7,7 @@
 
 #include <repository/resource/imu_sensor.h>
 
-#include "system/foundation/cfg_reader.h"
+#include "foundation/cfg_reader.h"
 
 namespace middleware {
 

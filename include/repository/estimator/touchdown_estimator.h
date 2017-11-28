@@ -8,8 +8,8 @@
 #ifndef INCLUDE_REPOSITORY_ESTIMATOR_TOUCHDOWN_ESTIMATOR_H_
 #define INCLUDE_REPOSITORY_ESTIMATOR_TOUCHDOWN_ESTIMATOR_H_
 
-#include "system/foundation/label.h"
-#include "system/foundation/utf.h"
+#include "foundation/label.h"
+#include "foundation/utf.h"
 
 namespace middleware {
 

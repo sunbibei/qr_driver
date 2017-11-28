@@ -36,9 +36,9 @@ include_directories(include ${catkin_INCLUDE_DIRS} ${TinyXML_INCLUDE_DIRS})
 
 set(SRC_ROOT            src)
 set(SRC_EXAMPLES        examples/src)
+set(SRC_SYS_FOUNDATION  ${SRC_ROOT}/foundation)
 
 set(SRC_SYS             ${SRC_ROOT}/system)
-set(SRC_SYS_FOUNDATION  ${SRC_SYS}/foundation)
 set(SRC_SYS_PLATFORM    ${SRC_SYS}/platform)
 set(SRC_SYS_ROBOT       ${SRC_SYS}/robot)
 set(SRC_SYS_UTILS       ${SRC_SYS}/utils)
