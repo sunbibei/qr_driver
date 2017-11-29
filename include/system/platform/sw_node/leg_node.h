@@ -34,7 +34,7 @@ protected:
   MiiVector<class __PrivateLinearParams*> jnt_params_;
   // The constant pointer of the joint command
   const double*             jnt_cmds_[JntType::N_JNTS];
-  const JntCmdType*         jnt_mods_[JntType::N_JNTS];
+  const JntDataType*         jnt_mods_[JntType::N_JNTS];
 };
 
 } /* namespace middleware */

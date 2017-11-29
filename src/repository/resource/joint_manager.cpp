@@ -64,6 +64,15 @@ Joint* JointManager::getJointByType(LegType owner, JntType type) {
   return jnt_list_by_type_[owner][type];
 }
 
+double JointManager::operator()(LegType owner, JntType type, JntDataType data) {
+  switch (data) {
+  case JntDataType::POS: return jnt_list_by_type_[owner][type]->joint_position();
+  case JntDataType::VEL: return jnt_list_by_type_[owner][type]->joint_velocity();
+  case JntDataType::TOR: return jnt_list_by_type_[owner][type]->joint_torque();
+  default: return 0;
+  }
+}
+
 void JointManager::joint_position_const_pointer(LegType _owner, JntType _type, const double* & _c_p) {
   _c_p = jnt_list_by_type_[_owner][_type]->joint_position_const_pointer();
 }

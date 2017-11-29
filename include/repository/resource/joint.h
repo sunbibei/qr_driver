@@ -42,16 +42,16 @@ public:
 
   ///! About joint command, This is only way that the user update the joint command.
   void updateJointCommand(double);
-  void updateJointCommand(JntCmdType);
-  void updateJointCommand(double, JntCmdType);
+  void updateJointCommand(JntDataType);
+  void updateJointCommand(double, JntDataType);
 
   double            joint_command();
   const double&     joint_command_const_ref();
   const double*     joint_command_const_pointer();
 
-  JntCmdType        joint_command_mode();
-  const JntCmdType& joint_command_mode_const_ref();
-  const JntCmdType* joint_command_mode_const_pointer();
+  JntDataType        joint_command_mode();
+  const JntDataType& joint_command_mode_const_ref();
+  const JntDataType* joint_command_mode_const_pointer();
 
 protected:
   /**

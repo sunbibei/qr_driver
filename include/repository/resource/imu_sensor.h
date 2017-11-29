@@ -9,6 +9,7 @@
 #define INCLUDE_REPOSITORY_RESOURCE_IMU_SENSOR_H_
 
 #include <foundation/label.h>
+#include <Eigen/Dense>
 
 namespace middleware {
 
