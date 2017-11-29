@@ -34,9 +34,9 @@
 		<imu    auto_inst="middleware::ImuSensor" />
 		<power  auto_inst="middleware::Power" >
 			<map_0 leg="fl" node_id="1" sub_node_id="1" />
-			<map_0 leg="hl" node_id="2" sub_node_id="2" />
-			<map_0 leg="fr" node_id="3" sub_node_id="2" />
-			<map_0 leg="hr" node_id="4" sub_node_id="3" />
+			<map_1 leg="hl" node_id="2" sub_node_id="2" />
+			<map_2 leg="fr" node_id="3" sub_node_id="2" />
+			<map_3 leg="hr" node_id="4" sub_node_id="3" />
 		</power>
 	</res>
 

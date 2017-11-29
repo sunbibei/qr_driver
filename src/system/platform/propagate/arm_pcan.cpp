@@ -90,15 +90,21 @@ bool ArmPcan::read(Packet& pkt) {
   while (!MII_MSG_IS_TO_HOST(recv_msg_.ID)) {
     // This is a compromise way that to compatible with the old protocol.
     if (recv_msg_.ID == 0x8) {
-      if (0x5 != recv_msg_.LEN) return false;
+      if ((0x5 != recv_msg_.LEN) || (0x80 != (recv_msg_.DATA[0] & 0xf0))) return false;
 
       pkt.bus_id  = bus_id_;
       pkt.node_id = 0x08;
-      pkt.msg_id  = recv_msg_.DATA[0] & 0xf;
+      pkt.msg_id  = recv_msg_.DATA[0] & 0xf - 0x1;
       pkt.size    = 2;
       memset(pkt.data, '\0', 8 * sizeof(char));
       pkt.data[0] = recv_msg_.DATA[3];
       pkt.data[1] = recv_msg_.DATA[4];
+      if (false && 0x2 == pkt.msg_id)
+        printf("  - ID:0x%03X LEN:%1x DATA:0x%02X 0x%02X 0x%02X 0x%02X 0x%02X\n",
+          (int)recv_msg_.ID, (int)recv_msg_.LEN,
+          (int)recv_msg_.DATA[0], (int)recv_msg_.DATA[1],
+          (int)recv_msg_.DATA[2], (int)recv_msg_.DATA[3],
+          (int)recv_msg_.DATA[4]);
       return true;
     }
     if (++counter <= MAX_COUNT) {
