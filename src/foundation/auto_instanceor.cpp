@@ -5,8 +5,8 @@
  *      Author: bibei
  */
 
-#include <system/foundation/utf.h>
-#include "system/foundation/auto_instanceor.h"
+#include <foundation/utf.h>
+#include "foundation/auto_instanceor.h"
 
 // Cancel the namespace middleware
 // namespace middleware {

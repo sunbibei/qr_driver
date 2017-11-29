@@ -8,7 +8,7 @@
 #ifndef INCLUDE_REPOSITORY_RESOURCE_POWER_H_
 #define INCLUDE_REPOSITORY_RESOURCE_POWER_H_
 
-#include <system/foundation/label.h>
+#include <foundation/label.h>
 
 namespace middleware {
 

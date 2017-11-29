@@ -5,11 +5,13 @@
  *      Author: silence
  */
 
-#include "system/foundation/cfg_reader.h"
+#include <foundation/utf.h>
+#include "foundation/cfg_reader.h"
+
 #include <boost/algorithm/string.hpp>
+
 #include <repository/resource/force_sensor.h>
 #include <repository/resource/joint.h>
-#include <system/foundation/utf.h>
 #include <system/platform/sw_node/leg_node.h>
 #include "system/platform/protocol/qr_protocol.h"
 

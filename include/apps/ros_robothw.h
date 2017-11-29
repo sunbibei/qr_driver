@@ -18,7 +18,7 @@
 #include <hardware_interface/imu_sensor_interface.h>
 #include <repository/resource/joint_manager.h>
 
-#include "system/foundation/utf.h"
+#include "foundation/utf.h"
 
 using namespace middleware;
 

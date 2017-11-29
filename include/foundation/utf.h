@@ -92,12 +92,12 @@ using MiiMap    =  std::map<_Key, _Value>;
 // typedef std::string MiiString;
 using MiiString = std::string;
 
-enum JntCmdType {
-  UNKNOWN_CMD = -1,
+enum JntDataType {
+  UNKNOWN_TYPE = -1,
   POS = 0,
   VEL = 1,
   TOR = 2,
-  N_JNT_CMD_TYPES = 3
+  N_JNT_DATA_TYPES = 3
 };
 
 enum LegType {

@@ -10,8 +10,9 @@
 
 #include <map>
 #include <vector>
+#include <Eigen/Dense>
 
-#include "system/foundation/utf.h"
+#include "foundation/utf.h"
 
 namespace middleware {
 
@@ -29,6 +30,7 @@ public:
 
   virtual bool start();
 
+  virtual void supportRegistry();
 public:
   /**
    * @brief This methods add the joint command to Joint object.
@@ -45,7 +47,6 @@ public:
   void addJntCmd(LegType _owner, JntType _jnt, double _command);
   /**
    * 获取Joint的名称, 位置, 速度, 力矩及JointState等数据
-   * 推荐直接使用获取JointState, 可以一次获取全部数据
    */
   void getJointNames(MiiVector<MiiString>&);
   void getJointPositions(MiiVector<double>&);
@@ -68,20 +69,29 @@ protected:
   MiiRobot(const MiiString& __tag);
   virtual ~MiiRobot();
 
+protected:
   /**
    * Given by subclass in the parameters list of the constructed function.
    * Tell MiiRobot what necessary parameters are found in @prefix_tag_.
    */
   MiiString                     prefix_tag_;
-  class Master*                 master_;
+  // class Master*                 master_;
   class JointManager*           jnt_manager_;
 
   MiiVector<class ForceSensor*>          td_list_;
-  // type: leg
-  MiiVector<class ForceSensor*>          td_list_by_type_;
+  MiiVector<class ForceSensor*>          td_list_by_type_; // type: leg
   MiiMap<MiiString, class ForceSensor*>  td_list_by_name_;
 
   class ImuSensor*   imu_sensor_;
+
+  bool                      run_mii_ctrl_;
+  std::chrono::milliseconds tick_interval_;
+private:
+  class __RegJntRes*   jnt_reg_res_;
+  class __RegForceRes* td_reg_res_;
+  class __RegImuRes*   imu_reg_res_;
+  ///! The helper method
+  void __reg_resource_and_command();
 };
 
 } /* namespace middleware */

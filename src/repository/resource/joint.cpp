@@ -5,17 +5,17 @@
  *      Author: silence
  */
 
-#include "system/foundation/cfg_reader.h"
+#include "foundation/cfg_reader.h"
+#include <foundation/utf.h>
 
 #include <chrono>
 #include <tinyxml.h>
 #include <boost/algorithm/string.hpp>
+#include <boost/algorithm/clamp.hpp>
+
 #include <repository/resource/joint.h>
 #include <repository/resource/joint_manager.h>
 #include <system/platform/protocol/qr_protocol.h>
-#include <system/foundation/utf.h>
-
-#include <boost/algorithm/clamp.hpp>
 
 namespace middleware {
 struct JointState {
@@ -33,10 +33,10 @@ struct JointState {
 
 struct JointCommand {
   double     command_;
-  JntCmdType mode_;
+  JntDataType mode_;
   const double MIN_POS_;
   const double MAX_POS_;
-  JointCommand(double min, double max, double cmd = 0, JntCmdType mode = JntCmdType::POS)
+  JointCommand(double min, double max, double cmd = 0, JntDataType mode = JntDataType::POS)
     : /*id_(0), */command_(cmd), mode_(mode),
     MIN_POS_(min), MAX_POS_(max) { };
 };
@@ -144,11 +144,11 @@ void Joint::updateJointCommand(double v) {
   new_command_ = true;
 }
 
-void Joint::updateJointCommand(JntCmdType mode) {
+void Joint::updateJointCommand(JntDataType mode) {
   joint_command_->mode_ = mode;
 }
 
-void Joint::updateJointCommand(double v, JntCmdType t) {
+void Joint::updateJointCommand(double v, JntDataType t) {
   updateJointCommand(t);
   updateJointCommand(v);
 }
@@ -165,14 +165,14 @@ const double* Joint::joint_command_const_pointer() {
   return &(joint_command_->command_);
 }
 
-JntCmdType Joint::joint_command_mode() {
+JntDataType Joint::joint_command_mode() {
   return joint_command_->mode_;
 }
 
-const JntCmdType& Joint::joint_command_mode_const_ref() {
+const JntDataType& Joint::joint_command_mode_const_ref() {
   return joint_command_->mode_;
 }
-const JntCmdType* Joint::joint_command_mode_const_pointer() {
+const JntDataType* Joint::joint_command_mode_const_pointer() {
   return &(joint_command_->mode_);
 }
 

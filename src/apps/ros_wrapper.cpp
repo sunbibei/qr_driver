@@ -10,8 +10,8 @@
 #include <repository/resource/joint_manager.h>
 #include <repository/resource/imu_sensor.h>
 #include <repository/resource/force_sensor.h>
-#include "system/foundation/auto_instanceor.h"
-#include "system/foundation/cfg_reader.h"
+#include "foundation/auto_instanceor.h"
+#include "foundation/cfg_reader.h"
 #include "system/platform/thread/threadpool.h"
 
 #include <std_msgs/Int32MultiArray.h>
@@ -54,7 +54,7 @@ RosWrapper::~RosWrapper() {
 }
 
 void RosWrapper::create_system_instance() {
-  // LOG_DEBUG << "<<==========RosWrapper::create_system_instance==========";
+
   MiiString str;
   // if (nh_.getParam("configure", cfg)) {
   if (!ros::param::get("~configure", str)) {
@@ -77,9 +77,9 @@ void RosWrapper::create_system_instance() {
 }
 
 bool RosWrapper::start() {
-  // LOG_DEBUG << "<<==========RosWrapper::start==========";
   if (!init()) LOG_FATAL << "Robot initializes fail!";
-  else LOG_INFO << "Robot initialization has completed.";
+
+  LOG_INFO << "MiiRobot initialization has completed.";
   bool debug = false;
   ros::param::get("~debug", debug);
   google::SetStderrLogging(debug ?

@@ -5,7 +5,7 @@
  *      Author: silence
  */
 
-#include "system/foundation/cfg_reader.h"
+#include "foundation/cfg_reader.h"
 #include <boost/algorithm/string.hpp>
 
 // Cancel the namespace middleware

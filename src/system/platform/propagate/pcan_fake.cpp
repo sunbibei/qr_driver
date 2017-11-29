@@ -6,7 +6,8 @@
  */
 
 #include <system/platform/propagate/pcan_fake.h>
-#include "system/foundation/cfg_reader.h"
+#include "foundation/cfg_reader.h"
+
 #include <stdio.h>
 #include <chrono>
 #include <ctime>

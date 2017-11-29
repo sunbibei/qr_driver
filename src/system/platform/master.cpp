@@ -7,9 +7,10 @@
 
 #include <system/platform/propagate/propagate_manager.h>
 #include <system/platform/sw_node/sw_node_manager.h>
-#include <system/foundation/utf.h>
 #include <system/platform/master.h>
 #include "system/platform/thread/threadpool.h"
+
+#include <foundation/utf.h>
 
 namespace middleware {
 

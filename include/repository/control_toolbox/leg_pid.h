@@ -8,7 +8,7 @@
 #ifndef INCLUDE_REPOSITORY_CONTROL_TOOLBOX_LEG_PID_H_
 #define INCLUDE_REPOSITORY_CONTROL_TOOLBOX_LEG_PID_H_
 
-#include <system/foundation/utf.h>
+#include <foundation/utf.h>
 
 namespace middleware {
 

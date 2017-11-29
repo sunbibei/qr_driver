@@ -8,7 +8,7 @@
 #ifndef INCLUDE_SYSTEM_UTILS_THREADMANAGER_H_
 #define INCLUDE_SYSTEM_UTILS_THREADMANAGER_H_
 
-#include "system/foundation/utf.h"
+#include "foundation/utf.h"
 
 #include <functional>
 #include <thread>

@@ -11,7 +11,7 @@
 #include <map>
 #include <boost/shared_ptr.hpp>
 #include <class_loader/class_loader.h>
-#include <system/foundation/label.h>
+#include <foundation/label.h>
 
 // Cancel the namespace middleware
 // namespace middleware {

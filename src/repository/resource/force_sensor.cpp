@@ -5,7 +5,7 @@
  *      Author: bibei
  */
 
-#include "system/foundation/cfg_reader.h"
+#include "foundation/cfg_reader.h"
 
 #include <boost/algorithm/string.hpp>
 #include <repository/resource/force_sensor.h>

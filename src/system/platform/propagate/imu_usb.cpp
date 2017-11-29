@@ -6,7 +6,8 @@
  */
 
 #include <system/platform/propagate/imu_usb.h>
-#include "system/foundation/cfg_reader.h"
+
+#include "foundation/cfg_reader.h"
 
 namespace middleware {
 

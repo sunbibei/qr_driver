@@ -8,8 +8,9 @@
 #ifndef INCLUDE_SYSTEM_UTILS_CFG_READER_H_
 #define INCLUDE_SYSTEM_UTILS_CFG_READER_H_
 
-#include <system/foundation/label.h>
-#include <system/foundation/utf.h>
+#include <foundation/label.h>
+#include <foundation/utf.h>
+
 #include <vector>
 #include <tinyxml.h>
 

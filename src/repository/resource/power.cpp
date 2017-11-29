@@ -6,7 +6,7 @@
  */
 
 #include <repository/resource/power.h>
-#include <system/foundation/cfg_reader.h>
+#include <foundation/cfg_reader.h>
 
 namespace middleware {
 
@@ -40,7 +40,7 @@ Power::Power(const MiiString& _l)
 bool Power::init() {
   auto cfg = MiiCfgReader::instance();
 
-  LegType leg = LegType::UNKNOWN_LEG;
+  /*LegType leg = LegType::UNKNOWN_LEG;
   int count = 0;
   MiiString _l = Label::make_label(getLabel(), "map_" + std::to_string(count));
   while (cfg->get_value(_l, "leg", leg)) {
@@ -48,6 +48,7 @@ bool Power::init() {
     cfg->get_value(_l, "node_id", des.power_node);
     cfg->get_value(_l, "sub_node_id", des.power_sub_node);
     LEG_IDX_MAP.insert(std::make_pair(leg, des));
+  }*/
 
     _l = Label::make_label(getLabel(), "map_" + std::to_string(++count));
   }

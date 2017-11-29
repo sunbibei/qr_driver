@@ -8,7 +8,7 @@
 #ifndef INCLUDE_SYSTEM_ROBOT_RESOURCE_MANAGER_H_
 #define INCLUDE_SYSTEM_ROBOT_RESOURCE_MANAGER_H_
 
-#include "system/foundation/utf.h"
+#include "foundation/utf.h"
 
 namespace middleware {
 namespace internal {

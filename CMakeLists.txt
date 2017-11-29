@@ -15,6 +15,7 @@ find_package(catkin REQUIRED COMPONENTS
 
 # Include a custom cmake file for TinyXML
 find_package(TinyXML REQUIRED)
+find_package(Eigen3  REQUIRED)
 
 # Declare a catkin package
 catkin_package(
@@ -32,13 +33,18 @@ catkin_package(
 ###########
 
 # Build
-include_directories(include ${catkin_INCLUDE_DIRS} ${TinyXML_INCLUDE_DIRS})
+include_directories(
+  include
+  ${catkin_INCLUDE_DIRS}
+  ${TinyXML_INCLUDE_DIRS}
+  ${EIGEN3_INCLUDE_DIRS}
+)
 
 set(SRC_ROOT            src)
 set(SRC_EXAMPLES        examples/src)
+set(SRC_SYS_FOUNDATION  ${SRC_ROOT}/foundation)
 
 set(SRC_SYS             ${SRC_ROOT}/system)
-set(SRC_SYS_FOUNDATION  ${SRC_SYS}/foundation)
 set(SRC_SYS_PLATFORM    ${SRC_SYS}/platform)
 set(SRC_SYS_ROBOT       ${SRC_SYS}/robot)
 set(SRC_SYS_UTILS       ${SRC_SYS}/utils)
@@ -50,12 +56,15 @@ set(SRC_REP_BOX         ${SRC_REP}/control_toolbox)
 
 set(SRC_APP             ${SRC_ROOT}/apps)
 
+# Files define.
 set(SYS_FOUDATION_FILES ${SRC_SYS_FOUNDATION}/label.cpp
                         ${SRC_SYS_FOUNDATION}/auto_instanceor.cpp
                         ${SRC_SYS_FOUNDATION}/cfg_reader.cpp
 )
 
-# Files define.
+set(SYS_REGISTRY_FILES  ${SRC_REP}/registry.cpp
+)
+
 set(SYS_FLATFORM_FILES  ${SRC_REP_RES}/imu_sensor.cpp
                         ${SRC_REP_RES}/joint.cpp
                         ${SRC_REP_RES}/power.cpp
@@ -102,6 +111,10 @@ add_library(${PROJECT_NAME}_foundation
   ${SYS_FOUDATION_FILES}
 )
 
+add_library(${PROJECT_NAME}_registry
+  ${SYS_REGISTRY_FILES}
+)
+
 add_library(${PROJECT_NAME}_sys_platform
   ${SYS_FLATFORM_FILES}
 )
@@ -125,8 +138,13 @@ target_link_libraries(${PROJECT_NAME}_foundation
   glog
 )
 
+target_link_libraries(${PROJECT_NAME}_registry
+  ${EIGEN3_LIBRARIES}
+)
+
 target_link_libraries(${PROJECT_NAME}_sys_platform
   ${catkin_LIBRARIES}
+  ${EIGEN3_LIBRARIES}
   ${PROJECT_NAME}_foundation
   pcanbasic
 )
@@ -134,6 +152,7 @@ target_link_libraries(${PROJECT_NAME}_sys_platform
 target_link_libraries(${PROJECT_NAME}_sys_robot
   ${catkin_LIBRARIES}
   ${PROJECT_NAME}_sys_platform
+  ${PROJECT_NAME}_registry
 )
 
 target_link_libraries(${PROJECT_NAME}_test_lib
@@ -153,6 +172,7 @@ install(DIRECTORY include/
   DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION})
 
 install(TARGETS ${PROJECT_NAME}_foundation
+                ${PROJECT_NAME}_registry
                 ${PROJECT_NAME}_sys_platform
                 ${PROJECT_NAME}_sys_robot
                 ${PROJECT_NAME}

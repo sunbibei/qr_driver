@@ -6,7 +6,7 @@
  */
 
 #include <repository/control_toolbox/pid.h>
-#include <system/foundation/cfg_reader.h>
+#include <foundation/cfg_reader.h>
 
 #include <boost/algorithm/clamp.hpp>
 #include <fstream>
