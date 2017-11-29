@@ -150,7 +150,7 @@
 	<!-- User Layer -->
 	<wrapper>
 		<!-- The necessary parameters are asked by MiiRobot -->
-		<robot control="true" frequency="50">
+		<robot control="false" frequency="50">
 			<joints     labels="qr.res.fl.yaw qr.res.fl.hip qr.res.fl.knee
 												  qr.res.hl.yaw qr.res.hl.hip qr.res.hl.knee
 												  qr.res.fr.yaw qr.res.fr.hip qr.res.fr.knee
