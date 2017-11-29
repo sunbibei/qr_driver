@@ -94,12 +94,12 @@ bool ArmPcan::read(Packet& pkt) {
 
       pkt.bus_id  = bus_id_;
       pkt.node_id = 0x08;
-      pkt.msg_id  = recv_msg_.DATA[0] & 0xf - 0x1;
+      pkt.msg_id  = ((recv_msg_.DATA[0] & 0x0f) - 0x01);
       pkt.size    = 2;
       memset(pkt.data, '\0', 8 * sizeof(char));
       pkt.data[0] = recv_msg_.DATA[3];
       pkt.data[1] = recv_msg_.DATA[4];
-      if (false && 0x2 == pkt.msg_id)
+      if (false && 0x02 == pkt.msg_id)
         printf("  - ID:0x%03X LEN:%1x DATA:0x%02X 0x%02X 0x%02X 0x%02X 0x%02X\n",
           (int)recv_msg_.ID, (int)recv_msg_.LEN,
           (int)recv_msg_.DATA[0], (int)recv_msg_.DATA[1],
