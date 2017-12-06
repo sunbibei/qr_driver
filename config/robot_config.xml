@@ -5,16 +5,16 @@
 	<!-- All of the hardwares list here, and it will be automatic instance -->
 	<res attr="resources">
 		<fl>
-			<yaw  auto_inst="middleware::Joint" leg="fl" jnt="yaw"  name="fl_yaw" limits_c="1590 2060" limits="-0.262618 0.228256" />
-			<hip  auto_inst="middleware::Joint" leg="fl" jnt="hip"  name="fl_hip" limits_c="2035 2780" limits="-0.132295 0.766618" />
-			<knee auto_inst="middleware::Joint" leg="fl" jnt="knee" name="fl_knee" limits_c="1690 2430" limits="-1.54981 -0.667767" />
+			<yaw  auto_inst="middleware::Joint" leg="fl" jnt="yaw"  name="fl_yaw" limits_c="1590 2060" limits="-0.307764 0.416252 " />
+			<hip  auto_inst="middleware::Joint" leg="fl" jnt="hip"  name="fl_hip" limits_c="2035 2780" limits="-0.282350 0.872703" />
+			<knee auto_inst="middleware::Joint" leg="fl" jnt="knee" name="fl_knee" limits_c="1690 2430" limits="-1.727743 -0.617174" />
 			<td   auto_inst="middleware::ForceSensor" leg="fl"                     />
 		</fl>
 
 		<hl>
-			<yaw  auto_inst="middleware::Joint" leg="hl" jnt="yaw"  name="hl_yaw"  limits_c="1912 2400" limits="-0.219662 0.285018" />
-			<hip  auto_inst="middleware::Joint" leg="hl" jnt="hip"  name="hl_hip"  limits_c="160 1212" limits="-0.685826 0.191611" />
-			<knee auto_inst="middleware::Joint" leg="hl" jnt="knee" name="hl_knee" limits_c="802 1585" limits="0.655694 1.58068" />
+			<yaw  auto_inst="middleware::Joint" leg="hl" jnt="yaw"  name="hl_yaw"  limits_c="1912 2400" limits="-0.416396 0.341368" />
+			<hip  auto_inst="middleware::Joint" leg="hl" jnt="hip"  name="hl_hip"  limits_c="160 1212" limits="-0.873408 0.243297" />
+			<knee auto_inst="middleware::Joint" leg="hl" jnt="knee" name="hl_knee" limits_c="802 1585" limits="0.649506 1.796890" />
 			<td   auto_inst="middleware::ForceSensor" leg="hl"                     />
 		</hl>
 
@@ -26,9 +26,9 @@
 		</fr>
 
 		<hr>
-			<yaw  auto_inst="middleware::Joint" leg="hr" jnt="yaw"  name="hr_yaw"  limits_c="1594 2076" limits="-0.301551 0.184721" />
-			<hip  auto_inst="middleware::Joint" leg="hr" jnt="hip"  name="hr_hip"  limits_c="1657 2424" limits="-0.779919 0.149673" />
-			<knee auto_inst="middleware::Joint" leg="hr" jnt="knee" name="hr_knee" limits_c="2036 2812" limits="0.710949 1.64975" />
+			<yaw  auto_inst="middleware::Joint" leg="hr" jnt="yaw"  name="hr_yaw"  limits_c="1599 2080" limits="-0.321524 0.416299" />
+			<hip  auto_inst="middleware::Joint" leg="hr" jnt="hip"  name="hr_hip"  limits_c="1713 2459" limits="-0.873221 0.271095" />
+			<knee auto_inst="middleware::Joint" leg="hr" jnt="knee" name="hr_knee" limits_c="2040 2808" limits="0.549817 1.727880" />
 			<td   auto_inst="middleware::ForceSensor" leg="hr"                     />
 		</hr>
 		<imu    auto_inst="middleware::ImuSensor" />
@@ -109,36 +109,36 @@
 			<node auto_inst="middleware::LegNode" leg="fl" node_id="0x02" >
 				<!-- ABS(scale) = \frac{360 \pi \alpha}{180*4096} = \frac{360\pi}{180*4096} -->
 				<!-- offset = - \frac{\pi}{18000}\alpha*\beta = -0.000174528*\beta -->
-				<joint_0     jnt="yaw"  label="qr.res.fl.yaw"  scale="1"  offset="16200" />
-				<joint_1     jnt="hip"  label="qr.res.fl.hip"  scale="-1" offset="23034" />
-				<joint_2     jnt="knee" label="qr.res.fl.knee" scale="1"  offset="25180" />
+				<joint_0     jnt="yaw"  label="qr.res.fl.yaw"  scale="1"  offset="16386" limits_c="1593 2065" />
+				<joint_1     jnt="hip"  label="qr.res.fl.hip"  scale="-1" offset="22974" limits_c="2045 2798" />
+				<joint_2     jnt="knee" label="qr.res.fl.knee" scale="1"  offset="24630" limits_c="1676 2400" />
 				<touchdown              label="qr.res.fl.td" />
 			</node>
 		</lf>
 
 		<hl>
 			<node auto_inst="middleware::LegNode" leg="hl" node_id="0x03" >
-				<joint_0     jnt="yaw"  label="qr.res.hl.yaw"  scale="-1" offset="19176" />
-				<joint_1     jnt="hip"  label="qr.res.hl.hip"  scale="-1" offset="5316" />
-				<joint_2     jnt="knee" label="qr.res.hl.knee" scale="1"  offset="3940" />
+				<joint_0     jnt="yaw"  label="qr.res.hl.yaw"  scale="-1" offset="19296" limits_c="1924 2418" />
+				<joint_1     jnt="hip"  label="qr.res.hl.hip"  scale="-1" offset="5437"  limits_c="460 1188" />
+				<joint_2     jnt="knee" label="qr.res.hl.knee" scale="1"  offset="3424"  limits_c="813 1561" />
 				<touchdown              label="qr.res.hl.td" />
 			</node>
 		</hl>
 
 		<fr>
 			<node auto_inst="middleware::LegNode" leg="fr" node_id="0x04" >
-				<joint_0     jnt="yaw"  label="qr.res.fr.yaw"  scale="1"  offset="18146" />
-				<joint_1     jnt="hip"  label="qr.res.fr.hip"  scale="1"  offset="2346"  />
-				<joint_2     jnt="knee" label="qr.res.fr.knee" scale="-1" offset="15590"  />
+				<joint_0     jnt="yaw"  label="qr.res.fr.yaw"  scale="1"  offset="18146" limits_c="2200 2907" />
+				<joint_1     jnt="hip"  label="qr.res.fr.hip"  scale="1"  offset="2346"  limits_c="79 871" />
+				<joint_2     jnt="knee" label="qr.res.fr.knee" scale="-1" offset="15590" limits_c="1785 2232"  />
 				<touchdown              label="qr.res.fr.td" />
 			</node>
 		</fr>
 
 		<hr>
 			<node auto_inst="middleware::LegNode" leg="hr" node_id="0x05" >
-				<joint_0     jnt="yaw"  label="qr.res.hr.yaw"  scale="-1" offset="15824"  />
-				<joint_1     jnt="hip"  label="qr.res.hr.hip"  scale="1"  offset="19744" />
-				<joint_2     jnt="knee" label="qr.res.hr.knee" scale="-1" offset="28050"   />
+				<joint_0     jnt="yaw"  label="qr.res.hr.yaw"  scale="-1" offset="16000" limits_c="1599 2080"  />
+				<joint_1     jnt="hip"  label="qr.res.hr.hip"  scale="1"  offset="20059" limits_c="1713 2459" />
+				<joint_2     jnt="knee" label="qr.res.hr.knee" scale="-1" offset="27830" limits_c="2040 2808"   />
 				<touchdown              label="qr.res.hr.td" />
 			</node>
 		</hr>

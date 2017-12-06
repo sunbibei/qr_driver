@@ -49,10 +49,6 @@ bool Power::init() {
     cfg->get_value(_l, "sub_node_id", des.power_sub_node);
     LEG_IDX_MAP.insert(std::make_pair(leg, des));
   }*/
-
-    _l = Label::make_label(getLabel(), "map_" + std::to_string(++count));
-  }
-
   power_infor_ = new PowerInfor;
   power_error_ = new PowerError;
   return true;
