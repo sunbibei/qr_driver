@@ -82,6 +82,7 @@ bool LegNode::init() {
     jnt_mods_[jnt->joint_type()]       = jnt->joint_command_mode_const_pointer();
 
     tag = Label::make_label(getLabel(), "joint_" + std::to_string(++count));
+    if (3 == count) break;
   }
 
   tag = Label::make_label(getLabel(), "touchdown");

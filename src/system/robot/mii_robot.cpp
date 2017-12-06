@@ -86,7 +86,7 @@ struct __RegImuRes {
 
 void MiiRobot::auto_inst(const MiiString& __p, const MiiString& __type) {
   if (!AutoInstanceor::instance()->make_instance(__p, __type)) {
-    LOG_WARNING << "Create instance(" << __type << " " << __p << ") fail!";
+    LOG_ERROR << "Create instance(" << __type << " " << __p << ") fail!";
   }
 }
 
@@ -126,7 +126,7 @@ bool MiiRobot::init() {
   // All of the objects mark with "auto_inst" in the configure file
   // will be instanced here.
   LOG_DEBUG << "Now, We are ready to auto_inst object in the configure file.";
-  cfg->registerCallbackAndExcute("auto_inst", MiiRobot::auto_inst);
+  cfg->regAttrCb("auto_inst", MiiRobot::auto_inst);
   // Just for debug
   LOG_DEBUG << "Auto instance has finished. The results list as follow:";
   Label::printfEveryInstance();
@@ -155,7 +155,7 @@ bool MiiRobot::init() {
   imu_sensor_  = Label::getHardwareByName<ImuSensor>(imu_name);
 
   bool is_start_owner_ctrl = false;
-  cfg->get_value(prefix_tag_, "control", is_start_owner_ctrl);
+  cfg->get_value(prefix_tag_, "mii_control", is_start_owner_ctrl);
   if (is_start_owner_ctrl) {
     __reg_resource_and_command();
     Registry::instance()->print();

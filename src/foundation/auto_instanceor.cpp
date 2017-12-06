@@ -5,14 +5,19 @@
  *      Author: bibei
  */
 
-#include <foundation/utf.h>
 #include "foundation/auto_instanceor.h"
-
+#include "foundation/label.h"
 // Cancel the namespace middleware
 // namespace middleware {
 
 // std::map<MiiString, Label::LabelPtr> AutoInstanceor::s_inst_table_;
 SINGLETON_IMPL_NO_CREATE(AutoInstanceor)
+
+void __updateTypeMap(class_loader::ClassLoader* _new_loader, int idx, MiiMap<MiiString, int>& _type_map) {
+  auto new_class_list = _new_loader->getAvailableClasses<Label>();
+  for (const auto& c : new_class_list)
+    _type_map[c] = idx;
+}
 
 AutoInstanceor* AutoInstanceor::create_instance(const MiiString& lib) {
   if (nullptr != instance_) {
@@ -23,19 +28,48 @@ AutoInstanceor* AutoInstanceor::create_instance(const MiiString& lib) {
   return instance_;
 }
 
-
 AutoInstanceor::AutoInstanceor(const MiiString& lib_path)
-  : class_loader_(nullptr) {
-  class_loader_ = new class_loader::ClassLoader(lib_path);
+  : class_loader_(nullptr), n_library_(0), N_loader_(4) {
+  // class_loader_ = new class_loader::MultiLibraryClassLoader(true);
+  // class_loader_->loadLibrary(lib_path);
+  class_loader_             = new class_loader::ClassLoader*[N_loader_];
+  for (size_t i = 0; i < N_loader_; ++i) class_loader_[i] = nullptr;
 
-  // Just for debug
+  class_loader_[n_library_] = new class_loader::ClassLoader(lib_path);
+  __updateTypeMap(class_loader_[n_library_], n_library_, type_map_);
+  ++n_library_;
+  // printAvailableClass();
+}
+
+bool AutoInstanceor::add_library(const MiiString& _l) {
+  if (n_library_ == N_loader_) {
+    N_loader_ *= 2;
+    auto tmp = new class_loader::ClassLoader*[N_loader_];
+    for (size_t i = 0; i < N_loader_;  ++i) tmp[i] = nullptr;
+    for (size_t i = 0; i < n_library_; ++i) tmp[i] = class_loader_[i];
+
+    delete[] class_loader_;
+    class_loader_ = tmp;
+  }
+
+  class_loader_[n_library_] = new class_loader::ClassLoader(_l);
+  __updateTypeMap(class_loader_[n_library_], n_library_, type_map_);
+  ++n_library_;
+  return true;
+}
+
+// Just for debug
+void AutoInstanceor::printAvailableClass() {
   if (_DEBUG_INFO_FLAG) {
     LOG_WARNING << "+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-";
-    auto class_list = class_loader_->getAvailableClasses<Label>();
-    LOG_INFO << "Available Classes: ";
-    int count = 0;
-    for (const auto& c : class_list)
-      LOG_INFO << "    " << count++ << ")  " << c;
+    for (size_t i = 0; i < n_library_; ++i) {
+      auto class_list = class_loader_[i]->getAvailableClasses<Label>();
+      LOG_INFO << "Available Classes[" << i << "]: ";
+      int count = 0;
+      for (const auto& c : class_list)
+        LOG_INFO << "    " << count++ << ")  " << c;
+      LOG_WARNING << "----------------------------------------";
+    }
     LOG_WARNING << "+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-";
   }
 }
@@ -45,27 +79,19 @@ AutoInstanceor::~AutoInstanceor() {
   Label::s_label_table_.clear();
   // The s_inst_table_ will be automatic dealloc.
   if (nullptr != class_loader_) {
-    delete class_loader_;
+    for (size_t  i = 0; i < N_loader_; ++i)
+      if (nullptr != class_loader_[i]) delete class_loader_[i];
+
+    delete[] class_loader_;
     class_loader_ = nullptr;
   }
 }
 
 bool AutoInstanceor::make_instance(const MiiString& __p, const MiiString& __type) {
-  auto class_list = class_loader_->getAvailableClasses<Label>();
-  bool found = false;
-  for (const auto& c : class_list) {
-    if (0 == c.compare(__type))
-      found = true;
-  }
-  if (!found) {
-    LOG_WARNING << "The type " << __type
-        << " has not found in the available class list.";
-    return false;
-  }/* else {
-    LOG_DEBUG << "Instance " << __type << " named by " << __p;
-  }*/
+  if (type_map_.end() == type_map_.find(__type)) return false;
 
-  Label::LabelPtr __inst = class_loader_->createInstance<Label>(__type);
+  int idx = type_map_[__type];
+  Label::LabelPtr __inst = class_loader_[idx]->createInstance<Label>(__type);
   // LOG_DEBUG << "createInstance<Label> OK! address: " << __inst.get();
   if (nullptr != __inst.get()) {
     // 情非得已， 不应该出现这样的代码。

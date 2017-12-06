@@ -11,7 +11,8 @@
 #include <map>
 #include <boost/shared_ptr.hpp>
 #include <class_loader/class_loader.h>
-#include <foundation/label.h>
+
+#include "utf.h"
 
 // Cancel the namespace middleware
 // namespace middleware {
@@ -29,10 +30,20 @@ public:
    * @param __type The type of object to create
    */
   bool make_instance(const MiiString& __p, const MiiString& __type);
+  /*!
+   * @brief Add a library into the AutoInstanceor.
+   */
+  bool add_library(const MiiString& _l);
+
+  // Just for debug.
+  void printAvailableClass();
 
 protected:
   // static MiiMap<MiiString, Label::LabelPtr> s_inst_table_;
-  class_loader::ClassLoader*                class_loader_;
+  class_loader::ClassLoader** class_loader_;
+  size_t                      n_library_;
+  size_t                      N_loader_;
+  MiiMap<MiiString, int>      type_map_;
 };
 
 //} /* namespace middleware */

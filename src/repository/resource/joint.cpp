@@ -73,7 +73,7 @@ bool Joint::init() {
         << "The attribute of limits should be equal to two(min, max).";
     joint_command_ = new JointCommand(-100, 100);
   }
-  LOG_DEBUG << getLabel() << ": " << limits[0] << " " << limits[1];
+  // LOG_DEBUG << getLabel() << ": " << limits[0] << " " << limits[1];
   joint_command_ = ((limits[0] > limits[1]) ?
       (new JointCommand(limits[1], limits[0]))
     : (new JointCommand(limits[0], limits[1])));
