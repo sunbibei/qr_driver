@@ -37,7 +37,7 @@ void JointManager::add(Joint* _res) {
     return;
   }
   jnt_list_by_type_[_res->owner_type()][_res->joint_type()] = _res;
-  LOG_DEBUG << "JointManager has received a joint -- " << _res->getLabel();
+  // LOG_DEBUG << "JointManager has received a joint -- " << _res->getLabel();
 }
 
 JointManager::iterator JointManager::find(const MiiString& _n) {

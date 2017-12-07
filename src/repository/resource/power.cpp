@@ -38,7 +38,7 @@ Power::Power(const MiiString& _l)
 }
 
 bool Power::init() {
-  auto cfg = MiiCfgReader::instance();
+  // auto cfg = MiiCfgReader::instance();
 
   /*LegType leg = LegType::UNKNOWN_LEG;
   int count = 0;

@@ -7,6 +7,8 @@
 
 #include <repository/registry.h>
 
+#include <iostream>
+
 namespace middleware {
 
 SINGLETON_IMPL(Registry)
@@ -103,6 +105,27 @@ void Registry::print() {
     }
     LOG_WARNING << "+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+";
   }
+  /*if (true) {
+    std::cout << "+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+" << std::endl;
+    std::cout << "The size of resource Registry: " << res_origin_.size() << std::endl;
+    std::cout << "-------------------------------------------------------------" << std::endl;
+    std::cout << "COUNT\tNAME\t\tTYPE\t\tADDR" << std::endl;
+    int count = 0;
+    for (const auto& l : res_origin_) {
+      std::cout << count++ << "\t" << l.first << "\t" << getTypeName(l.second)
+          << "  " << l.second << std::endl;
+    }
+    std::cout << "-------------------------------------------------------------" << std::endl;
+    std::cout << "The size of command Registry: " << cmd_origin_.size() << std::endl;
+    std::cout << "-------------------------------------------------------------" << std::endl;
+    std::cout << "COUNT\tNAME\t\tTYPE\t\tADDR" << std::endl;
+    count = 0;
+    for (const auto& l : cmd_origin_) {
+      std::cout << count++ << "\t" << l.first << "\t" << getTypeName(l.second)
+          << "  " << l.second << std::endl;
+    }
+    std::cout << "+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+" << std::endl;
+  }*/
 }
 
 } /* namespace middleware */

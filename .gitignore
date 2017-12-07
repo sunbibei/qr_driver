@@ -4,3 +4,4 @@ doc
 .settings/*
 Debug/*
 /Debug/
+config/all.cfg
