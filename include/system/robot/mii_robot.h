@@ -84,14 +84,15 @@ protected:
 
   class ImuSensor*   imu_sensor_;
 
-  bool                      run_mii_ctrl_;
+  bool                      mii_ctrl_alive_;
   std::chrono::milliseconds tick_interval_;
 private:
+  bool                 use_mii_control_;
   class __RegJntRes*   jnt_reg_res_;
   class __RegForceRes* td_reg_res_;
   class __RegImuRes*   imu_reg_res_;
   ///! The helper method
-  void __reg_resource_and_command();
+  void __reg_resource_and_command(const MiiString&);
 };
 
 } /* namespace middleware */

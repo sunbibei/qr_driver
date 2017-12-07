@@ -9,9 +9,13 @@
 #ifndef INCLUDE_SYSTEM_UTILS_UTF_H_
 #define INCLUDE_SYSTEM_UTILS_UTF_H_
 
+// #define USING_STD_IO
+
 #ifndef USING_STD_IO
 #include <glog/logging.h>
 #include <glog/log_severity.h>
+#else
+#include <iostream>
 #endif
 
 #include <vector>
