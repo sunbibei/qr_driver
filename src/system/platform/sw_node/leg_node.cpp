@@ -142,10 +142,13 @@ bool LegNode::generateCmd(MiiVector<Packet>& pkts) {
 
   // TODO Judge the mode of command
   // switch (*jnt_mods_[])
+  
+  short debuf_count[3] = {0};
   for (const auto& type : {JntType::KNEE, JntType::HIP, JntType::YAW}) {
     if (jnts_by_type_[type]->new_command_) {
       is_any_valid = true;
       count = (*jnt_cmds_[type] - jnt_params_[type]->offset) / jnt_params_[type]->scale;
+      debuf_count[type] = count;
       memcpy(cmd.data + offset, &count, sizeof(count));
       jnts_by_type_[type]->new_command_ = false;
     } else {
@@ -154,7 +157,16 @@ bool LegNode::generateCmd(MiiVector<Packet>& pkts) {
     }
     offset += 2; // Each count stand two bytes.
   }
+  if (false && is_any_valid) {
+    std::cout << leg_ << " - ";
+    for (const auto& type : {JntType::KNEE, JntType::HIP, JntType::YAW}) {
+      printf(" %d:(%+1.6f -- %04d)", type, *jnt_cmds_[type], debuf_count[type]);
+      // std::cout << " " << type << ": (" << *jnt_cmds_[type] << " -- " << count << ")";
+    }
+    std::cout << std::endl;
+  }
   
+
   if (is_any_valid) pkts.push_back(cmd);
   return is_any_valid;
 }

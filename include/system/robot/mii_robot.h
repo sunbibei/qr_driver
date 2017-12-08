@@ -26,7 +26,7 @@ public:
    */
   virtual void create_system_instance();
 
-  virtual bool init();
+  virtual bool init(bool use_mii_control);
 
   virtual bool start();
 
@@ -64,7 +64,8 @@ public:
 protected:
   /**
    * @brief Constructed function.
-   * @param __tag Every necessary parameters will be found in this __tag
+   * @param _tag         Every necessary parameters will be found in this __tag
+   * @param _mii_control Is use the Mii Control
    */
   MiiRobot(const MiiString& __tag);
   virtual ~MiiRobot();
@@ -85,7 +86,9 @@ protected:
   class ImuSensor*   imu_sensor_;
 
   bool                      mii_ctrl_alive_;
+  
   std::chrono::milliseconds tick_interval_;
+
 private:
   bool                 use_mii_control_;
   class __RegJntRes*   jnt_reg_res_;

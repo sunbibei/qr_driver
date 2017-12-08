@@ -18,11 +18,23 @@
 #include <iostream>
 #endif
 
+// #include <Eigen/Dense>
 #include <vector>
 #include <string>
 #include <map>
 // #include <iostream>
+//
 
+#define EV2 Eigen::Vector2d
+#define EV3 Eigen::Vector3d
+#define EVX Eigen::VectorXd
+#define EM3 Eigen::Matrix3d
+#define EMX Eigen::MatrixXd
+ 
+/*typedef Eigen::Vector2d EV2;
+typedef Eigen::Vector3d EV3;
+typedef Eigen::Matrix3d EM3;
+typedef Eigen::MatrixXd EMX;*/
 // cancel the namespace middleware
 // namespace middleware {
 #define TIMER_INIT \

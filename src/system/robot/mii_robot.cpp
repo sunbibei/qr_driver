@@ -115,7 +115,7 @@ void MiiRobot::create_system_instance() {
     LOG_FATAL << "Create the singleton 'JointManager' has failed.";
 }
 
-bool MiiRobot::init() {
+bool MiiRobot::init(bool use_mii_control) {
   create_system_instance();
 
   auto cfg = MiiCfgReader::instance();
@@ -124,7 +124,8 @@ bool MiiRobot::init() {
         << "method must to be called by subclass before MiiRobot::init()";
   }
 
-  cfg->get_value(prefix_tag_, "mii_control", use_mii_control_);
+  use_mii_control_ = use_mii_control;
+  // cfg->get_value(prefix_tag_, "mii_control", use_mii_control_);
   // All of the objects mark with "auto_inst" in the configure file
   // will be instanced here.
   LOG_DEBUG << "Now, We are ready to auto_inst object in the configure file.";
