@@ -207,12 +207,14 @@ void MiiRobot::__reg_resource_and_command(const MiiString& _prefix) {
     cfg->get_value_fatal(_leg_tag, "td_resource", str);
     REG_RESOURCE(str, td_list_by_type_[leg]->force_data_const_pointer());
 
-    MiiVector<MiiString> ress;
-    cfg->get_value_fatal(_leg_tag, "resource", ress);
-    if (3 != ress.size()) LOG_FATAL << "The format of resource is wrong in the '" << _leg_tag << "' tag.";
-    REG_RESOURCE(ress[0], jnt_reg_res_->resource[leg][JntDataType::POS]);
-    REG_RESOURCE(ress[1], jnt_reg_res_->resource[leg][JntDataType::VEL]);
-    REG_RESOURCE(ress[2], jnt_reg_res_->resource[leg][JntDataType::TOR]);
+    cfg->get_value_fatal(_leg_tag, "pos", str);
+    REG_RESOURCE(str, jnt_reg_res_->resource[leg][JntDataType::POS]);
+
+    cfg->get_value_fatal(_leg_tag, "vel", str);
+    REG_RESOURCE(str, jnt_reg_res_->resource[leg][JntDataType::VEL]);
+
+    cfg->get_value_fatal(_leg_tag, "tor", str);
+    REG_RESOURCE(str, jnt_reg_res_->resource[leg][JntDataType::TOR]);
 
     _leg_tag = Label::make_label(
         Label::make_label(_prefix, "legs"), "leg_" + std::to_string(++count));
@@ -239,11 +241,11 @@ void MiiRobot::supportRegistry() {
   mii_ctrl_alive_ = true;
   while (mii_ctrl_alive_) {
     /// read joint states
-    for (const auto& l : {LegType::FL, LegType::HL, LegType::FR, LegType::HR}) {
-      for (const auto& j : {JntType::KNEE, JntType::HIP, JntType::YAW})
-        for (const auto& d : {JntDataType::POS, JntDataType::VEL, JntDataType::TOR})
-          (*(jnt_reg_res_->resource[l][j]))(d) = (*jnt_manager_)(l, j, d);
-    }
+    for (const auto& l : {LegType::FL, LegType::HL, LegType::FR, LegType::HR})
+      for (const auto& d : {JntDataType::POS, JntDataType::VEL, JntDataType::TOR})
+        for (const auto& j : {JntType::KNEE, JntType::HIP, JntType::YAW})
+          (*(jnt_reg_res_->resource[l][d]))(j) = (*jnt_manager_)(l, j, d);
+    
     // TODO IMU
 
     // write
