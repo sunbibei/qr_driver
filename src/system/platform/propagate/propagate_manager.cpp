@@ -55,7 +55,7 @@ bool PropagateManager::run() {
 
   if (_DEBUG_INFO_FLAG) {
     LOG_WARNING << "+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+";
-    LOG_WARNING << "The list of Propagate, size = " << res_list_.size();
+    LOG_INFO << "The list of Propagate, size = " << res_list_.size();
     LOG_WARNING << "-----------------------------------------------------";
     for (size_t i = 0; i < res_list_.size(); ++i)
       LOG_INFO << i + 1 << ": " << res_list_[i]->propa_name_ << "\t"

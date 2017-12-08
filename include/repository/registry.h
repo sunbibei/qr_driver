@@ -74,7 +74,7 @@ _DataType Registry::resource(const MiiString& _res_name) {
 
 template <typename _DataType>
 _DataType Registry::command(const MiiString& _res_name) {
-  if (cmd_origin_.end() != cmd_origin_.find(_res_name)) {
+  if (cmd_origin_.end() == cmd_origin_.find(_res_name)) {
     return _DataType(nullptr);
   }
 
