@@ -250,10 +250,12 @@ void MiiRobot::supportRegistry() {
     // TODO IMU
 
     // write
-    for (const auto& l : {LegType::FL, LegType::HL, LegType::FR, LegType::HR}) {
-      auto& cmd_ref = *jnt_reg_res_->command[l];
-      for (const auto& j : {JntType::KNEE, JntType::HIP, JntType::YAW})
-        jnt_manager_->addJointCommand(l, j, cmd_ref(j));
+    if (use_mii_control_) {
+      for (const auto& l : {LegType::FL, LegType::HL, LegType::FR, LegType::HR}) {
+        auto& cmd_ref = *jnt_reg_res_->command[l];
+        for (const auto& j : {JntType::KNEE, JntType::HIP, JntType::YAW})
+          jnt_manager_->addJointCommand(l, j, cmd_ref(j));
+      }
     }
 
     TIMER_CONTROL(tick_interval_)
