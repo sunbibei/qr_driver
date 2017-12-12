@@ -108,6 +108,16 @@ using MiiMap    =  std::map<_Key, _Value>;
 // typedef std::string MiiString;
 using MiiString = std::string;
 
+enum JntCmdType {
+  UNKNOWN_CMD_TYPE = -1,
+  CMD_POS = 0,
+  CMD_VEL,
+  CMD_TOR,
+  CMD_POS_VEL,
+  N_JNT_CMD_TYPES,
+};
+
+
 enum JntDataType {
   UNKNOWN_TYPE = -1,
   POS = 0,

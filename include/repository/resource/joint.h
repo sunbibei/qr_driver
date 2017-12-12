@@ -42,16 +42,17 @@ public:
 
   ///! About joint command, This is only way that the user update the joint command.
   void updateJointCommand(double);
-  void updateJointCommand(JntDataType);
-  void updateJointCommand(double, JntDataType);
+  ///! The first value is position, the second value is velocity.
+  void updateJointCommand(double, double);
 
-  double            joint_command();
-  const double&     joint_command_const_ref();
+  /*!
+   * The argument index is represent the command type.
+   * idx = 0 means the position command;
+   * idx = 1 means the velocity command, Only when under pos-vel mode is valid;
+   */
+  double            joint_command(size_t idx = 0);
+  const double&     joint_command_const_ref(size_t idx = 0);
   const double*     joint_command_const_pointer();
-
-  JntDataType        joint_command_mode();
-  const JntDataType& joint_command_mode_const_ref();
-  const JntDataType* joint_command_mode_const_pointer();
 
 protected:
   /**

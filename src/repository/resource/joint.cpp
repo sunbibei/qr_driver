@@ -31,14 +31,26 @@ struct JointState {
   std::chrono::high_resolution_clock::time_point previous_time_;
 };
 
+enum {
+  POS_CMD_IDX = 0,
+  VEL_CMD_IDX,
+};
+
 struct JointCommand {
-  double     command_;
-  JntDataType mode_;
-  const double MIN_POS_;
-  const double MAX_POS_;
-  JointCommand(double min, double max, double cmd = 0, JntDataType mode = JntDataType::POS)
-    : /*id_(0), */command_(cmd), mode_(mode),
-    MIN_POS_(min), MAX_POS_(max) { };
+  double*           command_;
+  const JntCmdType& mode_;
+  const double      MIN_POS_;
+  const double      MAX_POS_;
+  JointCommand(double min, double max, JntCmdType mode_ref, double cmd = 0)
+    : /*id_(0), */command_(nullptr), mode_(mode_ref),
+      MIN_POS_(min), MAX_POS_(max) {
+    command_  = new double[2];
+    *command_ = cmd;
+  };
+  ~JointCommand() {
+    if (command_) delete[] command_;
+    command_ = nullptr;
+  }
 };
 
 Joint::Joint(const MiiString& l)
@@ -71,12 +83,14 @@ bool Joint::init() {
   if (limits.size() < 2) {
     LOG_WARNING << "The attribute of " << getLabel() << " is wrong!"
         << "The attribute of limits should be equal to two(min, max).";
-    joint_command_ = new JointCommand(-100, 100);
+    joint_command_ = new JointCommand(-100, 100,
+        JointManager::instance()->getJointCommandMode());
+  } else {
+    // LOG_DEBUG << getLabel() << ": " << limits[0] << " " << limits[1];
+    joint_command_ = ((limits[0] > limits[1]) ?
+        (new JointCommand(limits[1], limits[0], JointManager::instance()->getJointCommandMode()))
+      : (new JointCommand(limits[0], limits[1], JointManager::instance()->getJointCommandMode())));
   }
-  // LOG_DEBUG << getLabel() << ": " << limits[0] << " " << limits[1];
-  joint_command_ = ((limits[0] > limits[1]) ?
-      (new JointCommand(limits[1], limits[0]))
-    : (new JointCommand(limits[0], limits[1])));
 
   joint_state_   = new JointState();
   JointManager::instance()->add(this);
@@ -135,8 +149,12 @@ const double* Joint::joint_torque_const_pointer() {
 
 // About joint command
 void Joint::updateJointCommand(double v) {
-  // joint_command_->command_ = v;
-  joint_command_->command_ = boost::algorithm::clamp(v,
+  if (JntCmdType::CMD_POS != joint_command_->mode_) {
+    LOG_ERROR << "Mode not match! The current mode: " << joint_command_->mode_
+        << ", but the given " << JntCmdType::CMD_POS << " command";
+    return;
+  }
+  joint_command_->command_[POS_CMD_IDX] = boost::algorithm::clamp(v,
                                   joint_command_->MIN_POS_,
                                   joint_command_->MAX_POS_);
   // LOG_DEBUG << "update joint(" << jnt_name_ << ") command: "
@@ -144,36 +162,31 @@ void Joint::updateJointCommand(double v) {
   new_command_ = true;
 }
 
-void Joint::updateJointCommand(JntDataType mode) {
-  joint_command_->mode_ = mode;
+void Joint::updateJointCommand(double v0, double v1) {
+  if (JntCmdType::CMD_POS_VEL != joint_command_->mode_) {
+    LOG_ERROR << "Mode not match! The current mode: " << joint_command_->mode_
+        << ", but the given " << JntCmdType::CMD_POS_VEL << " command";
+    return;
+  }
+  joint_command_->command_[POS_CMD_IDX] = boost::algorithm::clamp(v0,
+                                  joint_command_->MIN_POS_,
+                                  joint_command_->MAX_POS_);
+  joint_command_->command_[VEL_CMD_IDX] = v1;
+  // LOG_DEBUG << "update joint(" << jnt_name_ << ") command: "
+  //           << joint_command_->command_;
+  new_command_ = true;
 }
 
-void Joint::updateJointCommand(double v, JntDataType t) {
-  updateJointCommand(t);
-  updateJointCommand(v);
+double Joint::joint_command(size_t idx /*= POS_CMD_IDX*/) {
+  return joint_command_->command_[idx];
 }
 
-double Joint::joint_command() {
-  return joint_command_->command_;
-}
-
-const double& Joint::joint_command_const_ref() {
-  return joint_command_->command_;
+const double& Joint::joint_command_const_ref(size_t idx /*= POS_CMD_IDX*/) {
+  return joint_command_->command_[idx];
 }
 
 const double* Joint::joint_command_const_pointer() {
-  return &(joint_command_->command_);
-}
-
-JntDataType Joint::joint_command_mode() {
-  return joint_command_->mode_;
-}
-
-const JntDataType& Joint::joint_command_mode_const_ref() {
-  return joint_command_->mode_;
-}
-const JntDataType* Joint::joint_command_mode_const_pointer() {
-  return &(joint_command_->mode_);
+  return joint_command_->command_;
 }
 
 } /* namespace middleware */

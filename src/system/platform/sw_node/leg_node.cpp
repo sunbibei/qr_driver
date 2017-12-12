@@ -11,6 +11,7 @@
 #include <boost/algorithm/string.hpp>
 
 #include <repository/resource/force_sensor.h>
+#include <repository/resource/joint_manager.h>
 #include <repository/resource/joint.h>
 #include <system/platform/sw_node/leg_node.h>
 #include "system/platform/protocol/qr_protocol.h"
@@ -19,8 +20,9 @@
 
 namespace middleware {
 
-const size_t JNT_CMD_DATA_SIZE = 6;
-
+const size_t JNT_P_CMD_DSIZE   = 6;
+const size_t JNT_PV0_CMD_DSIZE = 8;
+const size_t JNT_PV1_CMD_DSIZE = 4;
 // angle = \frac{360 \pi \alpha}{180*4096} C - \frac{\pi}{18000}\alpha*\beta
 // so, the ABS(scale) = \frac{360 \pi \alpha}{180*4096} = \frac{360\pi}{180*4096}
 // offset = - \frac{\pi}{18000}\alpha*\beta = -0.000174528*\beta
@@ -30,10 +32,9 @@ struct __PrivateLinearParams {
 };
 
 LegNode::LegNode(const MiiString& __l)
-  : SWNode(__l), leg_(LegType::UNKNOWN_LEG), td_(nullptr) {
+  : SWNode(__l), leg_(LegType::UNKNOWN_LEG), td_(nullptr),
+    jnt_mode_(JointManager::instance()->getJointCommandMode()) {
   for (auto& c : jnt_cmds_)
-    c = nullptr;
-  for (auto& c : jnt_mods_)
     c = nullptr;
 }
 
@@ -76,10 +77,8 @@ bool LegNode::init() {
     cfg->get_value_fatal(tag, "offset", beta);
     param->scale  = alpha * 0.001533981;
     param->offset = alpha * beta * -0.000174528;
-    jnt_params_[jnt->joint_type()]  = param;
-
-    jnt_cmds_[jnt->joint_type()]       = jnt->joint_command_const_pointer();
-    jnt_mods_[jnt->joint_type()]       = jnt->joint_command_mode_const_pointer();
+    jnt_params_[jnt->joint_type()] = param;
+    jnt_cmds_[jnt->joint_type()]   = jnt->joint_command_const_pointer();
 
     tag = Label::make_label(getLabel(), "joint_" + std::to_string(++count));
     if (3 == count) break;
@@ -135,39 +134,103 @@ void LegNode::handleMsg(const Packet& pkt) {
 }
 
 bool LegNode::generateCmd(MiiVector<Packet>& pkts) {
+
+  Packet cmd;
+  bool is_any_valid = false;
+  switch (jnt_mode_) {
+  case JntCmdType::CMD_POS:
+    is_any_valid = __fill_pos_cmd(cmd);
+    break;
+  case JntCmdType::CMD_VEL:
+    is_any_valid = __fill_vel_cmd(cmd);
+    break;
+  case JntCmdType::CMD_TOR:
+    is_any_valid = __fill_tor_cmd(cmd);
+    break;
+  case JntCmdType::CMD_POS_VEL:
+    is_any_valid = __fill_pos_vel_cmd(cmd);
+    break;
+  default:
+    LOG_ERROR << "What a fucking the command mode of joint.";
+  }
+
+  if (is_any_valid) pkts.push_back(cmd);
+  return is_any_valid;
+}
+
+
+bool LegNode::__fill_pos_cmd(Packet& cmd) {
   int offset  = 0;
   short count = 0;
   bool is_any_valid = false;
-  Packet cmd{INVALID_BYTE, node_id_, MII_MSG_COMMON_DATA_1, JNT_CMD_DATA_SIZE, {0}};
-
-  // TODO Judge the mode of command
-  // switch (*jnt_mods_[])
-  
-  short debuf_count[3] = {0};
+  cmd = {INVALID_BYTE, node_id_, MII_MSG_COMMON_DATA_1, JNT_P_CMD_DSIZE, {0}};
   for (const auto& type : {JntType::KNEE, JntType::HIP, JntType::YAW}) {
     if (jnts_by_type_[type]->new_command_) {
       is_any_valid = true;
       count = (*jnt_cmds_[type] - jnt_params_[type]->offset) / jnt_params_[type]->scale;
-      debuf_count[type] = count;
       memcpy(cmd.data + offset, &count, sizeof(count));
       jnts_by_type_[type]->new_command_ = false;
     } else {
       cmd.data[offset]     = INVALID_BYTE;
       cmd.data[offset + 1] = INVALID_BYTE;
     }
-    offset += 2; // Each count stand two bytes.
+    offset += sizeof(count); // Each count stand two bytes.
   }
-  if (false && is_any_valid) {
-    std::cout << leg_ << " - ";
-    for (const auto& type : {JntType::KNEE, JntType::HIP, JntType::YAW}) {
-      printf(" %d:(%+1.6f -- %04d)", type, *jnt_cmds_[type], debuf_count[type]);
-      // std::cout << " " << type << ": (" << *jnt_cmds_[type] << " -- " << count << ")";
-    }
-    std::cout << std::endl;
-  }
-  
 
-  if (is_any_valid) pkts.push_back(cmd);
+  return is_any_valid;
+}
+
+bool LegNode::__fill_vel_cmd(Packet& cmd) {
+  cmd = {INVALID_BYTE, node_id_, MII_MSG_MOTOR_CMD_1, JNT_P_CMD_DSIZE, {0}};
+  LOG_ERROR << "No implement velocity command!";
+  return false;
+}
+
+bool LegNode::__fill_tor_cmd(Packet&) {
+  LOG_ERROR << "No implement torque command!";
+  return false;
+}
+
+bool LegNode::__fill_pos_vel_cmd(Packet& cmd) {
+  int offset  = 0;
+  short count = 0;
+  bool is_any_valid = false;
+  cmd = {INVALID_BYTE, node_id_, MII_MSG_COMMON_DATA_4, JNT_PV0_CMD_DSIZE, {0}};
+  for (const auto& type : {JntType::KNEE, JntType::HIP}) {
+    if (jnts_by_type_[type]->new_command_) {
+      is_any_valid = true;
+      count = (jnt_cmds_[type][0] - jnt_params_[type]->offset) / jnt_params_[type]->scale;
+      memcpy(cmd.data + offset, &count, sizeof(count));
+
+      count = (jnt_cmds_[type][1] - jnt_params_[type]->offset) / jnt_params_[type]->scale;
+      memcpy(cmd.data + offset + sizeof(count), &count, sizeof(count));
+      jnts_by_type_[type]->new_command_ = false;
+    } else {
+      memset(cmd.data + offset, INVALID_BYTE, 2*sizeof(count));
+    }
+
+    offset += 2*sizeof(count); // Each count stand 2*two bytes.
+  }
+  if (is_any_valid) return is_any_valid;
+
+  ///! TODO The knee and hip joint command is considered first.
+  cmd.msg_id = MII_MSG_COMMON_DATA_5;
+  cmd.size   = JNT_PV1_CMD_DSIZE;
+  if (jnts_by_type_[JntType::YAW]->new_command_) {
+    is_any_valid = true;
+    count = (jnt_cmds_[JntType::YAW][0] - jnt_params_[JntType::YAW]->offset)
+        / jnt_params_[JntType::YAW]->scale;
+    memcpy(cmd.data + offset, &count, sizeof(count));
+
+    count = (jnt_cmds_[JntType::YAW][1] - jnt_params_[JntType::YAW]->offset)
+        / jnt_params_[JntType::YAW]->scale;
+    memcpy(cmd.data + offset + sizeof(count), &count, sizeof(count));
+    jnts_by_type_[JntType::YAW]->new_command_ = false;
+  } else {
+    memset(cmd.data + offset, INVALID_BYTE, 2*sizeof(count));
+  }
+
+  offset += 2*sizeof(count); // Each count stand 2*two bytes.
   return is_any_valid;
 }
 

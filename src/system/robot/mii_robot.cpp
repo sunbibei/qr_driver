@@ -124,6 +124,19 @@ bool MiiRobot::init(bool use_mii_control) {
         << "method must to be called by subclass before MiiRobot::init()";
   }
 
+  MiiString str;
+  cfg->get_value(prefix_tag_, "control_mode", str);
+  if (str.empty() || (0 == str.compare("position")))
+    JointManager::instance()->setJointCommandMode(JntCmdType::CMD_POS);
+  else if (0 == str.compare("velocity"))
+    JointManager::instance()->setJointCommandMode(JntCmdType::CMD_VEL);
+  else if (0 == str.compare("torque"))
+    JointManager::instance()->setJointCommandMode(JntCmdType::CMD_TOR);
+  else if (0 == str.compare("pos-vel"))
+    JointManager::instance()->setJointCommandMode(JntCmdType::CMD_POS_VEL);
+  else
+    ;
+
   use_mii_control_ = use_mii_control;
   // cfg->get_value(prefix_tag_, "mii_control", use_mii_control_);
   // All of the objects mark with "auto_inst" in the configure file

@@ -40,7 +40,11 @@ public:
   // void   addJointCommand(const MiiVector<LegType>&, const MiiVector<JntType>&, const MiiVector<double>&);
   void   addJointCommand(const MiiString&, double);
   // void   addJointCommand(const MiiString&, const MiiVector<double>&);
-  Joint* getJointByType(LegType, JntType);
+  Joint* getJointHandle(LegType, JntType);
+  Joint* getJointHandle(const MiiString&);
+  ///! get/set the type of joint command.
+  void   setJointCommandMode(JntCmdType);
+  const JntCmdType& getJointCommandMode();
 
   // get the JntDataType data
   double operator()(LegType, JntType, JntDataType);
@@ -78,6 +82,7 @@ protected:
   // Owner Size * Joint Size
   std::vector<std::vector<Joint*>>   jnt_list_by_type_;
   std::map<std::string, Joint*>      jnt_list_by_name_;
+  JntCmdType                         jnt_mode_;
 
 protected:
   virtual void add(Joint* _res) override;

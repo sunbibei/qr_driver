@@ -12,7 +12,8 @@ namespace middleware {
 SINGLETON_IMPL(JointManager)
 
 JointManager::JointManager()
-  : ResourceManager<Joint>() {
+  : ResourceManager<Joint>(),
+    jnt_mode_(JntCmdType::CMD_POS) {
   jnt_list_by_type_.resize(LegType::N_LEGS);
   for (auto& leg : jnt_list_by_type_) {
     leg.resize(JntType::N_JNTS);
@@ -60,8 +61,24 @@ void JointManager::addJointCommand(const MiiString& name, double val) {
     jnt_list_by_name_[name]->updateJointCommand(val);
 }
 
-Joint* JointManager::getJointByType(LegType owner, JntType type) {
+Joint* JointManager::getJointHandle(LegType owner, JntType type) {
   return jnt_list_by_type_[owner][type];
+}
+
+Joint* JointManager::getJointHandle(const MiiString& _jn) {
+  auto itr = jnt_list_by_name_.find(_jn);
+  if (jnt_list_by_name_.end() == itr)
+    return nullptr;
+
+  return itr->second;
+}
+
+void JointManager::setJointCommandMode(JntCmdType type) {
+  jnt_mode_ = type;
+}
+
+const JntCmdType& JointManager::getJointCommandMode() {
+  return jnt_mode_;
 }
 
 double JointManager::operator()(LegType owner, JntType type, JntDataType data) {

@@ -111,6 +111,14 @@ to Host  1| X|    NODE ID|        MSG ID|
 #define MII_MSG_COMMON_RESERVE    (010u)
 ///! The joint position command
 #define MII_MSG_COMMON_DATA_1     (011u)
+///! The joint velocity command
+#define MII_MSG_COMMON_DATA_2     (012u)
+///! The joint torque   command
+#define MII_MSG_COMMON_DATA_3     (013u)
+///! The knee and hip joint position and velocity command
+#define MII_MSG_COMMON_DATA_4     (014u)
+///! The yaw joint position and velocity command
+#define MII_MSG_COMMON_DATA_5     (015u)
 
 ///! The motor command id, offer the interface to control motor directly.
 #define MII_MSG_MOTOR_RESERVE     (020u)
