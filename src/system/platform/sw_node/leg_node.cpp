@@ -196,9 +196,11 @@ bool LegNode::__fill_pos_vel_cmd(Packet& cmd) {
   short count = 0;
   bool is_any_valid = false;
   cmd = {INVALID_BYTE, node_id_, MII_MSG_COMMON_DATA_4, JNT_PV0_CMD_DSIZE, {0}};
+
   for (const auto& type : {JntType::KNEE, JntType::HIP}) {
     if (jnts_by_type_[type]->new_command_) {
       is_any_valid = true;
+      // printf("[%d] - (%d): %+01.04f %+01.04f\n", leg_, type, jnt_cmds_[type][0], jnt_cmds_[type][1]);
       count = (jnt_cmds_[type][0] - jnt_params_[type]->offset) / jnt_params_[type]->scale;
       memcpy(cmd.data + offset, &count, sizeof(count));
 
@@ -211,13 +213,16 @@ bool LegNode::__fill_pos_vel_cmd(Packet& cmd) {
 
     offset += 2*sizeof(count); // Each count stand 2*two bytes.
   }
+
   if (is_any_valid) return is_any_valid;
+
 
   ///! TODO The knee and hip joint command is considered first.
   cmd.msg_id = MII_MSG_COMMON_DATA_5;
   cmd.size   = JNT_PV1_CMD_DSIZE;
   if (jnts_by_type_[JntType::YAW]->new_command_) {
     is_any_valid = true;
+    // printf("[%d] - (%d): %+01.04f %+01.04f\n", leg_, JntType::YAW, jnt_cmds_[JntType::YAW][0], jnt_cmds_[JntType::YAW][1]);
     count = (jnt_cmds_[JntType::YAW][0] - jnt_params_[JntType::YAW]->offset)
         / jnt_params_[JntType::YAW]->scale;
     memcpy(cmd.data + offset, &count, sizeof(count));

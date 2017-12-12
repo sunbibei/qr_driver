@@ -41,7 +41,8 @@ struct JointCommand {
   const JntCmdType& mode_;
   const double      MIN_POS_;
   const double      MAX_POS_;
-  JointCommand(double min, double max, JntCmdType mode_ref, double cmd = 0)
+
+  JointCommand(double min, double max, const JntCmdType& mode_ref, double cmd = 0)
     : /*id_(0), */command_(nullptr), mode_(mode_ref),
       MIN_POS_(min), MAX_POS_(max) {
     command_  = new double[2];
@@ -77,6 +78,9 @@ bool Joint::init() {
   cfg->get_value_fatal(getLabel(), "jnt",  jnt_type_);
   cfg->get_value_fatal(getLabel(), "leg",  leg_type_);
   cfg->get_value_fatal(getLabel(), "name", jnt_name_);
+  JointManager::instance()->add(this);
+
+  joint_state_   = new JointState();
 
   MiiVector<double> limits;
   cfg->get_value_fatal(getLabel(), "limits", limits);
@@ -86,14 +90,11 @@ bool Joint::init() {
     joint_command_ = new JointCommand(-100, 100,
         JointManager::instance()->getJointCommandMode());
   } else {
-    // LOG_DEBUG << getLabel() << ": " << limits[0] << " " << limits[1];
+    // LOG_INFO << getLabel() << ": " << JointManager::instance()->getJointCommandMode();
     joint_command_ = ((limits[0] > limits[1]) ?
         (new JointCommand(limits[1], limits[0], JointManager::instance()->getJointCommandMode()))
       : (new JointCommand(limits[0], limits[1], JointManager::instance()->getJointCommandMode())));
   }
-
-  joint_state_   = new JointState();
-  JointManager::instance()->add(this);
   return true;
 }
 
@@ -171,6 +172,7 @@ void Joint::updateJointCommand(double v0, double v1) {
   joint_command_->command_[POS_CMD_IDX] = boost::algorithm::clamp(v0,
                                   joint_command_->MIN_POS_,
                                   joint_command_->MAX_POS_);
+  // joint_command_->command_[POS_CMD_IDX] = v0;
   joint_command_->command_[VEL_CMD_IDX] = v1;
   // LOG_DEBUG << "update joint(" << jnt_name_ << ") command: "
   //           << joint_command_->command_;
