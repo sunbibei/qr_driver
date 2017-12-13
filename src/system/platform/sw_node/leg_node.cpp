@@ -203,10 +203,13 @@ bool LegNode::__fill_pos_vel_cmd(Packet& cmd) {
       // printf("[%d] - (%d): %+01.04f %+01.04f\n", leg_, type, jnt_cmds_[type][0], jnt_cmds_[type][1]);
       count = (jnt_cmds_[type][0] - jnt_params_[type]->offset) / jnt_params_[type]->scale;
       memcpy(cmd.data + offset, &count, sizeof(count));
+      // printf("[%d] - (%d): %04d ", leg_, type, count);
 
       count = (jnt_cmds_[type][1] - jnt_params_[type]->offset) / jnt_params_[type]->scale;
       memcpy(cmd.data + offset + sizeof(count), &count, sizeof(count));
       jnts_by_type_[type]->new_command_ = false;
+      // printf("%04d\n", count);
+
     } else {
       memset(cmd.data + offset, INVALID_BYTE, 2*sizeof(count));
     }
@@ -225,17 +228,18 @@ bool LegNode::__fill_pos_vel_cmd(Packet& cmd) {
     // printf("[%d] - (%d): %+01.04f %+01.04f\n", leg_, JntType::YAW, jnt_cmds_[JntType::YAW][0], jnt_cmds_[JntType::YAW][1]);
     count = (jnt_cmds_[JntType::YAW][0] - jnt_params_[JntType::YAW]->offset)
         / jnt_params_[JntType::YAW]->scale;
-    memcpy(cmd.data + offset, &count, sizeof(count));
+    memcpy(cmd.data, &count, sizeof(count));
+    // printf("[%d] - (%d): %04d ", leg_, JntType::YAW, count);
 
     count = (jnt_cmds_[JntType::YAW][1] - jnt_params_[JntType::YAW]->offset)
         / jnt_params_[JntType::YAW]->scale;
-    memcpy(cmd.data + offset + sizeof(count), &count, sizeof(count));
+    memcpy(cmd.data + sizeof(count), &count, sizeof(count));
     jnts_by_type_[JntType::YAW]->new_command_ = false;
+    // printf("%d\n", count);
   } else {
-    memset(cmd.data + offset, INVALID_BYTE, 2*sizeof(count));
+    memset(cmd.data, INVALID_BYTE, 2*sizeof(count));
   }
 
-  offset += 2*sizeof(count); // Each count stand 2*two bytes.
   return is_any_valid;
 }
 

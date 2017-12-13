@@ -137,6 +137,8 @@ bool MiiRobot::init(bool use_mii_control) {
   else
     ;
 
+  LOG_DEBUG << "The mode of control is '" << str << "'.";
+
   use_mii_control_ = use_mii_control;
   // cfg->get_value(prefix_tag_, "mii_control", use_mii_control_);
   // All of the objects mark with "auto_inst" in the configure file
