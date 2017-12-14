@@ -279,6 +279,11 @@ void MiiRobot::supportRegistry() {
 }
 
 MiiRobot::~MiiRobot() {
+  ///! safety control for joint, add the stop command during the shutdown.
+  for (auto& j : *jnt_manager_) {
+    j->stop();
+  }
+
   // LOG_DEBUG << "The deconstructor of MiiRobot is starting to work.";
   mii_ctrl_alive_ = false;
   Master::destroy_instance();

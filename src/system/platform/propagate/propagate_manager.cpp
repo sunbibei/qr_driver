@@ -64,11 +64,11 @@ bool PropagateManager::run() {
   }
   for (auto c : res_list_) {
     // for (auto c = begin(); c != end(); ++c) {
-    LOG_DEBUG << c->getLabel() << " is starting.";
+    // LOG_DEBUG << c->getLabel() << " is starting.";
     if (!c->start())
       LOG_ERROR << "The propagate '" << c->propa_name_ << "' starting FAIL.";
-    else
-      LOG_DEBUG << "The propagate '" << c->propa_name_ << "' has started.";
+    // else
+    //   LOG_DEBUG << "The propagate '" << c->propa_name_ << "' has started.";
   }
 
   ThreadPool::instance()->add(THREAD_R_NAME, &PropagateManager::updateRead,  this);

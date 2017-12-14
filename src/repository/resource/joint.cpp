@@ -158,8 +158,9 @@ void Joint::updateJointCommand(double v) {
   joint_command_->command_[POS_CMD_IDX] = boost::algorithm::clamp(v,
                                   joint_command_->MIN_POS_,
                                   joint_command_->MAX_POS_);
+  // if (0 == jnt_name_.compare("fl_hip"))
   // LOG_DEBUG << "update joint(" << jnt_name_ << ") command: "
-  //           << joint_command_->command_;
+  //           << joint_command_->command_[0];
   new_command_ = true;
 }
 
@@ -177,6 +178,19 @@ void Joint::updateJointCommand(double v0, double v1) {
   // LOG_DEBUG << "update joint(" << jnt_name_ << ") command: "
   //           << joint_command_->command_;
   new_command_ = true;
+}
+
+void Joint::stop() {
+  switch (joint_command_->mode_) {
+  case JntCmdType::CMD_POS:
+    updateJointCommand(joint_state_->pos_);
+    break;
+  case JntCmdType::CMD_VEL:
+  case JntCmdType::CMD_TOR:
+  case JntCmdType::CMD_POS_VEL:
+  default:
+    break;
+  }
 }
 
 double Joint::joint_command(size_t idx /*= POS_CMD_IDX*/) {

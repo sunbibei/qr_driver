@@ -28,31 +28,33 @@ public:
    * Interface for user layer.
    */
   // About joint state
-  double        joint_position();
-  const double& joint_position_const_ref();
-  const double* joint_position_const_pointer();
+  double        joint_position()               const;
+  const double& joint_position_const_ref()     const;
+  const double* joint_position_const_pointer() const;
 
-  double        joint_velocity();
-  const double& joint_velocity_const_ref();
-  const double* joint_velocity_const_pointer();
+  double        joint_velocity()               const;
+  const double& joint_velocity_const_ref()     const;
+  const double* joint_velocity_const_pointer() const;
 
-  double        joint_torque();
-  const double& joint_torque_const_ref();
-  const double* joint_torque_const_pointer();
+  double        joint_torque()               const;
+  const double& joint_torque_const_ref()     const;
+  const double* joint_torque_const_pointer() const;
 
   ///! About joint command, This is only way that the user update the joint command.
   void updateJointCommand(double);
   ///! The first value is position, the second value is velocity.
   void updateJointCommand(double, double);
+  ///! Stop the current action.
+  void stop();
 
   /*!
    * The argument index is represent the command type.
    * idx = 0 means the position command;
    * idx = 1 means the velocity command, Only when under pos-vel mode is valid;
    */
-  double            joint_command(size_t idx = 0);
-  const double&     joint_command_const_ref(size_t idx = 0);
-  const double*     joint_command_const_pointer();
+  double            joint_command(size_t idx = 0)           const;
+  const double&     joint_command_const_ref(size_t idx = 0) const;
+  const double*     joint_command_const_pointer()           const;
 
 protected:
   /**

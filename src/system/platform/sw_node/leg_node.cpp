@@ -167,6 +167,8 @@ bool LegNode::__fill_pos_cmd(Packet& cmd) {
   for (const auto& type : {JntType::KNEE, JntType::HIP, JntType::YAW}) {
     if (jnts_by_type_[type]->new_command_) {
       is_any_valid = true;
+      // if ((LegType::FL == leg_) && (JntType::HIP == type))
+      //   printf("[%d] - (%d): %+01.04f\n", leg_, type, jnt_cmds_[type][0]);
       count = (*jnt_cmds_[type] - jnt_params_[type]->offset) / jnt_params_[type]->scale;
       memcpy(cmd.data + offset, &count, sizeof(count));
       jnts_by_type_[type]->new_command_ = false;

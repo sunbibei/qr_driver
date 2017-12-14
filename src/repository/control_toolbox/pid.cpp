@@ -18,29 +18,36 @@ const short INVALID_VALUE = 0x8888;
 
 // Output file description for debug
 const size_t BUF_RESERVE_SIZE = 1024;
-bool                   __g_debug;
-std::ofstream          __g_ofd;
-std::vector<short>     __g_u_buf;
-std::vector<short>     __g_x_buf;
-std::vector<double>    __g_t_buf;
-
-inline void __save_everything_to_file() {
-  if ((!__g_debug) || !__g_ofd.is_open()) return;
-  for (size_t i = 0; i < __g_t_buf.size(); ++i)
-    __g_ofd << __g_t_buf[i] << " " << __g_x_buf[i] << " " << __g_u_buf[i] << std::endl;
-  __g_ofd << std::endl;
+short __g_tmp_target_ = 0;
+inline void Pid::__save_everything_to_file() {
+  if ((!__d_debug_) || !__d_ofd_.is_open()) return;
+  for (size_t i = 0; i < __d_t_buf_.size(); ++i)
+    __d_ofd_ << __d_t_buf_[i]  << " " << __d_x_buf_[i] << " "
+             << __d_u_buf_[i]  << " " << __d_e_buf_[i] << " "
+             << __d_p_term_[i] << " " << __d_i_term_[i] << " "
+             << __d_d_term_[i] << " " << __g_tmp_target_ << std::endl;
+  __d_ofd_ << std::endl;
 
   LOG_DEBUG << "It has saved everything into the local file.";
-  __g_u_buf.clear();
-  __g_x_buf.clear();
-  __g_t_buf.clear();
+  __d_u_buf_.clear();
+  __d_x_buf_.clear();
+  __d_t_buf_.clear();
+  __d_e_buf_.clear();
+  __d_p_term_.clear();
+  __d_i_term_.clear();
+  __d_d_term_.clear();
 }
 
-inline void __save_data_into_buf(double dt, short _x, short _u) {
-  if ((!__g_debug) || !__g_ofd.is_open()) return;
-  __g_t_buf .push_back(dt);
-  __g_x_buf .push_back(_x);
-  __g_u_buf .push_back(_u);
+inline void Pid::__save_data_into_buf(double dt, short _x, short _u, short _err,
+    double _p_term, double _i_term, double _d_term) {
+  if ((!__d_debug_) || !__d_ofd_.is_open()) return;
+  __d_t_buf_ .push_back(dt);
+  __d_x_buf_ .push_back(_x);
+  __d_u_buf_ .push_back(_u);
+  __d_e_buf_ .push_back(_err);
+  __d_p_term_.push_back(_p_term);
+  __d_i_term_.push_back(_i_term);
+  __d_d_term_.push_back(_d_term);
 }
 
 struct Gains {
@@ -157,10 +164,12 @@ struct TimeControl {
     return dt_;
   }
 
-  void stop() {
+  void stop(int64_t* span = nullptr) {
     t1_ = std::chrono::high_resolution_clock::now();
     curr_update_t_ = INVALID_TIME_POINT;
     last_update_t_ = INVALID_TIME_POINT;
+    if (span) *span= std::chrono::duration_cast<std::chrono::milliseconds>
+                        (t1_ - t0_).count();
   }
 
 private:
@@ -208,27 +217,46 @@ public:
   }
 
   /*!
+   * @brief This method clear the current target.
+   */
+  void clear_target() {
+    internal_flag_ = false;
+    x_buf_.clear();
+    e_buf_.clear();
+    target_ = INVALID_VALUE;
+  }
+
+  /*!
    * @brief This method judges the current state whether is stable or not,
    *        return true if the system is stability, or return false.
    *        @_e is error.
    */
   bool classifier(short _x, short& _e) {
-    _e = (INVALID_VALUE == target_) ? (INVALID_VALUE) : (target_ - _x);
-    if (x_buf_.size() >= BUF_REV_SIZE) {
+    if (INVALID_VALUE == target_) {
+      _e = INVALID_VALUE;
+      return true;
+    } else {
+      _e = target_ - _x;
+    }
+
+    if (BUF_REV_SIZE == x_buf_.size()) {
       x_buf_.clear();
       e_buf_.clear();
     }
 
+    internal_flag_ = (std::abs(_e) <= epsilon_);
     if (internal_flag_) {
       // mean filter.
       _x += (x_buf_.empty()) ? 0 : x_buf_.back();
       x_buf_.push_back(_x);
+      printf("modified: %05d %04d %04d\n", _x, x_buf_.size(), _x / x_buf_.size());
       _x /= x_buf_.size();
       // re-calculate the error.
       _e = target_ - _x;
-      e_buf_.push_back(_e + ((e_buf_.empty()) ? 0 : e_buf_.back()));
+      e_buf_.push_back(std::abs(_e) + ((e_buf_.empty()) ? 0 : e_buf_.back()));
     } else {
-      internal_flag_ = (std::abs(_e) <= epsilon_);
+      x_buf_.clear();
+      e_buf_.clear();
     }
 
     return ((e_buf_.size() >= lapse_)
@@ -271,21 +299,27 @@ Pid::Pid(const MiiString& prefix)
   Label::split_label(prefix, tmp, name_);
 
   // For debug function
-  __g_debug = false;
-  if (cfg->get_value(prefix, "debug", __g_debug) && __g_debug) {
+  __d_debug_ = false;
+  if (cfg->get_value(prefix, "debug", __d_debug_) && __d_debug_) {
     MiiString path = ".";
     cfg->get_value(prefix, "path", path);
-    __g_ofd.open(path + "/" + name_
-        + "_" + std::to_string(gains_->p_gain_)
-        + "_" + std::to_string(gains_->i_gain_)
-        + "_" + std::to_string(gains_->d_gain_));
+    __d_ofd_.open(path + "/" + name_
+        + "_" + std::to_string((short)gains_->p_gain_)
+        + "_" + std::to_string((short)gains_->i_gain_)
+        + "_" + std::to_string((short)gains_->d_gain_));
 
-    __g_x_buf.reserve(BUF_RESERVE_SIZE);
-    __g_u_buf.reserve(BUF_RESERVE_SIZE);
+    __d_x_buf_.reserve(BUF_RESERVE_SIZE);
+    __d_u_buf_.reserve(BUF_RESERVE_SIZE);
+    __d_t_buf_.reserve(BUF_RESERVE_SIZE);
+    __d_e_buf_.reserve(BUF_RESERVE_SIZE);
+    __d_p_term_.reserve(BUF_RESERVE_SIZE);
+    __d_i_term_.reserve(BUF_RESERVE_SIZE);
+    __d_d_term_.reserve(BUF_RESERVE_SIZE);
   }
 }
 
 Pid::~Pid() {
+  __save_everything_to_file();
   if (nullptr != gains_) {
     delete gains_;
     gains_ = nullptr;
@@ -297,48 +331,68 @@ Pid::~Pid() {
 }
 
 void Pid::setTarget(short target) {
+  if (__d_debug_) LOG_DEBUG << name_ << " - Setting Target: " << target;
+  if (__d_debug_) __g_tmp_target_ = target;
+
   stability_->set_target(target);
   errors_->clear();
   time_control_->start();
 }
 
 bool Pid::control(short _x, short& _u) {
+  if (!__d_debug_) return false;
+
+  // printf("update - %d\n", _x);
   if (!time_control_->running() || std::isnan(_x) || std::isinf(_x))
       return false;
 
   short error = 0;
   // The system has not went to stabilization.
-  if (!stability(_x, error) && INVALID_VALUE != error)
-    // compute the command
-    compute(_x, error, _u);
-  else
-    _u = 0;
+  if (stability(_x, error) || (INVALID_VALUE == error)) return false;
+
+  // compute the command
+  compute(_x, error, _u);
 
   // safety control
   safety_control(_x, _u);
 
-  __save_data_into_buf(time_control_->dt_, _x, _u);
+  if (/*_u && */true && __d_debug_)
+    printf("%s - %02ld %+04d %+4.2f %+4.2f %+1.2f %04d %04d %04d\n",
+        name_.c_str(), time_control_->dt_, error,
+        errors_->p_error_, errors_->i_error_, errors_->d_error_,
+        stability_->target(), _x, _u);
+
+  __save_data_into_buf(time_control_->dt_, _x, _u, error,
+      errors_->p_error_, errors_->i_error_, errors_->d_error_);
   return true;
 }
 
 bool Pid::stability(short _x, short& _e) {
-  return stability_->classifier(_x, _e);
+  if (!stability_->classifier(_x, _e)) return false;
+
+  int64_t time = 0;
+  time_control_->stop(&time);
+  LOG_DEBUG << "This target is reached, using " << time;
+
+  errors_->clear();
+  stability_->clear_target();
+  __save_everything_to_file();
+  return true;
 }
 
 void Pid::compute(short _x, short _e, short& _u) {
   _u =  (errors_->update(_e, time_control_->dt()/1000.0)) ?
         ((*gains_) * (*errors_)) : 0.0;
-
-  if (_u && false)
-    printf("%s - %ld %4.2f %4.2f %1.2f %04d %04d %04d\n",
-        name_.c_str(), time_control_->dt_,
-        errors_->p_error_, errors_->i_error_, errors_->d_error_,
-        stability_->target(), _x, _u);
 }
 
 void Pid::safety_control(short _x, short& _u) {
   _u = boost::algorithm::clamp(_u, limits_->command[Limits::MIN], limits_->command[Limits::MAX]);
-  if (_x <= limits_->angle[Limits::MIN] || _x >= limits_->angle[Limits::MAX]) _u = 0;
+  if (_x <= limits_->angle[Limits::MIN] || _x >= limits_->angle[Limits::MAX]) {
+    LOG_DEBUG << "Outside the range, " << _x << " should in \\in ["
+        << limits_->angle[Limits::MIN] << ", " << limits_->angle[Limits::MAX]
+        << "], change the command to zero.";
+    _u = 0;
+  }
 }
 
 } /* namespace middleware */

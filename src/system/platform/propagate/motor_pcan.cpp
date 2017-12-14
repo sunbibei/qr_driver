@@ -56,7 +56,7 @@ bool MotorPcan::write(const Packet& pkt) {
     }
   }
 
-  return (pid_hijack_) ? true : ArmPcan::write(pkt);
+  return ( pid_hijack_ ? true : ArmPcan::write(pkt));
 }
 
 bool MotorPcan::read(Packet& pkt) {
@@ -84,12 +84,13 @@ void MotorPcan::updatePID(unsigned char node_id) {
   for (const auto& type : {JntType::KNEE, JntType::HIP, JntType::YAW}) {
     if (pids_[node_id][type]->control(X_[node_id][type], U_[node_id][type])) {
       memcpy(pkt.data + offset, U_[node_id] + type, sizeof(short));
-      new_command_ = true;
+    } else {
+      memset(pkt.data + offset, 0x00, sizeof(short));
     }
     
     offset += sizeof(short);
   }
-  if (new_command_) ArmPcan::write(pkt);
+  ArmPcan::write(pkt);
 }
 
 void MotorPcan::auto_inst_pid(const MiiString& __p) {
