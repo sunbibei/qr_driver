@@ -114,6 +114,7 @@ enum JntCmdType {
   CMD_VEL,
   CMD_TOR,
   CMD_POS_VEL,
+  CMD_MOTOR_VEL,
   N_JNT_CMD_TYPES,
 };
 

@@ -10,6 +10,7 @@
 
 #include <foundation/utf.h>
 #include <boost/variant.hpp>
+#include <boost/shared_ptr.hpp>
 #include <Eigen/Dense>
 
 namespace middleware {
@@ -21,6 +22,9 @@ namespace middleware {
 #define GET_RESOURCE(_n, _type) ( middleware::Registry::instance()->resource< _type >(_n) )
 
 #define GET_COMMAND(_n, _type)  ( middleware::Registry::instance()->command< _type > (_n) )
+
+template <typename _T>
+using MiiPtr = boost::shared_ptr<_T>;
 
 typedef boost::variant<const short*, const int*, const double*,
     const Eigen::VectorXi*, const Eigen::MatrixXi*,
@@ -35,7 +39,7 @@ class Registry {
 
 public:
   bool registerResource(const MiiString&, ResType);
-  bool registerCommand(const MiiString&, CmdType);
+  bool registerCommand (const MiiString&, CmdType);
 
   ///! The boost static assert fail! so we need split into two methods.
   template<typename _DataType>

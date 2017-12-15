@@ -22,12 +22,10 @@ struct JointState {
   JointState(double pos = 0, double vel = 0, double s = 0, double o = 0)
   : pos_(pos), vel_(vel), tor_(0)
   { };
-  // 实际获取的数据
   double pos_;
-  // 需要propagate实例中， 通过软件代码计算出速度填入数据
   double vel_;
   double tor_;
-  // 计算速度的辅助变量, 保存前一次更新的时间
+
   std::chrono::high_resolution_clock::time_point previous_time_;
 };
 
@@ -41,10 +39,14 @@ struct JointCommand {
   const JntCmdType& mode_;
   const double      MIN_POS_;
   const double      MAX_POS_;
+  const double      MIN_MOTOR_VEL_;
+  const double      MAX_MOTOR_VEL_;
 
-  JointCommand(double min, double max, const JntCmdType& mode_ref, double cmd = 0)
+  JointCommand(double min, double max, const JntCmdType& mode_ref,
+      double min_vel = -5000, double max_vel = 5000, double cmd = 0)
     : /*id_(0), */command_(nullptr), mode_(mode_ref),
-      MIN_POS_(min), MAX_POS_(max) {
+      MIN_POS_(min), MAX_POS_(max),
+      MIN_MOTOR_VEL_(min_vel), MAX_MOTOR_VEL_(max_vel) {
     command_  = new double[2];
     *command_ = cmd;
   };
@@ -82,19 +84,19 @@ bool Joint::init() {
 
   joint_state_   = new JointState();
 
+  double pos_min, pos_max;
   MiiVector<double> limits;
-  cfg->get_value_fatal(getLabel(), "limits", limits);
+  cfg->get_value_fatal(getLabel(), "pos_limits", limits);
   if (limits.size() < 2) {
     LOG_WARNING << "The attribute of " << getLabel() << " is wrong!"
         << "The attribute of limits should be equal to two(min, max).";
-    joint_command_ = new JointCommand(-100, 100,
-        JointManager::instance()->getJointCommandMode());
+    pos_min = -100;
+    pos_max = 100;
   } else {
-    // LOG_INFO << getLabel() << ": " << JointManager::instance()->getJointCommandMode();
-    joint_command_ = ((limits[0] > limits[1]) ?
-        (new JointCommand(limits[1], limits[0], JointManager::instance()->getJointCommandMode()))
-      : (new JointCommand(limits[0], limits[1], JointManager::instance()->getJointCommandMode())));
+    pos_min = std::min(limits[0], limits[1]);
+    pos_max = std::max(limits[0], limits[1]);
   }
+  joint_command_ = new JointCommand(pos_min, pos_max, JointManager::instance()->getJointCommandMode());
   return true;
 }
 
@@ -150,14 +152,28 @@ const double* Joint::joint_torque_const_pointer() {
 
 // About joint command
 void Joint::updateJointCommand(double v) {
-  if (JntCmdType::CMD_POS != joint_command_->mode_) {
+  switch (joint_command_->mode_) {
+  case JntCmdType::CMD_POS:
+    joint_command_->command_[POS_CMD_IDX] = boost::algorithm::clamp(v,
+                                    joint_command_->MIN_POS_,
+                                    joint_command_->MAX_POS_);
+    break;
+  case JntCmdType::CMD_MOTOR_VEL:
+    joint_command_->command_[POS_CMD_IDX] = boost::algorithm::clamp(v,
+                                    joint_command_->MIN_MOTOR_VEL_,
+                                    joint_command_->MAX_MOTOR_VEL_);
+    break;
+  case JntCmdType::CMD_VEL:
+  case JntCmdType::CMD_TOR:
+  case JntCmdType::CMD_POS_VEL:
     LOG_ERROR << "Mode not match! The current mode: " << joint_command_->mode_
         << ", but the given " << JntCmdType::CMD_POS << " command";
     return;
+  default:
+    LOG_ERROR << "What fucking joint command mode. The current mode is "
+      << joint_command_->mode_ << "!!!!";
+    return;
   }
-  joint_command_->command_[POS_CMD_IDX] = boost::algorithm::clamp(v,
-                                  joint_command_->MIN_POS_,
-                                  joint_command_->MAX_POS_);
   // LOG_DEBUG << "update joint(" << jnt_name_ << ") command: "
   //           << joint_command_->command_;
   new_command_ = true;

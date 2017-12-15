@@ -134,6 +134,8 @@ bool MiiRobot::init(bool use_mii_control) {
     JointManager::instance()->setJointCommandMode(JntCmdType::CMD_TOR);
   else if (0 == str.compare("pos-vel"))
     JointManager::instance()->setJointCommandMode(JntCmdType::CMD_POS_VEL);
+  else if (0 == str.compare("motor-velocity"))
+    JointManager::instance()->setJointCommandMode(JntCmdType::CMD_MOTOR_VEL);
   else
     ;
 

@@ -150,6 +150,9 @@ bool LegNode::generateCmd(MiiVector<Packet>& pkts) {
   case JntCmdType::CMD_POS_VEL:
     is_any_valid = __fill_pos_vel_cmd(cmd);
     break;
+  case JntCmdType::CMD_MOTOR_VEL:
+    is_any_valid = __fill_motor_vel_cmd(cmd);
+    break;
   default:
     LOG_ERROR << "What a fucking the command mode of joint.";
   }
@@ -236,6 +239,27 @@ bool LegNode::__fill_pos_vel_cmd(Packet& cmd) {
   }
 
   offset += 2*sizeof(count); // Each count stand 2*two bytes.
+  return is_any_valid;
+}
+
+bool LegNode::__fill_motor_vel_cmd(Packet& cmd) {
+  int offset  = 0;
+  short count = 0;
+  bool is_any_valid = false;
+  cmd = {INVALID_BYTE, node_id_, MII_MSG_MOTOR_CMD_2, JNT_P_CMD_DSIZE, {0}};
+  for (const auto& type : {JntType::KNEE, JntType::HIP, JntType::YAW}) {
+    if (jnts_by_type_[type]->new_command_) {
+      is_any_valid = true;
+      count = (*jnt_cmds_[type] - jnt_params_[type]->offset) / jnt_params_[type]->scale;
+      memcpy(cmd.data + offset, &count, sizeof(count));
+      jnts_by_type_[type]->new_command_ = false;
+    } else {
+      cmd.data[offset]     = INVALID_BYTE;
+      cmd.data[offset + 1] = INVALID_BYTE;
+    }
+    offset += sizeof(count); // Each count stand two bytes.
+  }
+
   return is_any_valid;
 }
 

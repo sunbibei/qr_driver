@@ -42,6 +42,7 @@ private:
   bool __fill_vel_cmd(Packet&);
   bool __fill_tor_cmd(Packet&);
   bool __fill_pos_vel_cmd(Packet&);
+  bool __fill_motor_vel_cmd(Packet&);
 };
 
 } /* namespace middleware */
