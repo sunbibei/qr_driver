@@ -24,6 +24,8 @@ JointManager::JointManager()
 
 JointManager::~JointManager() {
   // Nothing to do here
+  for (auto& j : res_list_)
+    j->stop();
 }
 
 void JointManager::add(Joint* _res) {

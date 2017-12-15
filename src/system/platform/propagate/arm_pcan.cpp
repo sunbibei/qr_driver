@@ -81,13 +81,15 @@ bool ArmPcan::read(Packet& pkt) {
     CAN_Reset(pcan_config_.channel);
     return false;
   }
-
+  // LOG_ERROR << "test1";
   // I don't known what happen to here, It always receives a odd message with id
   // is 0x06. Everything is ok, and the result is wrong!
   // I have no idea, so here is compromise way, we will reset the pcan channel
   // when the odd message is coming.
   counter = 0;
+  int reset_count = 0;
   while (!MII_MSG_IS_TO_HOST(recv_msg_.ID)) {
+    // LOG_ERROR << "test2";
     // This is a compromise way that to compatible with the old protocol.
     if (recv_msg_.ID == 0x8) {
       if ((0x5 != recv_msg_.LEN) || (0x80 != (recv_msg_.DATA[0] & 0xf0))) return false;
@@ -107,16 +109,17 @@ bool ArmPcan::read(Packet& pkt) {
           (int)recv_msg_.DATA[4]);
       return true;
     }
-    if (++counter <= MAX_COUNT) {
+    if (++reset_count <= MAX_COUNT) {
       ;// LOG_EVERY_N(WARNING, 10) << "It read odd message"
       //     << ", and the host could not parse, read again... ...";
     } else {
       // LOG_EVERY_N(ERROR, 10) << "The pcan channel always read odd messages, and we give up read!"
       //     << "Now we are trying to reset the pcan system.";
       CAN_Reset(pcan_config_.channel);
-      counter = 0;
+      reset_count = 0;
     }
 
+    if (++counter >= 2*MAX_COUNT) return false;
     tmp_pcan_status_ = CAN_Read(pcan_config_.channel, &recv_msg_, NULL);
   }
 

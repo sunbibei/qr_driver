@@ -114,39 +114,39 @@ void Joint::updateJointPosition(double pos) {
   // LOG_DEBUG << jnt_name_ << ": " << joint_state_->pos_ << ", " << joint_state_->vel_;
 }
 
-double Joint::joint_position() {
+double Joint::joint_position() const {
   return joint_state_->pos_;
 }
 
-const double& Joint::joint_position_const_ref() {
+const double& Joint::joint_position_const_ref() const {
   return joint_state_->pos_;
 }
 
-const double* Joint::joint_position_const_pointer() {
+const double* Joint::joint_position_const_pointer() const {
   return &(joint_state_->pos_);
 }
 
-double Joint::joint_velocity() {
+double Joint::joint_velocity() const {
   return joint_state_->vel_;
 }
 
-const double& Joint::joint_velocity_const_ref() {
+const double& Joint::joint_velocity_const_ref() const {
   return joint_state_->vel_;
 }
 
-const double* Joint::joint_velocity_const_pointer() {
+const double* Joint::joint_velocity_const_pointer() const {
   return &(joint_state_->vel_);
 }
 
-double Joint::joint_torque() {
+double Joint::joint_torque() const {
   return joint_state_->tor_;
 }
 
-const double& Joint::joint_torque_const_ref() {
+const double& Joint::joint_torque_const_ref() const {
   return joint_state_->tor_;
 }
 
-const double* Joint::joint_torque_const_pointer() {
+const double* Joint::joint_torque_const_pointer() const {
   return &(joint_state_->tor_);
 }
 
@@ -174,8 +174,7 @@ void Joint::updateJointCommand(double v) {
       << joint_command_->mode_ << "!!!!";
     return;
   }
-  // LOG_DEBUG << "update joint(" << jnt_name_ << ") command: "
-  //           << joint_command_->command_;
+
   new_command_ = true;
 }
 
@@ -195,15 +194,28 @@ void Joint::updateJointCommand(double v0, double v1) {
   new_command_ = true;
 }
 
-double Joint::joint_command(size_t idx /*= POS_CMD_IDX*/) {
+void Joint::stop() {
+  switch (joint_command_->mode_) {
+  case JntCmdType::CMD_POS:
+    updateJointCommand(joint_state_->pos_);
+    break;
+  case JntCmdType::CMD_POS_VEL:
+    updateJointCommand(joint_state_->pos_, 0);
+    break;
+  default:
+    break;
+  }
+}
+
+double Joint::joint_command(size_t idx /*= POS_CMD_IDX*/) const {
   return joint_command_->command_[idx];
 }
 
-const double& Joint::joint_command_const_ref(size_t idx /*= POS_CMD_IDX*/) {
+const double& Joint::joint_command_const_ref(size_t idx /*= POS_CMD_IDX*/) const {
   return joint_command_->command_[idx];
 }
 
-const double* Joint::joint_command_const_pointer() {
+const double* Joint::joint_command_const_pointer() const {
   return joint_command_->command_;
 }
 

@@ -20,7 +20,7 @@ public:
 
   virtual ~LegNode();
 
-  virtual void handleMsg(const Packet&)          override;
+  virtual void handleMsg(const Packet&)        override;
   virtual bool generateCmd(MiiVector<Packet>&) override;
 
 protected:
@@ -38,11 +38,10 @@ protected:
 
 ///! Helper methods
 private:
-  bool __fill_pos_cmd(Packet&);
-  bool __fill_vel_cmd(Packet&);
-  bool __fill_tor_cmd(Packet&);
-  bool __fill_pos_vel_cmd(Packet&);
-  bool __fill_motor_vel_cmd(Packet&);
+  bool __fill_pos_cmd(MiiVector<Packet>& pkts);
+  bool __fill_vel_cmd(MiiVector<Packet>& pkts);
+  bool __fill_tor_cmd(MiiVector<Packet>& pkts);
+  bool __fill_pos_vel_cmd(MiiVector<Packet>& pkts);
 };
 
 } /* namespace middleware */

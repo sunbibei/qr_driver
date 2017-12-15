@@ -139,6 +139,8 @@ bool MiiRobot::init(bool use_mii_control) {
   else
     ;
 
+  LOG_DEBUG << "The mode of control is '" << str << "'.";
+
   use_mii_control_ = use_mii_control;
   // cfg->get_value(prefix_tag_, "mii_control", use_mii_control_);
   // All of the objects mark with "auto_inst" in the configure file
@@ -279,6 +281,11 @@ void MiiRobot::supportRegistry() {
 }
 
 MiiRobot::~MiiRobot() {
+  ///! safety control for joint, add the stop command during the shutdown.
+  for (auto& j : *jnt_manager_)
+    j->stop();
+  sleep(1);
+
   // LOG_DEBUG << "The deconstructor of MiiRobot is starting to work.";
   mii_ctrl_alive_ = false;
   Master::destroy_instance();
@@ -297,7 +304,9 @@ MiiRobot::~MiiRobot() {
 
 
 bool MiiRobot::start() {
-  return (Master::instance()->run() && ThreadPool::instance()->start());
+  bool ret0 = Master::instance()->run();
+  bool ret1 = ThreadPool::instance()->start();
+  return (ret0 && ret1);
 }
 
 

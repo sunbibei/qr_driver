@@ -9,6 +9,7 @@
 #define INCLUDE_REPOSITORY_CONTROL_TOOLBOX_PID_H_
 
 #include "foundation/utf.h"
+#include <fstream>
 #include <chrono>
 
 namespace middleware {
@@ -77,6 +78,20 @@ protected:
   class TimeControl* time_control_;
   ///! The stability classifier.
   class Stability*   stability_;
+
+  ///! Just for debug
+  bool                   __d_debug_;
+  std::ofstream          __d_ofd_;
+  std::vector<short>     __d_u_buf_;
+  std::vector<short>     __d_x_buf_;
+  std::vector<short>     __d_mu_buf_;
+  std::vector<double>    __d_t_buf_;
+  std::vector<double>    __d_e_buf_;
+  std::vector<double>    __d_p_term_;
+  std::vector<double>    __d_i_term_;
+  std::vector<double>    __d_d_term_;
+  void __save_everything_to_file();
+  void __save_data_into_buf(double, short, short, short, double, double, double);
 };
 
 } /* namespace middleware */
