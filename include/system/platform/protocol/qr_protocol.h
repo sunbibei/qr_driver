@@ -96,7 +96,7 @@ to Host  1| X|    NODE ID|        MSG ID|
  *       fl  |  fr |  hl |  hr
  */
 #define MII_MSG_HEARTBEAT_MSG_1   (002u)
-///! Return the current of power node 1
+///! Return the current of power node 1, or motor position 
 #define MII_MSG_HEARTBEAT_MSG_2   (003u)
 ///! Return the current of power node 2
 #define MII_MSG_HEARTBEAT_MSG_3   (004u)
@@ -120,13 +120,13 @@ to Host  1| X|    NODE ID|        MSG ID|
 ///! The yaw joint position and velocity command
 #define MII_MSG_COMMON_DATA_5     (015u)
 
-///! The motor command id, offer the interface to control motor directly.
+///! The motor command/msg id, offer the interface to control/monitor motor directly.
 #define MII_MSG_MOTOR_RESERVE     (020u)
-///! The motor position command
+///! The motor position command, or motor position feedback
 #define MII_MSG_MOTOR_CMD_1       (021u)
-///! The motor velocity command
+///! The motor velocity command, or motor velocity feedback
 #define MII_MSG_MOTOR_CMD_2       (022u)
-///! The motor torque command
+///! The motor torque command,   or motor torque   feedback
 #define MII_MSG_MOTOR_CMD_3       (023u)
 
 ///! The debug command id, offer the interface to control arm through the user PC.

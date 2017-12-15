@@ -18,37 +18,6 @@ const short INVALID_VALUE = 0x8888;
 
 // Output file description for debug
 const size_t BUF_RESERVE_SIZE = 1024;
-short __g_tmp_target_ = 0;
-inline void Pid::__save_everything_to_file() {
-  if ((!__d_debug_) || !__d_ofd_.is_open()) return;
-  for (size_t i = 0; i < __d_t_buf_.size(); ++i)
-    __d_ofd_ << __d_t_buf_[i]  << " " << __d_x_buf_[i] << " "
-             << __d_u_buf_[i]  << " " << __d_e_buf_[i] << " "
-             << __d_p_term_[i] << " " << __d_i_term_[i] << " "
-             << __d_d_term_[i] << " " << __g_tmp_target_ << std::endl;
-  __d_ofd_ << std::endl;
-
-  LOG_DEBUG << "It has saved everything into the local file.";
-  __d_u_buf_.clear();
-  __d_x_buf_.clear();
-  __d_t_buf_.clear();
-  __d_e_buf_.clear();
-  __d_p_term_.clear();
-  __d_i_term_.clear();
-  __d_d_term_.clear();
-}
-
-inline void Pid::__save_data_into_buf(double dt, short _x, short _u, short _err,
-    double _p_term, double _i_term, double _d_term) {
-  if ((!__d_debug_) || !__d_ofd_.is_open()) return;
-  __d_t_buf_ .push_back(dt);
-  __d_x_buf_ .push_back(_x);
-  __d_u_buf_ .push_back(_u);
-  __d_e_buf_ .push_back(_err);
-  __d_p_term_.push_back(_p_term);
-  __d_i_term_.push_back(_i_term);
-  __d_d_term_.push_back(_d_term);
-}
 
 struct Gains {
   // Optional constructor for passing in values
@@ -132,6 +101,10 @@ struct Limits {
 };
 
 struct TimeControl {
+private:
+  const std::chrono::high_resolution_clock::time_point INVALID_TIME_POINT;
+
+public:
   ///! the first compute
   bool  first_compute_;
   ///! time control (in ms)
@@ -142,6 +115,15 @@ struct TimeControl {
   ///! these variables for debug.
   std::chrono::high_resolution_clock::time_point t0_;
   std::chrono::high_resolution_clock::time_point t1_;
+
+  TimeControl()
+    : INVALID_TIME_POINT(std::chrono::high_resolution_clock::time_point::max()),
+      first_compute_(true), dt_(0),
+      curr_update_t_(INVALID_TIME_POINT),
+      last_update_t_(INVALID_TIME_POINT),
+      t0_(INVALID_TIME_POINT), t1_(INVALID_TIME_POINT) {
+    ;
+  }
 
   bool running() {
     return (last_update_t_ != INVALID_TIME_POINT);
@@ -171,10 +153,6 @@ struct TimeControl {
     if (span) *span= std::chrono::duration_cast<std::chrono::milliseconds>
                         (t1_ - t0_).count();
   }
-
-private:
-  const std::chrono::high_resolution_clock::time_point INVALID_TIME_POINT
-    = std::chrono::high_resolution_clock::time_point::max();
 };
 
 class Stability {
@@ -249,7 +227,7 @@ public:
       // mean filter.
       _x += (x_buf_.empty()) ? 0 : x_buf_.back();
       x_buf_.push_back(_x);
-      printf("modified: %05d %04d %04d\n", _x, x_buf_.size(), _x / x_buf_.size());
+      // printf("modified: %05d %04d %04d\n", _x, x_buf_.size(), _x / x_buf_.size());
       _x /= x_buf_.size();
       // re-calculate the error.
       _e = target_ - _x;
@@ -304,14 +282,15 @@ Pid::Pid(const MiiString& prefix)
     MiiString path = ".";
     cfg->get_value(prefix, "path", path);
     __d_ofd_.open(path + "/" + name_
-        + "_" + std::to_string((short)gains_->p_gain_)
+        /*+ "_" + std::to_string((short)gains_->p_gain_)
         + "_" + std::to_string((short)gains_->i_gain_)
-        + "_" + std::to_string((short)gains_->d_gain_));
+        + "_" + std::to_string((short)gains_->d_gain_)*/);
 
     __d_x_buf_.reserve(BUF_RESERVE_SIZE);
     __d_u_buf_.reserve(BUF_RESERVE_SIZE);
     __d_t_buf_.reserve(BUF_RESERVE_SIZE);
     __d_e_buf_.reserve(BUF_RESERVE_SIZE);
+    __d_mu_buf_.reserve(BUF_RESERVE_SIZE);
     __d_p_term_.reserve(BUF_RESERVE_SIZE);
     __d_i_term_.reserve(BUF_RESERVE_SIZE);
     __d_d_term_.reserve(BUF_RESERVE_SIZE);
@@ -331,8 +310,8 @@ Pid::~Pid() {
 }
 
 void Pid::setTarget(short target) {
+  if (target == stability_->target()) return;
   if (__d_debug_) LOG_DEBUG << name_ << " - Setting Target: " << target;
-  if (__d_debug_) __g_tmp_target_ = target;
 
   stability_->set_target(target);
   errors_->clear();
@@ -340,9 +319,9 @@ void Pid::setTarget(short target) {
 }
 
 bool Pid::control(short _x, short& _u) {
-  if (!__d_debug_) return false;
+  // if (!__d_debug_) return false;
 
-  // printf("update - %d\n", _x);
+  // if (__d_debug_) printf("update - %d\n", _x);
   if (!time_control_->running() || std::isnan(_x) || std::isinf(_x))
       return false;
 
@@ -372,7 +351,7 @@ bool Pid::stability(short _x, short& _e) {
 
   int64_t time = 0;
   time_control_->stop(&time);
-  LOG_DEBUG << "This target is reached, using " << time;
+  if (__d_debug_) LOG_DEBUG << name_ << " - This target is reached, using " << time;
 
   errors_->clear();
   stability_->clear_target();
@@ -388,11 +367,43 @@ void Pid::compute(short _x, short _e, short& _u) {
 void Pid::safety_control(short _x, short& _u) {
   _u = boost::algorithm::clamp(_u, limits_->command[Limits::MIN], limits_->command[Limits::MAX]);
   if (_x <= limits_->angle[Limits::MIN] || _x >= limits_->angle[Limits::MAX]) {
-    LOG_DEBUG << "Outside the range, " << _x << " should in \\in ["
+    LOG_DEBUG << name_ << " - Outside the range, " << _x << " should in \\in ["
         << limits_->angle[Limits::MIN] << ", " << limits_->angle[Limits::MAX]
         << "], change the command to zero.";
     _u = 0;
   }
+}
+
+inline void Pid::__save_everything_to_file() {
+  if ((!__d_debug_) || !__d_ofd_.is_open()) return;
+  for (size_t i = 0; i < __d_t_buf_.size(); ++i)
+    __d_ofd_ << __d_t_buf_[i]  << " " << __d_x_buf_[i] << " "
+             << __d_u_buf_[i]  << " " << __d_e_buf_[i] << " "
+             << __d_p_term_[i] << " " << __d_i_term_[i] << " "
+             << __d_d_term_[i] << " " << __d_mu_buf_[i] << std::endl;
+
+  LOG_DEBUG << "It has saved everything into the local file.";
+  __d_u_buf_.clear();
+  __d_x_buf_.clear();
+  __d_t_buf_.clear();
+  __d_e_buf_.clear();
+  __d_mu_buf_.clear();
+  __d_p_term_.clear();
+  __d_i_term_.clear();
+  __d_d_term_.clear();
+}
+
+inline void Pid::__save_data_into_buf(double dt, short _x, short _u, short _err,
+    double _p_term, double _i_term, double _d_term) {
+  if ((!__d_debug_) || !__d_ofd_.is_open()) return;
+  __d_t_buf_ .push_back(dt);
+  __d_x_buf_ .push_back(_x);
+  __d_u_buf_ .push_back(_u);
+  __d_e_buf_ .push_back(_err);
+  __d_mu_buf_.push_back(stability_->target());
+  __d_p_term_.push_back(_p_term);
+  __d_i_term_.push_back(_i_term);
+  __d_d_term_.push_back(_d_term);
 }
 
 } /* namespace middleware */

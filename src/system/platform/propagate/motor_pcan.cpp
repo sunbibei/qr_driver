@@ -46,15 +46,22 @@ bool MotorPcan::write(const Packet& pkt) {
   if (MII_MSG_COMMON_DATA_1 == pkt.msg_id) {
     int offset = 0;
     for (const auto& type : {JntType::KNEE, JntType::HIP, JntType::YAW}) {
-      if ((INVALID_BYTE == pkt.data[offset]) && (INVALID_BYTE == pkt.data[offset + 1]))
+      if ((INVALID_BYTE == pkt.data[offset]) && (INVALID_BYTE == pkt.data[offset + 1])) {
+        offset += sizeof(short);
         continue;
+      }
 
       memcpy(&(T_[pkt.node_id][type]), pkt.data + offset, sizeof(short));
       offset += sizeof(short);
-
+      // LOG_INFO << "Set target: " << T_[pkt.node_id][type];
       pids_[pkt.node_id][type]->setTarget(T_[pkt.node_id][type]);
     }
   }
+  if (false)
+    printf("MotorPcan -> NODE ID:0x%02X MSG ID: 0x%02X LEN:%1x DATA:0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X\n",
+          (int)pkt.node_id, (int)pkt.msg_id,  (int)pkt.size,
+          (int)pkt.data[0], (int)pkt.data[1], (int)pkt.data[2], (int)pkt.data[3],
+          (int)pkt.data[4], (int)pkt.data[5], (int)pkt.data[6], (int)pkt.data[7]);
 
   return ( pid_hijack_ ? true : ArmPcan::write(pkt));
 }

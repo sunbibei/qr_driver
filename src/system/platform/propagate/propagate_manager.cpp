@@ -62,14 +62,17 @@ bool PropagateManager::run() {
           << res_list_[i]->getLabel() << "\t" << res_list_[i];
     LOG_WARNING << "+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+";
   }
+  bool all_fail = true;
   for (auto c : res_list_) {
     // for (auto c = begin(); c != end(); ++c) {
     // LOG_DEBUG << c->getLabel() << " is starting.";
     if (!c->start())
       LOG_ERROR << "The propagate '" << c->propa_name_ << "' starting FAIL.";
-    // else
+    else
+      all_fail = false;
     //   LOG_DEBUG << "The propagate '" << c->propa_name_ << "' has started.";
   }
+  if (all_fail) return false;
 
   ThreadPool::instance()->add(THREAD_R_NAME, &PropagateManager::updateRead,  this);
   ThreadPool::instance()->add(THREAD_W_NAME, &PropagateManager::updateWrite, this);
@@ -98,6 +101,12 @@ void PropagateManager::updateWrite() {
     MUTEX_TRY_LOCK(lock_4_send_)
     while (!pkts_queue_4_send_.empty()) {
       const auto& pkt = pkts_queue_4_send_.back();
+      if (false)
+        printf("PropagateManager -> NODE ID:0x%02X MSG ID: 0x%02X LEN:%1x DATA:0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X\n",
+              (int)pkt.node_id, (int)pkt.msg_id,  (int)pkt.size,
+              (int)pkt.data[0], (int)pkt.data[1], (int)pkt.data[2], (int)pkt.data[3],
+              (int)pkt.data[4], (int)pkt.data[5], (int)pkt.data[6], (int)pkt.data[7]);
+
       for (auto& c : res_list_) {
         if (c->write(pkt)) break;
       }

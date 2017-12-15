@@ -280,9 +280,9 @@ void MiiRobot::supportRegistry() {
 
 MiiRobot::~MiiRobot() {
   ///! safety control for joint, add the stop command during the shutdown.
-  for (auto& j : *jnt_manager_) {
+  for (auto& j : *jnt_manager_)
     j->stop();
-  }
+  sleep(1);
 
   // LOG_DEBUG << "The deconstructor of MiiRobot is starting to work.";
   mii_ctrl_alive_ = false;
@@ -302,7 +302,9 @@ MiiRobot::~MiiRobot() {
 
 
 bool MiiRobot::start() {
-  return (Master::instance()->run() && ThreadPool::instance()->start());
+  bool ret0 = Master::instance()->run();
+  bool ret1 = ThreadPool::instance()->start();
+  return (ret0 && ret1);
 }
 
 

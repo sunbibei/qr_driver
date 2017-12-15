@@ -84,6 +84,7 @@ protected:
   std::ofstream          __d_ofd_;
   std::vector<short>     __d_u_buf_;
   std::vector<short>     __d_x_buf_;
+  std::vector<short>     __d_mu_buf_;
   std::vector<double>    __d_t_buf_;
   std::vector<double>    __d_e_buf_;
   std::vector<double>    __d_p_term_;

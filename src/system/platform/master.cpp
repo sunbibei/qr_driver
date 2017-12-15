@@ -53,6 +53,7 @@ bool Master::run() {
   // LOG_DEBUG << "<<==========Master::run==========";
   if (!propagate_manager_->run()) {
     LOG_WARNING << "PropagateManager::run fail!";
+    return false;
   }
   // LOG_DEBUG << "Starting PropagateManager";
 

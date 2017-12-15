@@ -7,7 +7,7 @@
 		<fl>
 			<yaw  auto_inst="middleware::Joint" leg="fl" jnt="yaw"  name="fl_yaw" limits_c="1590 2060" limits="-0.307764 0.416252 " />
 			<hip  auto_inst="middleware::Joint" leg="fl" jnt="hip"  name="fl_hip" limits_c="2035 2780" limits="-0.282350 0.872703" />
-			<knee auto_inst="middleware::Joint" leg="fl" jnt="knee" name="fl_knee" limits_c="1690 2430" limits="-1.727743 -0.617174" />
+			<knee auto_inst="middleware::Joint" leg="fl" jnt="knee" name="fl_knee" limits_c="1622 2330" limits="-1.727743 -0.617174" />
 			<td   auto_inst="middleware::ForceSensor" leg="fl"                     />
 		</fl>
 
@@ -129,7 +129,7 @@
 			<node auto_inst="middleware::LegNode" leg="fr" node_id="0x04" >
 				<joint_0     jnt="yaw"  label="qr.res.fr.yaw"  scale="1"  offset="18146" limits_c="2200 2907" />
 				<joint_1     jnt="hip"  label="qr.res.fr.hip"  scale="1"  offset="2346"  limits_c="79 871" />
-				<joint_2     jnt="knee" label="qr.res.fr.knee" scale="-1" offset="15590" limits_c="1785 2232"  />
+				<joint_2     jnt="knee" label="qr.res.fr.knee" scale="-1" offset="15590" limits_c="2136 2884"  />
 				<touchdown              label="qr.res.fr.td" />
 			</node>
 		</fr>

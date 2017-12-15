@@ -103,7 +103,9 @@ void LegNode::updateFromBuf(const unsigned char* __p) {
   double pos  = 0.0;
   for (const auto& type : {JntType::KNEE, JntType::HIP, JntType::YAW}) {
     memcpy(&count, __p + offset, sizeof(count));
-
+    // if (((LegType::FR == leg_) && (type == JntType::KNEE))
+    //       || ((LegType::FR == leg_) && (type == JntType::YAW)))
+    //   LOG_INFO << leg_ << " - " << type << ": " << count;
     // angle = \frac{360 \pi \alpha}{180*4096} C - \frac{\pi}{18000}\alpha*\beta
     // so, the ABS(scale) = \frac{360 \pi \alpha}{180*4096} = \frac{360\pi}{180*4096}
     // offset = - \frac{\pi}{18000}\alpha*\beta = -0.000174528*\beta
@@ -135,40 +137,38 @@ void LegNode::handleMsg(const Packet& pkt) {
 
 bool LegNode::generateCmd(MiiVector<Packet>& pkts) {
 
-  Packet cmd;
   bool is_any_valid = false;
   switch (jnt_mode_) {
   case JntCmdType::CMD_POS:
-    is_any_valid = __fill_pos_cmd(cmd);
+    is_any_valid = __fill_pos_cmd(pkts);
     break;
   case JntCmdType::CMD_VEL:
-    is_any_valid = __fill_vel_cmd(cmd);
+    is_any_valid = __fill_vel_cmd(pkts);
     break;
   case JntCmdType::CMD_TOR:
-    is_any_valid = __fill_tor_cmd(cmd);
+    is_any_valid = __fill_tor_cmd(pkts);
     break;
   case JntCmdType::CMD_POS_VEL:
-    is_any_valid = __fill_pos_vel_cmd(cmd);
+    is_any_valid = __fill_pos_vel_cmd(pkts);
     break;
   default:
     LOG_ERROR << "What a fucking the command mode of joint.";
   }
 
-  if (is_any_valid) pkts.push_back(cmd);
   return is_any_valid;
 }
 
 
-bool LegNode::__fill_pos_cmd(Packet& cmd) {
+bool LegNode::__fill_pos_cmd(MiiVector<Packet>& pkts) {
   int offset  = 0;
   short count = 0;
   bool is_any_valid = false;
-  cmd = {INVALID_BYTE, node_id_, MII_MSG_COMMON_DATA_1, JNT_P_CMD_DSIZE, {0}};
+  Packet cmd = {INVALID_BYTE, node_id_, MII_MSG_COMMON_DATA_1, JNT_P_CMD_DSIZE, {0}};
   for (const auto& type : {JntType::KNEE, JntType::HIP, JntType::YAW}) {
     if (jnts_by_type_[type]->new_command_) {
       is_any_valid = true;
       // if ((LegType::FL == leg_) && (JntType::HIP == type))
-      //   printf("[%d] - (%d): %+01.04f\n", leg_, type, jnt_cmds_[type][0]);
+      //   printf("LegNode: [%d] - (%d): %+01.04f\n", leg_, type, jnt_cmds_[type][0]);
       count = (*jnt_cmds_[type] - jnt_params_[type]->offset) / jnt_params_[type]->scale;
       memcpy(cmd.data + offset, &count, sizeof(count));
       jnts_by_type_[type]->new_command_ = false;
@@ -178,26 +178,26 @@ bool LegNode::__fill_pos_cmd(Packet& cmd) {
     }
     offset += sizeof(count); // Each count stand two bytes.
   }
-
+  if (is_any_valid) pkts.push_back(cmd);
   return is_any_valid;
 }
 
-bool LegNode::__fill_vel_cmd(Packet& cmd) {
-  cmd = {INVALID_BYTE, node_id_, MII_MSG_MOTOR_CMD_1, JNT_P_CMD_DSIZE, {0}};
+bool LegNode::__fill_vel_cmd(MiiVector<Packet>& pkts) {
+  // cmd = {INVALID_BYTE, node_id_, MII_MSG_MOTOR_CMD_1, JNT_P_CMD_DSIZE, {0}};
   LOG_ERROR << "No implement velocity command!";
   return false;
 }
 
-bool LegNode::__fill_tor_cmd(Packet&) {
+bool LegNode::__fill_tor_cmd(MiiVector<Packet>&) {
   LOG_ERROR << "No implement torque command!";
   return false;
 }
 
-bool LegNode::__fill_pos_vel_cmd(Packet& cmd) {
+bool LegNode::__fill_pos_vel_cmd(MiiVector<Packet>& pkts) {
   int offset  = 0;
   short count = 0;
   bool is_any_valid = false;
-  cmd = {INVALID_BYTE, node_id_, MII_MSG_COMMON_DATA_4, JNT_PV0_CMD_DSIZE, {0}};
+  Packet cmd = {INVALID_BYTE, node_id_, MII_MSG_COMMON_DATA_4, JNT_PV0_CMD_DSIZE, {0}};
 
   for (const auto& type : {JntType::KNEE, JntType::HIP}) {
     if (jnts_by_type_[type]->new_command_) {
@@ -218,30 +218,23 @@ bool LegNode::__fill_pos_vel_cmd(Packet& cmd) {
 
     offset += 2*sizeof(count); // Each count stand 2*two bytes.
   }
+  if (is_any_valid) pkts.push_back(cmd);
+  if (!jnts_by_type_[JntType::YAW]->new_command_) return is_any_valid;
 
-  if (is_any_valid) return is_any_valid;
+  is_any_valid = true;
+  cmd = {INVALID_BYTE, node_id_, MII_MSG_COMMON_DATA_5, JNT_PV1_CMD_DSIZE, {0}};
+  // printf("[%d] - (%d): %+01.04f %+01.04f\n", leg_, JntType::YAW, jnt_cmds_[JntType::YAW][0], jnt_cmds_[JntType::YAW][1]);
+  count = (jnt_cmds_[JntType::YAW][0] - jnt_params_[JntType::YAW]->offset)
+      / jnt_params_[JntType::YAW]->scale;
+  memcpy(cmd.data, &count, sizeof(count));
+  // printf("[%d] - (%d): %04d ", leg_, JntType::YAW, count);
 
-
-  ///! TODO The knee and hip joint command is considered first.
-  cmd.msg_id = MII_MSG_COMMON_DATA_5;
-  cmd.size   = JNT_PV1_CMD_DSIZE;
-  if (jnts_by_type_[JntType::YAW]->new_command_) {
-    is_any_valid = true;
-    // printf("[%d] - (%d): %+01.04f %+01.04f\n", leg_, JntType::YAW, jnt_cmds_[JntType::YAW][0], jnt_cmds_[JntType::YAW][1]);
-    count = (jnt_cmds_[JntType::YAW][0] - jnt_params_[JntType::YAW]->offset)
-        / jnt_params_[JntType::YAW]->scale;
-    memcpy(cmd.data, &count, sizeof(count));
-    // printf("[%d] - (%d): %04d ", leg_, JntType::YAW, count);
-
-    count = (jnt_cmds_[JntType::YAW][1] - jnt_params_[JntType::YAW]->offset)
-        / jnt_params_[JntType::YAW]->scale;
-    memcpy(cmd.data + sizeof(count), &count, sizeof(count));
-    jnts_by_type_[JntType::YAW]->new_command_ = false;
-    // printf("%d\n", count);
-  } else {
-    memset(cmd.data, INVALID_BYTE, 2*sizeof(count));
-  }
-
+  count = (jnt_cmds_[JntType::YAW][1] - jnt_params_[JntType::YAW]->offset)
+      / jnt_params_[JntType::YAW]->scale;
+  memcpy(cmd.data + sizeof(count), &count, sizeof(count));
+  jnts_by_type_[JntType::YAW]->new_command_ = false;
+  // printf("%d\n", count);
+  pkts.push_back(cmd);
   return is_any_valid;
 }
 
