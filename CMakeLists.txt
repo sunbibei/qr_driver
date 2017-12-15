@@ -63,6 +63,7 @@ set(SYS_REGISTRY_FILES  ${SRC_REP}/registry.cpp
 
 set(SYS_FLATFORM_FILES  ${SRC_REP_RES}/imu_sensor.cpp
                         ${SRC_REP_RES}/joint.cpp
+                        ${SRC_REP_RES}/motor.cpp
                         ${SRC_REP_RES}/power.cpp
                         ${SRC_REP_RES}/force_sensor.cpp
                         ${SRC_REP_RES}/joint_manager.cpp

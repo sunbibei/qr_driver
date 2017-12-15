@@ -72,7 +72,7 @@ bool PropagateManager::run() {
       all_fail = false;
     //   LOG_DEBUG << "The propagate '" << c->propa_name_ << "' has started.";
   }
-  if (all_fail) return false;
+  if (all_fail && !_DEBUG_INFO_FLAG) return false;
 
   ThreadPool::instance()->add(THREAD_R_NAME, &PropagateManager::updateRead,  this);
   ThreadPool::instance()->add(THREAD_W_NAME, &PropagateManager::updateWrite, this);

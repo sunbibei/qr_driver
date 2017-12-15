@@ -14,8 +14,9 @@
 namespace middleware {
 
 class Motor: public Label {
+  friend class LegNode;
 public:
-  Motor(const MiiString&, const JntCmdType&);
+  Motor(const MiiString& _l = "motor");
   virtual bool init() override;
 
   virtual ~Motor();
@@ -32,26 +33,34 @@ public:
 
 public:
   ///! About the state of motor
-  const double  motor_position()               const;
-  const double& motor_position_const_ref()     const;
-  const double* motor_position_const_pointer() const;
+  const short  motor_position()               const;
+  const short& motor_position_const_ref()     const;
+  const short* motor_position_const_pointer() const;
 
-  const double  motor_velocity()               const;
-  const double& motor_velocity_const_ref()     const;
-  const double* motor_velocity_const_pointer() const;
+  const short  motor_velocity()               const;
+  const short& motor_velocity_const_ref()     const;
+  const short* motor_velocity_const_pointer() const;
 
-  const double  motor_torque()                 const;
-  const double& motor_torque_const_ref()       const;
-  const double* motor_torque_const_pointer()   const;
+  const short  motor_torque()                 const;
+  const short& motor_torque_const_ref()       const;
+  const short* motor_torque_const_pointer()   const;
 
   ///! About the command of motor
-  const double  motor_command()               const;
-  const double& motor_command_const_ref()     const;
-  const double* motor_command_const_pointer() const;
-
+  const short  motor_command()               const;
+  const short& motor_command_const_ref()     const;
+  const short* motor_command_const_pointer() const;
 
 protected:
-  const class Joint*  joint_handle_;
+  /*!
+   * Interface for communication layer, friend class LegNode.
+   */
+  void updateMotorPosition(short);
+  void updateMotorVelocity(short);
+  void updateMotorTorque  (short);
+
+protected:
+  MiiString           motor_name_;
+  class Joint*        joint_handle_;
   class MotorState*   motor_state_;
   class MotorCommand* motor_cmd_;
 

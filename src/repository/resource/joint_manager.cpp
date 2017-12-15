@@ -33,13 +33,13 @@ void JointManager::add(Joint* _res) {
 
   jnt_list_by_name_.insert(std::make_pair(_res->joint_name(), _res));
 
-  if ((_res->owner_type() < 0) || (_res->joint_type() < 0)) {
+  if ((_res->leg_type() < 0) || (_res->joint_type() < 0)) {
     LOG_WARNING << "The joint '" << _res->getLabel()
         << "' must be configured inaccurately. LegType: "
-        << _res->owner_type() << ", JntType: " << _res->joint_type();
+        << _res->leg_type() << ", JntType: " << _res->joint_type();
     return;
   }
-  jnt_list_by_type_[_res->owner_type()][_res->joint_type()] = _res;
+  jnt_list_by_type_[_res->leg_type()][_res->joint_type()] = _res;
   // LOG_DEBUG << "JointManager has received a joint -- " << _res->getLabel();
 }
 

@@ -13,6 +13,7 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/clamp.hpp>
 
+#include <repository/resource/motor.h>
 #include <repository/resource/joint.h>
 #include <repository/resource/joint_manager.h>
 #include <system/platform/protocol/qr_protocol.h>
@@ -39,14 +40,10 @@ struct JointCommand {
   const JntCmdType& mode_;
   const double      MIN_POS_;
   const double      MAX_POS_;
-  const double      MIN_MOTOR_VEL_;
-  const double      MAX_MOTOR_VEL_;
 
-  JointCommand(double min, double max, const JntCmdType& mode_ref,
-      double min_vel = -5000, double max_vel = 5000, double cmd = 0)
+  JointCommand(double min, double max, const JntCmdType& mode_ref, double cmd = 0)
     : /*id_(0), */command_(nullptr), mode_(mode_ref),
-      MIN_POS_(min), MAX_POS_(max),
-      MIN_MOTOR_VEL_(min_vel), MAX_MOTOR_VEL_(max_vel) {
+      MIN_POS_(min), MAX_POS_(max) {
     command_  = new double[2];
     *command_ = cmd;
   };
@@ -58,7 +55,7 @@ struct JointCommand {
 
 Joint::Joint(const MiiString& l)
   : Label(l), new_command_(false), jnt_type_(JntType::UNKNOWN_JNT),
-    leg_type_(LegType::UNKNOWN_LEG),  /*msg_id_(INVALID_BYTE),*/
+    leg_type_(LegType::UNKNOWN_LEG),  joint_motor_(nullptr),/*msg_id_(INVALID_BYTE),*/
     joint_state_(nullptr), joint_command_(nullptr) {
   // The code as follow should be here.
   // JointManager::instance()->add(this);
@@ -86,7 +83,7 @@ bool Joint::init() {
 
   double pos_min, pos_max;
   MiiVector<double> limits;
-  cfg->get_value_fatal(getLabel(), "pos_limits", limits);
+  cfg->get_value_fatal(getLabel(), "limits", limits);
   if (limits.size() < 2) {
     LOG_WARNING << "The attribute of " << getLabel() << " is wrong!"
         << "The attribute of limits should be equal to two(min, max).";
@@ -102,7 +99,7 @@ bool Joint::init() {
 
 const MiiString& Joint::joint_name() const { return jnt_name_; }
 const JntType&   Joint::joint_type() const { return jnt_type_; }
-const LegType&   Joint::owner_type() const { return leg_type_; }
+const LegType&   Joint::leg_type() const { return leg_type_; }
 
 void Joint::updateJointPosition(double pos) {
   auto t0 = std::chrono::high_resolution_clock::now();
@@ -157,11 +154,10 @@ void Joint::updateJointCommand(double v) {
     joint_command_->command_[POS_CMD_IDX] = boost::algorithm::clamp(v,
                                     joint_command_->MIN_POS_,
                                     joint_command_->MAX_POS_);
+    new_command_ = true;
     break;
   case JntCmdType::CMD_MOTOR_VEL:
-    joint_command_->command_[POS_CMD_IDX] = boost::algorithm::clamp(v,
-                                    joint_command_->MIN_MOTOR_VEL_,
-                                    joint_command_->MAX_MOTOR_VEL_);
+    joint_motor_->updateMotorCommand(v);
     break;
   case JntCmdType::CMD_VEL:
   case JntCmdType::CMD_TOR:
@@ -174,8 +170,6 @@ void Joint::updateJointCommand(double v) {
       << joint_command_->mode_ << "!!!!";
     return;
   }
-
-  new_command_ = true;
 }
 
 void Joint::updateJointCommand(double v0, double v1) {

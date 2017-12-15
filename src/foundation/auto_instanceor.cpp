@@ -92,21 +92,15 @@ bool AutoInstanceor::make_instance(const MiiString& __p, const MiiString& __type
 
   int idx = type_map_[__type];
   Label::LabelPtr __inst = class_loader_[idx]->createInstance<Label>(__type);
-  // LOG_DEBUG << "createInstance<Label> OK! address: " << __inst.get();
   if (nullptr != __inst.get()) {
     // 情非得已， 不应该出现这样的代码。
     // 但当前自动实例使用class_loader的方式，仅能如此妥协处理。
     // 庆幸的是，所有问题都还控制在AutoInstance中
     __inst->label_ = __p;
-    /*LOG_DEBUG << "Ready to call this instance '" << __inst->getLabel()
-        << "'s init()";*/
     __inst->init();
-    /*LOG_DEBUG << "Finished to call this instance '" << __inst->getLabel()
-        << "'s init()";*/
+
     // s_inst_table_.insert(std::make_pair(__inst->getLabel(), __inst));
     Label::registerClass(__inst);
-    /*LOG_DEBUG << "Instance " << __inst->getLabel() << ", Address: "
-        << __inst.get() << ", Count: " << __inst.use_count();*/
     return true;
   } else {
     LOG_WARNING << "What FUNK! The '" << Label::make_label(__p, __type)

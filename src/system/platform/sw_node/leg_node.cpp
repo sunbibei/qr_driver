@@ -13,6 +13,7 @@
 #include <repository/resource/force_sensor.h>
 #include <repository/resource/joint_manager.h>
 #include <repository/resource/joint.h>
+#include <repository/resource/motor.h>
 #include <system/platform/sw_node/leg_node.h>
 #include "system/platform/protocol/qr_protocol.h"
 
@@ -56,6 +57,7 @@ bool LegNode::init() {
 
   int count = 0;
   jnts_by_type_.resize(JntType::N_JNTS);
+  motors_by_type_.resize(JntType::N_JNTS);
   jnt_params_.resize(JntType::N_JNTS);
   MiiString tag = Label::make_label(getLabel(), "joint_0");
   MiiString tmp_str;
@@ -69,7 +71,9 @@ bool LegNode::init() {
       tag = Label::make_label(getLabel(), "joint_" + std::to_string(++count));
       continue;
     }
-    jnts_by_type_[jnt->joint_type()] = jnt;
+    jnts_by_type_[jnt->joint_type()]   = jnt;
+    if (jnt->joint_motor_)
+      motors_by_type_[jnt->joint_type()] = jnt->joint_motor_;
 
     auto param  = new __PrivateLinearParams;
     double alpha, beta = 0;
@@ -79,6 +83,8 @@ bool LegNode::init() {
     param->offset = alpha * beta * -0.000174528;
     jnt_params_[jnt->joint_type()] = param;
     jnt_cmds_[jnt->joint_type()]   = jnt->joint_command_const_pointer();
+    if (jnt->joint_motor_)
+      motor_cmds_[jnt->joint_type()] = jnt->joint_motor_->motor_command_const_pointer();
 
     tag = Label::make_label(getLabel(), "joint_" + std::to_string(++count));
     if (3 == count) break;
@@ -95,7 +101,36 @@ bool LegNode::init() {
   }
 }
 
-void LegNode::updateFromBuf(const unsigned char* __p) {
+void LegNode::handleMsg(const Packet& pkt) {
+  if (pkt.node_id != node_id_) {
+    LOG_ERROR << "Wrong match id between Packet and Joint";
+    return;
+  }
+
+  switch (pkt.msg_id) {
+  case MII_MSG_HEARTBEAT_MSG_1:
+    if (8 != pkt.size) {
+      LOG_ERROR << "The data size of MII_MSG_HEARTBEAT_MSG_1 message does not match!"
+          << ", the expect size is 8, but the real size is " << pkt.size;
+      return;
+    }
+    // parse the joint state and touchdown data
+    __parse_heart_beat_1(pkt.data);
+    break;
+  case MII_MSG_MOTOR_CMD_2:
+    if (6 != pkt.size) {
+      LOG_ERROR << "The data size of MII_MSG_HEARTBEAT_MSG_1 message does not match!"
+          << ", the expect size is 6, but the real size is " << pkt.size;
+      return;
+    }
+    __parse_motor_cmd_2(pkt.data);
+    break;
+  default:
+    SWNode::handleMsg(pkt);
+  }
+}
+
+void LegNode::__parse_heart_beat_1(const unsigned char* __p) {
   /*printf("0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X\n", 
       __p[0], __p[1], __p[2], __p[3], __p[4], __p[5], __p[6], __p[7]);*/
   int offset  = 0;
@@ -103,9 +138,6 @@ void LegNode::updateFromBuf(const unsigned char* __p) {
   double pos  = 0.0;
   for (const auto& type : {JntType::KNEE, JntType::HIP, JntType::YAW}) {
     memcpy(&count, __p + offset, sizeof(count));
-    // if (((LegType::FR == leg_) && (type == JntType::KNEE))
-    //       || ((LegType::FR == leg_) && (type == JntType::YAW)))
-    //   LOG_INFO << leg_ << " - " << type << ": " << count;
     // angle = \frac{360 \pi \alpha}{180*4096} C - \frac{\pi}{18000}\alpha*\beta
     // so, the ABS(scale) = \frac{360 \pi \alpha}{180*4096} = \frac{360\pi}{180*4096}
     // offset = - \frac{\pi}{18000}\alpha*\beta = -0.000174528*\beta
@@ -119,19 +151,11 @@ void LegNode::updateFromBuf(const unsigned char* __p) {
   td_->updateForceCount((__p[offset] | (__p[offset + 1] << 8)));
 }
 
-void LegNode::handleMsg(const Packet& pkt) {
-  if (pkt.node_id != node_id_) {
-    LOG_ERROR << "Wrong match id between Packet and Joint";
-    return;
-  }
-
-  switch (pkt.msg_id) {
-  case MII_MSG_HEARTBEAT_MSG_1:
-    // parse the joint state and touchdown data
-    updateFromBuf(pkt.data);
-    break;
-  default:
-    SWNode::handleMsg(pkt);
+void LegNode::__parse_motor_cmd_2(const unsigned char* __p) {
+  for (const auto& type : {JntType::KNEE, JntType::HIP, JntType::YAW}) {
+    // memcpy(&count, __p + offset, sizeof(count));
+    motors_by_type_[type]->updateMotorVelocity((__p[0] | (__p[1] << 8)));
+    __p += sizeof(short); // each count will stand two bytes.
   }
 }
 
@@ -152,7 +176,7 @@ bool LegNode::generateCmd(MiiVector<Packet>& pkts) {
     is_any_valid = __fill_pos_vel_cmd(pkts);
     break;
   case JntCmdType::CMD_MOTOR_VEL:
-    is_any_valid = __fill_motor_vel_cmd(cmd);
+    is_any_valid = __fill_motor_vel_cmd(pkts);
     break;
   default:
     LOG_ERROR << "What a fucking the command mode of joint.";
@@ -241,24 +265,24 @@ bool LegNode::__fill_pos_vel_cmd(MiiVector<Packet>& pkts) {
   return is_any_valid;
 }
 
-bool LegNode::__fill_motor_vel_cmd(Packet& cmd) {
+bool LegNode::__fill_motor_vel_cmd(MiiVector<Packet>& pkts) {
   int offset  = 0;
-  short count = 0;
   bool is_any_valid = false;
-  cmd = {INVALID_BYTE, node_id_, MII_MSG_MOTOR_CMD_2, JNT_P_CMD_DSIZE, {0}};
+  Packet cmd = {INVALID_BYTE, node_id_, MII_MSG_MOTOR_CMD_2, JNT_P_CMD_DSIZE, {0}};
   for (const auto& type : {JntType::KNEE, JntType::HIP, JntType::YAW}) {
-    if (jnts_by_type_[type]->new_command_) {
+    if (motors_by_type_[type]->new_command_) {
       is_any_valid = true;
-      count = (*jnt_cmds_[type] - jnt_params_[type]->offset) / jnt_params_[type]->scale;
-      memcpy(cmd.data + offset, &count, sizeof(count));
-      jnts_by_type_[type]->new_command_ = false;
+      // printf("Motor velocity: %04d ", *motor_cmds_[type]);
+      memcpy(cmd.data + offset, motor_cmds_[type], sizeof(short));
+      motors_by_type_[type]->new_command_ = false;
     } else {
       cmd.data[offset]     = INVALID_BYTE;
       cmd.data[offset + 1] = INVALID_BYTE;
     }
-    offset += sizeof(count); // Each count stand two bytes.
+    offset += sizeof(short); // Each count stand two bytes.
   }
 
+  if (is_any_valid) pkts.push_back(cmd);
   return is_any_valid;
 }
 

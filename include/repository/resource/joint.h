@@ -15,6 +15,7 @@ namespace middleware {
 
 class Joint : public Label {
   friend class LegNode;
+  friend class Motor;
 public:
   Joint(const MiiString& l = Label::null);
   // 妥协方案
@@ -23,7 +24,7 @@ public:
 
   const MiiString&   joint_name() const;
   const JntType&     joint_type() const;
-  const LegType&     owner_type() const;
+  const LegType&     leg_type()   const;
   /**
    * Interface for user layer.
    */
@@ -71,6 +72,7 @@ protected:
   // The private data structure
   class JointState*   joint_state_;
   class JointCommand* joint_command_;
+  class Motor*        joint_motor_;
 };
 
 } /* namespace middleware */
