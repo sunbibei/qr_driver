@@ -45,7 +45,7 @@ struct Gains {
 struct Errors {
   Errors()
   : p_error_last_(0), p_error_(0), i_error_(0), d_error_(0),
-    tmp_d_error_(0) { }
+    tmp_d_error_(0), first_compute_(true) { }
   ///! Save position state for derivative state calculation.
   double p_error_last_;
   ///! Position error.
@@ -56,6 +56,14 @@ struct Errors {
   double d_error_;
   ///! The update interface, e = target - state
   bool update(double e, double dt) {
+    if (first_compute_) {
+      p_error_last_ = e;
+      p_error_      = e;
+      d_error_      = 0;
+      i_error_      = dt * p_error_;
+      first_compute_= false;
+      return true;
+    }
     // Calculate the derivative error
     tmp_d_error_  = (e - p_error_last_) / dt;
     if (std::isnan(tmp_d_error_) || std::isinf(tmp_d_error_))
@@ -73,10 +81,12 @@ struct Errors {
     p_error_      = 0;
     i_error_      = 0;
     d_error_      = 0;
+    first_compute_=true;
   }
 
 private:
   double tmp_d_error_;
+  bool   first_compute_;
 };
 
 inline double operator*(const Gains& k, const Errors& e) {
@@ -319,7 +329,7 @@ void Pid::setTarget(short target) {
 }
 
 bool Pid::control(short _x, short& _u) {
-  // if (!__d_debug_) return false;
+  if (!__d_debug_) return false;
 
   // if (__d_debug_) printf("update - %d\n", _x);
   if (!time_control_->running() || std::isnan(_x) || std::isinf(_x))
@@ -351,7 +361,8 @@ bool Pid::stability(short _x, short& _e) {
 
   int64_t time = 0;
   time_control_->stop(&time);
-  if (__d_debug_) LOG_DEBUG << name_ << " - This target is reached, using " << time;
+  if (__d_debug_) LOG_DEBUG << name_ << " - This target is reached, using "
+                   << time << ", error " << _e;
 
   errors_->clear();
   stability_->clear_target();
