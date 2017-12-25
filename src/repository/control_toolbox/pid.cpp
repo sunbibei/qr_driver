@@ -329,7 +329,7 @@ void Pid::setTarget(short target) {
 }
 
 bool Pid::control(short _x, short& _u) {
-  if (!__d_debug_) return false;
+  // if (!__d_debug_) return false;
 
   // if (__d_debug_) printf("update - %d\n", _x);
   if (!time_control_->running() || std::isnan(_x) || std::isinf(_x))

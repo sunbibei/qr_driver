@@ -198,6 +198,7 @@ bool LegNode::__fill_pos_cmd(MiiVector<Packet>& pkts) {
       //   printf("LegNode: [%d] - (%d): %+01.04f\n", leg_, type, jnt_cmds_[type][0]);
       count = (*jnt_cmds_[type] - jnt_params_[type]->offset) / jnt_params_[type]->scale;
       memcpy(cmd.data + offset, &count, sizeof(count));
+      // printf("LegNode: [%d] - (%d): %05d\n", leg_, type, count);
       jnts_by_type_[type]->new_command_ = false;
     } else {
       cmd.data[offset]     = INVALID_BYTE;
@@ -205,6 +206,7 @@ bool LegNode::__fill_pos_cmd(MiiVector<Packet>& pkts) {
     }
     offset += sizeof(count); // Each count stand two bytes.
   }
+
   if (is_any_valid) pkts.push_back(cmd);
   return is_any_valid;
 }
