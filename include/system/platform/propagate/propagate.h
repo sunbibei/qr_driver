@@ -8,8 +8,8 @@
 #ifndef INCLUDE_MIDDLEWARE_PROPAGATE_PROPAGATE_H_
 #define INCLUDE_MIDDLEWARE_PROPAGATE_PROPAGATE_H_
 
-#include <system/platform/protocol/qr_protocol.h>
-#include <foundation/label.h>
+#include "system/platform/protocol/qr_protocol.h"
+#include "foundation/label.h"
 #include <vector>
 
 namespace middleware {

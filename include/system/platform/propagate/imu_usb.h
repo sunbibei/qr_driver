@@ -8,7 +8,7 @@
 #ifndef INCLUDE_SYSTEM_PLATFORM_PROPAGATE_IMU_USB_H_
 #define INCLUDE_SYSTEM_PLATFORM_PROPAGATE_IMU_USB_H_
 
-#include <system/platform/propagate/usb.h>
+#include "system/platform/propagate/usb.h"
 
 namespace middleware {
 

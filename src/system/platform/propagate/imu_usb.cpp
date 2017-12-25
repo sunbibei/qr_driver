@@ -5,8 +5,7 @@
  *      Author: bibei
  */
 
-#include <system/platform/propagate/imu_usb.h>
-
+#include "system/platform/propagate/imu_usb.h"
 #include "foundation/cfg_reader.h"
 
 namespace middleware {

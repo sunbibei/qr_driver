@@ -8,7 +8,7 @@
 #ifndef INCLUDE_APPS_HW_UNIT_LEG_NODE_H_
 #define INCLUDE_APPS_HW_UNIT_LEG_NODE_H_
 
-#include <system/platform/sw_node/sw_node.h>
+#include "system/platform/sw_node/sw_node.h"
 #include "foundation/utf.h"
 
 namespace middleware {

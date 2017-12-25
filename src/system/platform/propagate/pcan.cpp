@@ -5,7 +5,7 @@
  *      Author: silence
  */
 
-#include <system/platform/protocol/qr_protocol.h>
+#include "system/platform/protocol/qr_protocol.h"
 #include "system/platform/propagate/pcan.h"
 
 #include "foundation/cfg_reader.h"

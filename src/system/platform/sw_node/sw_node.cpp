@@ -5,11 +5,11 @@
  *      Author: silence
  */
 
-#include <foundation/utf.h>
+#include "foundation/utf.h"
 #include "foundation/cfg_reader.h"
 
-#include <system/platform/sw_node/sw_node_manager.h>
-#include <system/platform/sw_node/sw_node.h>
+#include "system/platform/sw_node/sw_node_manager.h"
+#include "system/platform/sw_node/sw_node.h"
 
 namespace middleware {
 

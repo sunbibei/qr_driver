@@ -8,9 +8,12 @@
 #ifndef INCLUDE_SYSTEM_ROBOT_HW_MANAGER_H_
 #define INCLUDE_SYSTEM_ROBOT_HW_MANAGER_H_
 
-#include <system/platform/internal/resource_manager.h>
-#include <system/platform/sw_node/sw_node.h>
+
+
+#include "system/platform/sw_node/sw_node.h"
+
 #include <chrono>
+#include <foundation/internal/resource_manager.h>
 
 namespace middleware {
 

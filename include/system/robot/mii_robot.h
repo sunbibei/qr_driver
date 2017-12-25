@@ -33,26 +33,6 @@ public:
   virtual void supportRegistry();
 public:
   /**
-   * @brief This methods add the joint command to Joint object.
-   * @param _name    The name of controlled joint
-   * @param _command The read data of command
-   */
-  void addJntCmd(const MiiString& _name, double _command);
-  /**
-   * @brief This methods add the joint command to Joint object.
-   * @param _owner  The owner who owns the specific _jnt want to control
-   * @param _jnt    The controlled Joint type
-   * @param command The real data of command
-   */
-  void addJntCmd(LegType _owner, JntType _jnt, double _command);
-  /**
-   * 获取Joint的名称, 位置, 速度, 力矩及JointState等数据
-   */
-  void getJointNames(MiiVector<MiiString>&);
-  void getJointPositions(MiiVector<double>&);
-  void getJointVelocities(MiiVector<double>&);
-  void getJointTorques(MiiVector<double>&);
-  /**
    * @brief Instead of the upper methods, you also use the JointManager directly.
    */
   class JointManager* joint_manager()           { return jnt_manager_; }
@@ -96,6 +76,29 @@ private:
   class __RegImuRes*   imu_reg_res_;
   ///! The helper method
   void __reg_resource_and_command(const MiiString&);
+
+///! These methods has been deleted.
+// public:
+  /**
+   * @brief This methods add the joint command to Joint object.
+   * @param _name    The name of controlled joint
+   * @param _command The read data of command
+   */
+  // void addJntCmd1(const MiiString& _name, double _command);
+  /**
+   * @brief This methods add the joint command to Joint object.
+   * @param _owner  The owner who owns the specific _jnt want to control
+   * @param _jnt    The controlled Joint type
+   * @param command The real data of command
+   */
+  // void addJntCmd1(LegType _owner, JntType _jnt, double _command);
+  /**
+   * 获取Joint的名称, 位置, 速度, 力矩及JointState等数据
+   */
+  // void getJointNames1(MiiVector<MiiString>&);
+  // void getJointPositions1(MiiVector<double>&);
+  // void getJointVelocities1(MiiVector<double>&);
+  // void getJointTorques1(MiiVector<double>&);
 };
 
 } /* namespace middleware */

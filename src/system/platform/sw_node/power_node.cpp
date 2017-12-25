@@ -5,7 +5,7 @@
  *      Author: bibei
  */
 
-#include <system/platform/sw_node/power_node.h>
+#include "system/platform/sw_node/power_node.h"
 #include "foundation/cfg_reader.h"
 #include "repository/resource/power.h"
 

@@ -6,8 +6,7 @@
  */
 
 #include "system/platform/propagate/propagate_manager.h"
-
-#include "system/platform/thread/threadpool.h"
+#include "foundation/thread/threadpool.h"
 
 namespace middleware {
 

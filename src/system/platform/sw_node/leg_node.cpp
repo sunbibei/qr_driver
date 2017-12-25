@@ -5,19 +5,19 @@
  *      Author: silence
  */
 
-#include <foundation/utf.h>
+#include "foundation/utf.h"
 #include "foundation/cfg_reader.h"
 
-#include <boost/algorithm/string.hpp>
+#include "repository/resource/force_sensor.h"
+#include "repository/resource/joint_manager.h"
+#include "repository/resource/joint.h"
+#include "repository/resource/motor.h"
 
-#include <repository/resource/force_sensor.h>
-#include <repository/resource/joint_manager.h>
-#include <repository/resource/joint.h>
-#include <repository/resource/motor.h>
-#include <system/platform/sw_node/leg_node.h>
+#include "system/platform/sw_node/leg_node.h"
 #include "system/platform/protocol/qr_protocol.h"
 
 #include <iomanip>
+#include <boost/algorithm/string.hpp>
 
 namespace middleware {
 
