@@ -5,7 +5,7 @@
  *      Author: silence
  */
 
-#include <system/platform/propagate/propagate_manager.h>
+#include "system/platform/propagate/propagate_manager.h"
 
 #include <foundation/utf.h>
 #include "foundation/cfg_reader.h"

@@ -16,8 +16,8 @@
 #include <boost/variant.hpp>
 #include <boost/shared_ptr.hpp>
 
-#include <system/platform/protocol/qr_protocol.h>
-#include <foundation/label.h>
+#include "system/platform/protocol/qr_protocol.h"
+#include "foundation/label.h"
 
 namespace middleware {
 

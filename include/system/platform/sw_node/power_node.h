@@ -8,7 +8,7 @@
 #ifndef INCLUDE_SYSTEM_PLATFORM_SW_NODE_POWER_NODE_H_
 #define INCLUDE_SYSTEM_PLATFORM_SW_NODE_POWER_NODE_H_
 
-#include <system/platform/sw_node/sw_node.h>
+#include "system/platform/sw_node/sw_node.h"
 
 namespace middleware {
 

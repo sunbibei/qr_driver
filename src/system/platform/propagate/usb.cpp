@@ -5,8 +5,7 @@
  *      Author: bibei
  */
 
-#include <system/platform/propagate/usb.h>
-
+#include "system/platform/propagate/usb.h"
 #include "foundation/cfg_reader.h"
 
 #include <fcntl.h>

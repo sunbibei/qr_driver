@@ -5,19 +5,45 @@
  *      Author: bibei
  */
 
-#include <system/platform/propagate/arm_pcan.h>
+#include "system/platform/propagate/arm_pcan.h"
+#include "foundation/cfg_reader.h"
 
 namespace middleware {
 
 const int MAX_COUNT = 10;
 
 ArmPcan::ArmPcan(const MiiString& l)
-  : PcanPropagate(l) {
+  : PcanPropagate(l), rw_fake_(false) {
   send_msg_.MSGTYPE = PCAN_MESSAGE_STANDARD;
+}
+
+bool ArmPcan::init() {
+  if (!PcanPropagate::init()) return false;
+
+  auto cfg = MiiCfgReader::instance();
+  cfg->get_value(getLabel(), "fake", rw_fake_);
+
+  return true;
 }
 
 ArmPcan::~ArmPcan() {
   ;
+}
+
+bool ArmPcan::start() {
+  if (rw_fake_) {
+    connected_ = true;
+    return connected_;
+  }
+
+  return PcanPropagate::start();
+}
+
+void ArmPcan::stop() {
+  if (rw_fake_)
+    connected_ = false;
+  else
+    PcanPropagate::stop();
 }
 
 bool ArmPcan::write(const Packet& pkt) {
@@ -31,14 +57,14 @@ bool ArmPcan::write(const Packet& pkt) {
   memset(send_msg_.DATA, '\0', 8 * sizeof(BYTE));
   memcpy(send_msg_.DATA, pkt.data, send_msg_.LEN * sizeof(BYTE));
 
-  if (false)
+  if (true || rw_fake_)
     printf("  - ID:0x%03X LEN:%1x DATA:0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X\n",
       (int)send_msg_.ID, (int)send_msg_.LEN,
       (int)send_msg_.DATA[0], (int)send_msg_.DATA[1],
       (int)send_msg_.DATA[2], (int)send_msg_.DATA[3],
       (int)send_msg_.DATA[4], (int)send_msg_.DATA[5],
       (int)send_msg_.DATA[6], (int)send_msg_.DATA[7]);
-  // return true;
+  if (rw_fake_) return true;
 
   // try to 10 times
   for (int counter = 0; counter < MAX_COUNT; ++counter) {
@@ -58,7 +84,7 @@ bool ArmPcan::write(const Packet& pkt) {
 }
 
 bool ArmPcan::read(Packet& pkt) {
-  if (!connected_) {
+  if (!connected_ || rw_fake_) {
     // LOG_FIRST_N(WARNING, 10000) << "The pcan has not been launched, or initialized fail.";
     return false;
   }

@@ -5,7 +5,7 @@
  *      Author: bibei
  */
 
-#include <system/platform/sw_node/imu_node.h>
+#include "system/platform/sw_node/imu_node.h"
 
 #include "repository/resource/imu_sensor.h"
 #include "foundation/cfg_reader.h"

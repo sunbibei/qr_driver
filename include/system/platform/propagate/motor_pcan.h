@@ -8,8 +8,9 @@
 #ifndef INCLUDE_SYSTEM_PLATFORM_PROPAGATE_MOTOR_PCAN_H_
 #define INCLUDE_SYSTEM_PLATFORM_PROPAGATE_MOTOR_PCAN_H_
 
-#include <system/platform/propagate/arm_pcan.h>
-#include <repository/control_toolbox/pid.h>
+#include "system/platform/propagate/arm_pcan.h"
+#include "repository/control_toolbox/pid.h"
+
 #include <atomic>
 #include <chrono>
 

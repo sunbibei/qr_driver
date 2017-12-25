@@ -10,15 +10,16 @@
 #include "repository/resource/joint.h"
 #include "repository/resource/joint_manager.h"
 #include "repository/registry.h"
+#include "foundation/thread/threadpool.h"
+#include "foundation/label.h"
+#include "foundation/cfg_reader.h"
+#include "foundation/auto_instanceor.h"
 
 #include "system/platform/master.h"
 #include "system/platform/propagate/propagate_manager.h"
 #include "system/robot/mii_robot.h"
-#include "system/platform/thread/threadpool.h"
 
-#include "foundation/label.h"
-#include "foundation/cfg_reader.h"
-#include "foundation/auto_instanceor.h"
+#include <atomic>
 
 namespace middleware {
 
@@ -26,12 +27,16 @@ namespace middleware {
 
 struct __RegJntRes {
   ///! Order by { JntType::KNEE, JntType::HIP, JntType::YAW }
-  Eigen::VectorXd* resource[LegType::N_LEGS][JntDataType::N_JNT_DATA_TYPES];
-  Eigen::VectorXd* command[LegType::N_LEGS];
-  double*          command_pointer[LegType::N_LEGS][JntType::N_JNTS];
-  __RegJntRes() {
+  Eigen::VectorXd*  resource[LegType::N_LEGS][JntDataType::N_JNT_DATA_TYPES];
+  Eigen::VectorXd*  command[LegType::N_LEGS];
+  JntCmdType        cmd_mode;
+  std::atomic_bool* cmd_flag[LegType::N_LEGS];
+  double*           command_pointer[LegType::N_LEGS][JntType::N_JNTS];
+  __RegJntRes() : cmd_mode(JntCmdType::UNKNOWN_CMD_TYPE) {
     for (auto& c : command)
       c = nullptr;
+    for (auto& f : cmd_flag)
+      f = nullptr;
     for (auto& rs : resource)
       for (auto& r : rs)
         r = nullptr;
@@ -213,29 +218,36 @@ void MiiRobot::__reg_resource_and_command(const MiiString& _prefix) {
   }*/
 
   auto cfg = MiiCfgReader::instance();
+
+
   int count = 0;
   LegType leg = LegType::UNKNOWN_LEG;
-  MiiString _leg_tag = Label::make_label(
-      Label::make_label(_prefix, "legs"), "leg_" + std::to_string(count));
-  while (cfg->get_value(_leg_tag, "leg", leg)) {
-    MiiString str;
-    cfg->get_value_fatal(_leg_tag, "command", str);
-    REG_COMMAND(str, jnt_reg_res_->command[leg]);
+  MiiString _leg_tag = Label::make_label(_prefix, "legs");
 
-    cfg->get_value_fatal(_leg_tag, "td_resource", str);
+  MiiString str;
+  cfg->get_value_fatal(_leg_tag, "mode", str);
+  jnt_reg_res_->cmd_mode = jnt_manager_->getJointCommandMode();
+  REG_COMMAND_NO_FLAG(str, (int*)(&jnt_reg_res_->cmd_mode));
+
+  MiiString _legs_tag = Label::make_label(_leg_tag, "leg_" + std::to_string(count));
+  while (cfg->get_value(_legs_tag, "leg", leg)) {
+
+    cfg->get_value_fatal(_legs_tag, "command", str);
+    REG_COMMAND(str, jnt_reg_res_->command[leg], &jnt_reg_res_->cmd_flag[leg]);
+
+    cfg->get_value_fatal(_legs_tag, "td_resource", str);
     REG_RESOURCE(str, td_list_by_type_[leg]->force_data_const_pointer());
 
-    cfg->get_value_fatal(_leg_tag, "pos", str);
+    cfg->get_value_fatal(_legs_tag, "pos", str);
     REG_RESOURCE(str, jnt_reg_res_->resource[leg][JntDataType::POS]);
 
-    cfg->get_value_fatal(_leg_tag, "vel", str);
+    cfg->get_value_fatal(_legs_tag, "vel", str);
     REG_RESOURCE(str, jnt_reg_res_->resource[leg][JntDataType::VEL]);
 
-    cfg->get_value_fatal(_leg_tag, "tor", str);
+    cfg->get_value_fatal(_legs_tag, "tor", str);
     REG_RESOURCE(str, jnt_reg_res_->resource[leg][JntDataType::TOR]);
 
-    _leg_tag = Label::make_label(
-        Label::make_label(_prefix, "legs"), "leg_" + std::to_string(++count));
+    _legs_tag = Label::make_label(_leg_tag, "leg_" + std::to_string(++count));
   }
 
   MiiVector<MiiString> strs;
@@ -257,6 +269,8 @@ void MiiRobot::supportRegistry() {
   TIMER_INIT
 
   mii_ctrl_alive_ = true;
+
+  const JntCmdType& mode = jnt_manager_->getJointCommandMode();
   while (mii_ctrl_alive_) {
     /// read joint states
     for (const auto& l : {LegType::FL, LegType::HL, LegType::FR, LegType::HR})
@@ -268,7 +282,14 @@ void MiiRobot::supportRegistry() {
 
     // write
     if (use_mii_control_) {
+      if (mode != jnt_reg_res_->cmd_mode)
+        jnt_manager_->setJointCommandMode(jnt_reg_res_->cmd_mode);
+
       for (const auto& l : {LegType::FL, LegType::HL, LegType::FR, LegType::HR}) {
+        auto& flag = *(jnt_reg_res_->cmd_flag[l]);
+        if (!flag.load()) continue;
+
+        flag.store(false);
         auto& cmd_ref = *jnt_reg_res_->command[l];
         for (const auto& j : {JntType::KNEE, JntType::HIP, JntType::YAW})
           jnt_manager_->addJointCommand(l, j, cmd_ref(j));
@@ -310,40 +331,42 @@ bool MiiRobot::start() {
 }
 
 
-void MiiRobot::addJntCmd(const MiiString& name, double command) {
+///! These methods has been deleted.
+/*
+void MiiRobot::addJntCmd1(const MiiString& name, double command) {
   jnt_manager_->addJointCommand(name, command);
 }
 
-void MiiRobot::addJntCmd(LegType _owner, JntType _jnt, double _command) {
+void MiiRobot::addJntCmd1(LegType _owner, JntType _jnt, double _command) {
   jnt_manager_->addJointCommand(_owner, _jnt, _command);
 }
 
-void MiiRobot::getJointNames(MiiVector<MiiString>& ret) {
+void MiiRobot::getJointNames1(MiiVector<MiiString>& ret) {
   ret.clear();
   for (const auto& jnt : *jnt_manager_) {
     ret.push_back(jnt->joint_name());
   }
 }
 
-void MiiRobot::getJointPositions(MiiVector<double>& ret) {
+void MiiRobot::getJointPositions1(MiiVector<double>& ret) {
   ret.clear();
   for (const auto& jnt : *jnt_manager_) {
     ret.push_back(jnt->joint_position());
   }
 }
 
-void MiiRobot::getJointVelocities(MiiVector<double>& ret) {
+void MiiRobot::getJointVelocities1(MiiVector<double>& ret) {
   ret.clear();
   for (const auto& jnt : *jnt_manager_) {
     ret.push_back(jnt->joint_velocity());
   }
 }
 
-void MiiRobot::getJointTorques(MiiVector<double>& ret) {
+void MiiRobot::getJointTorques1(MiiVector<double>& ret) {
   ret.clear();
   for (const auto& jnt : *jnt_manager_) {
     ret.push_back(jnt->joint_torque());
   }
-}
+}*/
 
 } /* namespace middleware */

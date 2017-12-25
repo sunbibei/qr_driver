@@ -8,7 +8,7 @@
 #ifndef INCLUDE_SYSTEM_PLATFORM_PROPAGATE_USB_H_
 #define INCLUDE_SYSTEM_PLATFORM_PROPAGATE_USB_H_
 
-#include <system/platform/propagate/propagate.h>
+#include "system/platform/propagate/propagate.h"
 
 namespace middleware {
 

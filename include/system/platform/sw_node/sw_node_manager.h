@@ -8,10 +8,10 @@
 #ifndef INCLUDE_SYSTEM_PLATFORM_SW_NODE_MANAGER_H_
 #define INCLUDE_SYSTEM_PLATFORM_SW_NODE_MANAGER_H_
 
-#include <system/platform/internal/resource_manager.h>
-#include <system/platform/sw_node/sw_node.h>
+#include "foundation/internal/resource_manager.h"
+#include "system/platform/sw_node/sw_node.h"
 
-#include <foundation/utf.h>
+#include "foundation/utf.h"
 
 namespace middleware {
 

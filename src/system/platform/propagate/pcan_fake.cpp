@@ -5,7 +5,7 @@
  *      Author: bibei
  */
 
-#include <system/platform/propagate/pcan_fake.h>
+#include "system/platform/propagate/pcan_fake.h"
 #include "foundation/cfg_reader.h"
 
 #include <stdio.h>
@@ -17,42 +17,53 @@ namespace middleware {
 
 FILE*   g_r_fd   = nullptr;
 FILE*   g_w_fd   = nullptr;
-time_t* g_time_t = nullptr;
-tm*     g_tm_    = nullptr;
 bool    g_repeat = false;
 
 #define INVALID_BYTE  (0x88)
 #define ONLY_ONE_PKT  (0x11)
-#define PACKET_W_FORMAT ("%4d-%02d-%02d, %02d:%02d:%02d\tID: 0x%02X, LEN: %d, DATA: 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X\n")
+#define PACKET_W_FORMAT ("%4d-%02d-%02d, %02d:%02d:%02d\tID: 0x%03X, LEN: %d, DATA: 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X\n")
 #define PACKET_R_FORMAT ("ID: 0x%x, LEN: %d, DATA: 0x%x 0x%x 0x%x 0x%x 0x%x 0x%x 0x%x 0x%x\n")
 
-PcanChannelFake::PcanChannelFake(const MiiString&) { }
-bool PcanChannelFake::init() {
+#define PACKAGE_W_PRINT ("\033[33;1m -> %02d:%02d:%02d ID:0x%03X LEN:%1x DATA:0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X\033[0m\n")
+#define PACKAGE_R_PRINT ("\033[35;1m <- %02d:%02d:%02d ID:0x%03X LEN:%1x DATA:0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X\033[0m\n")
+
+PcanFake::PcanFake(const MiiString&) {
+  r_time_t_ = nullptr;
+  w_time_t_ = nullptr;
+  r_tm_    = nullptr;
+  w_tm_    = nullptr;
+}
+bool PcanFake::init() {
   auto cfg = MiiCfgReader::instance();
 
   MiiString filename;
   if (cfg->get_value(getLabel(), "output", filename))
     g_w_fd = fopen(filename.c_str(), "w");
-  if (cfg->get_value(getLabel(), "input", filename)) {
+  if (cfg->get_value(getLabel(), "input",  filename)) {
     g_r_fd = fopen(filename.c_str(), "r");
-    cfg->get_value(getLabel(), "repeat", g_repeat);
+    cfg->get_value(getLabel(),   "repeat", g_repeat);
   }
 
-  g_time_t = new time_t;
-  g_tm_    = new tm;
+  r_time_t_ = new time_t;
+  w_time_t_ = new time_t;
+//  r_tm_     = new tm;
+//  w_tm_     = new tm;
 
+  is_swap_  = false;
   return PcanPropagate::init();
 }
 
-PcanChannelFake::~PcanChannelFake() {
-  if (nullptr != g_time_t) {
-    delete g_time_t;
-    g_time_t = nullptr;
-  }
-  if (nullptr != g_tm_) {
-    delete g_tm_;
-    g_tm_ = nullptr;
-  }
+PcanFake::~PcanFake() {
+  if (nullptr != r_time_t_) delete r_time_t_;
+  if (nullptr != w_time_t_) delete w_time_t_;
+//  if (nullptr != r_tm_)    delete r_tm_;
+//  if (nullptr != w_tm_)    delete w_tm_;
+
+//  r_time_t_ = nullptr;
+//  w_time_t_ = nullptr;
+//  r_tm_ = nullptr;
+//  w_tm_ = nullptr;
+
   if (nullptr != g_r_fd) {
     fclose(g_r_fd);
     g_r_fd = nullptr;
@@ -63,38 +74,44 @@ PcanChannelFake::~PcanChannelFake() {
   }
 }
 
-bool PcanChannelFake::start() {
+bool PcanFake::start() {
   LOG_INFO << "PcanChannelFake start. ";
   LOG_INFO << "Input  FD: " << g_r_fd;
   LOG_INFO << "Output FD: " << g_w_fd;
   return true;
 }
 
-bool PcanChannelFake::write(const Packet& pkt) {
+bool PcanFake::write(const Packet& pkt) {
   // static int g_w_err_count = 0;
   // if (!connected_) { return connected_; }
   // This code aims to compatible with the old protocol
   // TODO It should be updated.
-  send_msg_.ID  = pkt.node_id;
-  send_msg_.LEN = pkt.size + 3;
-  memset(send_msg_.DATA, '\0', sizeof(send_msg_.DATA));
-  send_msg_.DATA[0] = pkt.msg_id;
-  send_msg_.DATA[1] = ONLY_ONE_PKT;
-  send_msg_.DATA[2] = INVALID_BYTE;
-  memcpy(send_msg_.DATA + 3, pkt.data, pkt.size * sizeof(BYTE));
+  send_msg_.MSGTYPE = PCAN_MESSAGE_STANDARD;
+  send_msg_.ID      = MII_MSG_FILL_TO_NODE_MSG(pkt.node_id, pkt.msg_id);
+  send_msg_.LEN     = pkt.size;
+  memset(send_msg_.DATA, '\0', 8 * sizeof(BYTE));
+  memcpy(send_msg_.DATA, pkt.data, send_msg_.LEN * sizeof(BYTE));
 
-  printf(PACKET_W_FORMAT,
-       g_tm_->tm_year + 1900, g_tm_->tm_mon, g_tm_->tm_mday, g_tm_->tm_hour,
-       g_tm_->tm_min, g_tm_->tm_sec, send_msg_.ID, (int)send_msg_.LEN,
-       send_msg_.DATA[0], send_msg_.DATA[1], send_msg_.DATA[2],
-       send_msg_.DATA[3], send_msg_.DATA[4], send_msg_.DATA[5],
-       send_msg_.DATA[6], send_msg_.DATA[7]);
+  time(w_time_t_);
+  w_tm_ = std::localtime(w_time_t_);
 
-  time(g_time_t);
-  g_tm_ = std::localtime(g_time_t);
+  if (false)
+  printf(PACKAGE_W_PRINT,
+      w_tm_->tm_hour, w_tm_->tm_min, w_tm_->tm_sec, send_msg_.ID, (int)send_msg_.LEN,
+      send_msg_.DATA[0], send_msg_.DATA[1], send_msg_.DATA[2],
+      send_msg_.DATA[3], send_msg_.DATA[4], send_msg_.DATA[5],
+      send_msg_.DATA[6], send_msg_.DATA[7]);
+
+  if (MII_MSG_COMMON_DATA_1 == pkt.msg_id) {
+    memcpy(&mid_buffer_, &send_msg_, sizeof(TPCANMsg));
+    mid_buffer_.ID  = MII_MSG_FILL_TO_HOST_MSG(pkt.node_id, MII_MSG_HEARTBEAT_MSG_1);
+    mid_buffer_.LEN = 0x08;
+    is_swap_ = true;
+  }
+
   if (g_w_fd)
-    fprintf(g_w_fd, PACKET_W_FORMAT, g_tm_->tm_year + 1900, g_tm_->tm_mon,
-        g_tm_->tm_mday, g_tm_->tm_hour, g_tm_->tm_min, g_tm_->tm_sec,
+    fprintf(g_w_fd, PACKET_W_FORMAT, w_tm_->tm_year + 1900, w_tm_->tm_mon,
+        w_tm_->tm_mday, w_tm_->tm_hour, w_tm_->tm_min, w_tm_->tm_sec,
         send_msg_.ID, (int)send_msg_.LEN, send_msg_.DATA[0],
         send_msg_.DATA[1], send_msg_.DATA[2], send_msg_.DATA[3],
         send_msg_.DATA[4], send_msg_.DATA[5], send_msg_.DATA[6],
@@ -103,7 +120,7 @@ bool PcanChannelFake::write(const Packet& pkt) {
   return true;
 }
 
-bool PcanChannelFake::read(Packet& pkt) {
+bool PcanFake::read(Packet& pkt) {
   if (g_r_fd) {
     if (feof(g_r_fd)) {
       if (g_repeat) {
@@ -119,28 +136,27 @@ bool PcanChannelFake::read(Packet& pkt) {
          (int*)(recv_msg_.DATA + 2), (int*)(recv_msg_.DATA + 3),
          (int*)(recv_msg_.DATA + 4), (int*)(recv_msg_.DATA + 5),
          (int*)(recv_msg_.DATA + 6), (int*)(recv_msg_.DATA + 7));
+  } else if (is_swap_) {
+    memcpy(&recv_msg_, &mid_buffer_, sizeof(TPCANMsg));
+    is_swap_ = false;
   } else {
-    LOG_EVERY_N(ERROR, 10) << "Read file FAIL!!!";
     return false;
   }
 
+  time(r_time_t_);
+  r_tm_ = std::localtime(r_time_t_);
   if (false)
-    printf("ID: 0x%02X, LEN: %d, DATA: 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X\n",
-      recv_msg_.ID, (int)recv_msg_.LEN,
+    printf(PACKAGE_R_PRINT,
+      r_tm_->tm_hour, r_tm_->tm_min, r_tm_->tm_sec, recv_msg_.ID, (int)recv_msg_.LEN,
       recv_msg_.DATA[0], recv_msg_.DATA[1], recv_msg_.DATA[2], recv_msg_.DATA[3],
       recv_msg_.DATA[4], recv_msg_.DATA[5], recv_msg_.DATA[6], recv_msg_.DATA[7]);
-  // This code aims to compatible with the old protocol
-  // TODO It should be updated.
-  if (recv_msg_.LEN < 3) {
-    LOG_EVERY_N(ERROR, 10) << "Error Message from can bus, this length of message data is "
-        << recv_msg_.LEN;
-    return false;
-  }
-  pkt.node_id = recv_msg_.ID;
-  pkt.msg_id  = recv_msg_.DATA[0];
-  pkt.size    = recv_msg_.LEN - 3;
-  memset(pkt.data, '\0', sizeof(pkt.data));
-  memcpy(pkt.data, recv_msg_.DATA + 3, pkt.size * sizeof(BYTE));
+
+  pkt.bus_id  = bus_id_;
+  pkt.node_id = MII_MSG_EXTRACT_NODE_ID(recv_msg_.ID);
+  pkt.msg_id  = MII_MSG_EXTRACT_MSG_ID(recv_msg_.ID);
+  pkt.size    = recv_msg_.LEN;
+  memset(pkt.data, '\0', 8 * sizeof(char));
+  memcpy(pkt.data, recv_msg_.DATA, pkt.size * sizeof(char));
   return true;
 }
 
@@ -148,5 +164,5 @@ bool PcanChannelFake::read(Packet& pkt) {
 
 
 #include <class_loader/class_loader_register_macro.h>
-CLASS_LOADER_REGISTER_CLASS(middleware::PcanChannelFake, Label)
-CLASS_LOADER_REGISTER_CLASS(middleware::PcanChannelFake, middleware::Propagate)
+CLASS_LOADER_REGISTER_CLASS(middleware::PcanFake, Label)
+CLASS_LOADER_REGISTER_CLASS(middleware::PcanFake, middleware::Propagate)

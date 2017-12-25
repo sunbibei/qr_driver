@@ -5,7 +5,7 @@
  *      Author: bibei
  */
 
-#include <system/platform/propagate/motor_pcan.h>
+#include "system/platform/propagate/motor_pcan.h"
 #include "foundation/cfg_reader.h"
 
 namespace middleware {

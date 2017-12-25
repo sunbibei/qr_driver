@@ -9,8 +9,9 @@
 #define INCLUDE_SYSTEM_ROBOT_PROPAGATE_MANAGER_H_
 
 #include "system/platform/protocol/qr_protocol.h"
-#include "system/platform/internal/resource_manager.h"
+#include "foundation/internal/resource_manager.h"
 #include "system/platform/propagate/propagate.h"
+
 #include <mutex>
 
 namespace middleware {
