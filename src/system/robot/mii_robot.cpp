@@ -333,36 +333,36 @@ bool MiiRobot::start() {
 
 ///! These methods has been deleted.
 /*
-void MiiRobot::addJntCmd1(const MiiString& name, double command) {
+void MiiRobot::addJntCmd(const MiiString& name, double command) {
   jnt_manager_->addJointCommand(name, command);
 }
 
-void MiiRobot::addJntCmd1(LegType _owner, JntType _jnt, double _command) {
+void MiiRobot::addJntCmd(LegType _owner, JntType _jnt, double _command) {
   jnt_manager_->addJointCommand(_owner, _jnt, _command);
 }
 
-void MiiRobot::getJointNames1(MiiVector<MiiString>& ret) {
+void MiiRobot::getJointNames(MiiVector<MiiString>& ret) {
   ret.clear();
   for (const auto& jnt : *jnt_manager_) {
     ret.push_back(jnt->joint_name());
   }
 }
 
-void MiiRobot::getJointPositions1(MiiVector<double>& ret) {
+void MiiRobot::getJointPositions(MiiVector<double>& ret) {
   ret.clear();
   for (const auto& jnt : *jnt_manager_) {
     ret.push_back(jnt->joint_position());
   }
 }
 
-void MiiRobot::getJointVelocities1(MiiVector<double>& ret) {
+void MiiRobot::getJointVelocities(MiiVector<double>& ret) {
   ret.clear();
   for (const auto& jnt : *jnt_manager_) {
     ret.push_back(jnt->joint_velocity());
   }
 }
 
-void MiiRobot::getJointTorques1(MiiVector<double>& ret) {
+void MiiRobot::getJointTorques(MiiVector<double>& ret) {
   ret.clear();
   for (const auto& jnt : *jnt_manager_) {
     ret.push_back(jnt->joint_torque());
