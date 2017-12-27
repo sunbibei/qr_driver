@@ -1,21 +1,21 @@
 /*
- * imu_usb.h
+ * imu_usb_jy61p.h
  *
- *  Created on: Nov 1, 2017
- *      Author: bibei
+ *  Created on: Dec 26, 2017
+ *      Author: robot
  */
 
-#ifndef INCLUDE_SYSTEM_PLATFORM_PROPAGATE_IMU_USB_H_
-#define INCLUDE_SYSTEM_PLATFORM_PROPAGATE_IMU_USB_H_
+#ifndef INCLUDE_SYSTEM_PLATFORM_PROPAGATE_IMU_USB_JY61P_H_
+#define INCLUDE_SYSTEM_PLATFORM_PROPAGATE_IMU_USB_JY61P_H_
 
 #include "system/platform/propagate/usb.h"
 
 namespace middleware {
 
-class ImuUsb: public UsbPropagate {
+class ImuJY61P: public UsbPropagate {
 public:
-  ImuUsb(const MiiString& l = "usb_imu");
-  virtual ~ImuUsb();
+  ImuJY61P(const MiiString& l = "jy61p");
+  virtual ~ImuJY61P();
 
 public:
   virtual bool write(const Packet&) override;
@@ -33,4 +33,4 @@ protected:
 
 } /* namespace middleware */
 
-#endif /* INCLUDE_SYSTEM_PLATFORM_PROPAGATE_IMU_USB_H_ */
+#endif /* INCLUDE_SYSTEM_PLATFORM_PROPAGATE_IMU_USB_JY61P_H_ */

@@ -5,21 +5,21 @@
  *      Author: bibei
  */
 
-#include "system/platform/propagate/imu_usb.h"
+#include "system/platform/propagate/imu_usb_jy901.h"
 #include "foundation/cfg_reader.h"
 
 namespace middleware {
 
 const int MAX_BUF_SIZE  = 1024;
 
-ImuUsb::ImuUsb(const MiiString& l)
+ImuJY901::ImuJY901(const MiiString& l)
   : UsbPropagate(l), read_status_(-1), read_buf_(new char[MAX_BUF_SIZE]),
     buf_top_(read_buf_), buf_btm_(read_buf_),
     BUF_EOF_(read_buf_ + MAX_BUF_SIZE) {
   ;
 }
 
-ImuUsb::~ImuUsb() {
+ImuJY901::~ImuJY901() {
   stop();
   if (nullptr != read_buf_) {
     delete read_buf_;
@@ -36,7 +36,7 @@ inline bool __check_sum(const char* data) {
   return (*data == sum);
 }
 
-bool ImuUsb::read(Packet& pkt) {
+bool ImuJY901::read(Packet& pkt) {
   if (!opened_) {
     // LOG_FIRST_N(WARNING, 10000) << "The USB has not been launched, or initialized fail.";
     return false;
@@ -81,10 +81,10 @@ bool ImuUsb::read(Packet& pkt) {
   } // end while(true)
 }
 
-bool ImuUsb::write(const Packet&) { return false; }
+bool ImuJY901::write(const Packet&) { return false; }
 
 } /* namespace middleware */
 
 #include <class_loader/class_loader_register_macro.h>
-CLASS_LOADER_REGISTER_CLASS(middleware::ImuUsb, Label)
-CLASS_LOADER_REGISTER_CLASS(middleware::ImuUsb, middleware::Propagate)
+CLASS_LOADER_REGISTER_CLASS(middleware::ImuJY901, Label)
+CLASS_LOADER_REGISTER_CLASS(middleware::ImuJY901, middleware::Propagate)

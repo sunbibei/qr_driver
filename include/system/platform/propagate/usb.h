@@ -19,6 +19,14 @@ public:
 
   virtual ~UsbPropagate();
 
+  struct UsbConfig {
+    MiiString file_name;
+    MiiString parity;
+    int       baud_rate;
+    int       data_bit;
+    int       stop_bit;
+  };
+
 public:
   virtual bool start() override;
   virtual void stop()  override;
@@ -31,10 +39,7 @@ protected:
   int   usb_fd_;
   unsigned char node_id_;
 
-  struct UsbConfig {
-    MiiString file_name;
-    int       baud_rate;
-  } usb_config_;
+  UsbConfig usb_config_;
 };
 
 } /* namespace middleware */
