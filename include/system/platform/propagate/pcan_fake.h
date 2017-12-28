@@ -9,7 +9,10 @@
 #define INCLUDE_SYSTEM_PLATFORM_PROPAGATE_PCAN_FAKE_H_
 
 #include "system/platform/propagate/arm_pcan.h"
-#include <atomic>
+
+#include <boost/lockfree/queue.hpp>
+// #include <mutex>
+#include <list>
 
 namespace middleware {
 
@@ -24,8 +27,10 @@ public:
   virtual bool read (class Packet&)       override;
 
 protected:
-  std::atomic_bool is_swap_;
-  TPCANMsg         mid_buffer_;
+  // TPCANMsg         mid_buffer_;
+  // std::mutex          buf_lock_;
+  // std::list<TPCANMsg> swap_buffer_;
+  boost::lockfree::queue<TPCANMsg>* swap_buffer_;
 
   time_t* r_time_t_;
   time_t* w_time_t_;

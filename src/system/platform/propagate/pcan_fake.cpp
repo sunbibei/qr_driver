@@ -27,7 +27,8 @@ bool    g_repeat = false;
 #define PACKAGE_W_PRINT ("\033[33;1m -> %02d:%02d:%02d ID:0x%03X LEN:%1x DATA:0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X\033[0m\n")
 #define PACKAGE_R_PRINT ("\033[35;1m <- %02d:%02d:%02d ID:0x%03X LEN:%1x DATA:0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X 0x%02X\033[0m\n")
 
-PcanFake::PcanFake(const MiiString&) {
+PcanFake::PcanFake(const MiiString&)
+  : swap_buffer_(nullptr) {
   r_time_t_ = nullptr;
   w_time_t_ = nullptr;
   r_tm_    = nullptr;
@@ -49,20 +50,17 @@ bool PcanFake::init() {
 //  r_tm_     = new tm;
 //  w_tm_     = new tm;
 
-  is_swap_  = false;
+  swap_buffer_ = new boost::lockfree::queue<TPCANMsg>(1024);
   return PcanPropagate::init();
 }
 
 PcanFake::~PcanFake() {
-  if (nullptr != r_time_t_) delete r_time_t_;
-  if (nullptr != w_time_t_) delete w_time_t_;
-//  if (nullptr != r_tm_)    delete r_tm_;
-//  if (nullptr != w_tm_)    delete w_tm_;
-
-//  r_time_t_ = nullptr;
-//  w_time_t_ = nullptr;
-//  r_tm_ = nullptr;
-//  w_tm_ = nullptr;
+  delete r_time_t_;
+  delete w_time_t_;
+  delete swap_buffer_;
+  r_time_t_    = nullptr;
+  w_time_t_    = nullptr;
+  swap_buffer_ = nullptr;
 
   if (nullptr != g_r_fd) {
     fclose(g_r_fd);
@@ -102,13 +100,6 @@ bool PcanFake::write(const Packet& pkt) {
       send_msg_.DATA[3], send_msg_.DATA[4], send_msg_.DATA[5],
       send_msg_.DATA[6], send_msg_.DATA[7]);
 
-  if (MII_MSG_COMMON_DATA_1 == pkt.msg_id) {
-    memcpy(&mid_buffer_, &send_msg_, sizeof(TPCANMsg));
-    mid_buffer_.ID  = MII_MSG_FILL_TO_HOST_MSG(pkt.node_id, MII_MSG_HEARTBEAT_MSG_1);
-    mid_buffer_.LEN = 0x08;
-    is_swap_ = true;
-  }
-
   if (g_w_fd)
     fprintf(g_w_fd, PACKET_W_FORMAT, w_tm_->tm_year + 1900, w_tm_->tm_mon,
         w_tm_->tm_mday, w_tm_->tm_hour, w_tm_->tm_min, w_tm_->tm_sec,
@@ -116,6 +107,15 @@ bool PcanFake::write(const Packet& pkt) {
         send_msg_.DATA[1], send_msg_.DATA[2], send_msg_.DATA[3],
         send_msg_.DATA[4], send_msg_.DATA[5], send_msg_.DATA[6],
         send_msg_.DATA[7]);
+
+  if (MII_MSG_COMMON_DATA_1 == pkt.msg_id) {
+    send_msg_.ID  = MII_MSG_FILL_TO_HOST_MSG(pkt.node_id, MII_MSG_HEARTBEAT_MSG_1);
+    send_msg_.LEN = 0x08;
+    // buf_lock_.lock();
+    swap_buffer_->push(send_msg_);
+    // swap_buffer_.push_back(send_msg_);
+    // buf_lock_.unlock();
+  }
 
   return true;
 }
@@ -136,9 +136,11 @@ bool PcanFake::read(Packet& pkt) {
          (int*)(recv_msg_.DATA + 2), (int*)(recv_msg_.DATA + 3),
          (int*)(recv_msg_.DATA + 4), (int*)(recv_msg_.DATA + 5),
          (int*)(recv_msg_.DATA + 6), (int*)(recv_msg_.DATA + 7));
-  } else if (is_swap_) {
-    memcpy(&recv_msg_, &mid_buffer_, sizeof(TPCANMsg));
-    is_swap_ = false;
+  } else if (!swap_buffer_->empty()) {
+    if (!swap_buffer_->pop(recv_msg_))
+      return false;
+    // recv_msg_ = swap_buffer_.front();
+    // swap_buffer_.pop_front();
   } else {
     return false;
   }
