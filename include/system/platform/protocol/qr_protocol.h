@@ -8,7 +8,8 @@
 #ifndef INCLUDE_MIDDLEWARE_PROTOCOL_QR_PROTOCOL_H_
 #define INCLUDE_MIDDLEWARE_PROTOCOL_QR_PROTOCOL_H_
 
-namespace middleware {
+///! cancel the namespace
+// namespace middleware {
 
 // if the type of communication is can
 // uncomment the follow line
@@ -203,7 +204,7 @@ to Host  0x55 | UP_ID|                 DATA             | SUM
 
 #define MII_USB_DOWN_BAUD(b) MII_USB_DOWN_BAUD_##b
 
-} /* end namespace middleware */
+// } /* end namespace middleware */
 
 
 /**
